@@ -1,0 +1,128 @@
+@startuml
+
+skinparam linetype ortho
+
+package classes{
++class HumanBeing{
+-int id
+-String name
+-Coordinates coordinates
+- java.util.Date creationDate
+-boolean realHero
+-boolean hasToothpick
+-Long impactSpeed
+-String soundtrackName
+-WeaponType weaponType
+-Mood mood
+-Car car
+}
++class Coordinates{
+-Long x
+-Long y
+}
+
++class Car{
+-String name
+-boolean cool
+}
+}
+
+package Collections{
++class CollectionManager{
+ArrayList<Object> collection
+
++help() : String
++info() : String
++show() : String
++add(Object el) : void
++updateID(Object el) :void
++removeByID(int id) : void
++clear() ;void
++saveToFile(String filename) : void
++executeScriptFromFilename (String filename) : void
++exit() : void
++removeFirst() : void
++addIfMin (Object el) : void
++sort() : void
++removeAnyByMood (Mood mood) : void
++minBySoundtrackName(String name) : void
++countGreaterThanMood (Mood mood) : int
+
+}
+
+}
+
+package functions{
++class Invoker{
++Map<String, Command> commands
++Scanner sc
+}
+}
+
+package utils{
+class FileReader{
++readFile(String filename) : void
+}
+class FileWriter{
++writeFile(String filename) : void
+}
+class IDGen{
++genID(String nameOfID) : String
+}
+}
+
+package interfaces{
+interface Commander{
++execute() : void
++description() : String
+}
+
+}
+
+package commannds{
+
+abstract class Command implements interfaces.Commander{
+CollectionManager cm;   
+}
+
+class HelpCommand extends Command{}
+class InfoCommand extends Command {}
+class ShowCommand extends Command {}
+class AddElementCommand extends Command {}
+class UpdateIDCommand extends Command {}
+class RemoveByIDCommand extends Command {}
+class ClearCommand extends Command {}
+class SaveToFileCommand extends Command {}
+class ExecuteScriptFromFileCommand extends Command {}
+class ExitCommand extends Command {}
+class RemoveFirstCommand extends Command {}
+class AddIfMinCommand extends Command {}
+class SortCommand extends Command {}
+class RemoveByAnyMoodCommand extends Command {}
+class MinBySoundtrackNameCommand extends Command {}
+class CountGreaterThanMoodCommand extends Command {}
+
+}
+package enums{
++enum WeaponType{
+HAMMER
+AXE
+PISTOL
+SHOTGUN
+KNIFE
+}
++enum Mood{
+SADNESS
+SORROW
+GLOOM
+CALM
+}
+}
+
+
+
+
+}
+
+
+@enduml
