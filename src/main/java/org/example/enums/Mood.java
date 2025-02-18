@@ -1,12 +1,18 @@
 package org.example.enums;
 
 public enum Mood {
-    SADNESS(),
-    SORROW(),
-    GLOOM(),
-    CALM();
+    SADNESS(2),
+    SORROW(1),
+    GLOOM(0),
+    CALM(3);
 
-    Mood(){
+    private int pointOfHappy;
 
+    Mood(int pointOfHappy) {
+        this.pointOfHappy = pointOfHappy;
+    }
+
+    public int getPointOfHappy() {
+        return pointOfHappy;
     }
 }
