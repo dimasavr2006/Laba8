@@ -6,7 +6,7 @@ public enum Mood {
     GLOOM(0),
     CALM(3);
 
-    private int pointOfHappy;
+    private final int pointOfHappy;
 
     Mood(int pointOfHappy) {
         this.pointOfHappy = pointOfHappy;

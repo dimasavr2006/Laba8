@@ -19,8 +19,8 @@ public class CollectionManager{
     public String info(){
         return "Тип коллекции: " + collection.getClass() + ", Время создания: " + initialazed + ", Размер коллекции: " + collection.size();
     }
-    public void add(Object object){
-        collection.add((HumanBeing) object);
+    public void add(HumanBeing hb){
+        collection.add(hb);
     }
     public void updateID(int id, HumanBeing hb){
         collection.set(id, hb);
@@ -43,8 +43,7 @@ public class CollectionManager{
     public void removeFirst(){
         collection.removeFirst();
     }
-    public void addIfMin(Object object){
-        HumanBeing hb = (HumanBeing) object;
+    public void addIfMin(HumanBeing hb){
         if (hb.compareTo(findMin()) < 0){
             add(hb);
         }

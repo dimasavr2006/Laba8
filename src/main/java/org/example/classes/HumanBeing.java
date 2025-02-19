@@ -69,51 +69,7 @@ public class HumanBeing implements Comparable<HumanBeing>{
     }
 
     @Override
-    public int compareTo(HumanBeing o2) {
-        boolean hero1 = this.isRealHero();
-        boolean hero2 = o2.isRealHero();
-        int res = 0;
-
-        if ((hero1 && hero2) || (!hero1 && !hero2)) {
-            res = 0;
-
-            switch (neededComp(o2)){
-                case 0: res++;
-                case 1: res  += 0;
-                case -1: res -= 1;
-            }
-
-        } else if (hero1 == true && hero2 == false) {
-            res = 2;
-            switch (neededComp(o2)){
-                case 0: res++;
-                case 1: res += 0;
-                case -1: res -= 1;
-            }
-        }
-        else if (hero1 == false && hero2 == true) {
-            res = -2;
-            switch (neededComp(o2)){
-                case 0: res++;
-                case 1: res += 0;
-                case -1: res -= 1;
-            }
-        }
-        return res;
+    public int compareTo(HumanBeing comp) {
+        return (this.mood.getPointOfHappy() - comp.mood.getPointOfHappy()) + (this.weaponType.getDegreeOfCool() - comp.weaponType.getDegreeOfCool());
     }
-
-    private int neededComp(HumanBeing o2){
-        Mood m1 = this.getMood();
-        Mood m2 = o2.getMood();
-        int returned = 0;
-        if (m1.getPointOfHappy() > m2.getPointOfHappy()){
-            returned = 1;
-        } else if (m1.getPointOfHappy() == m2.getPointOfHappy()){
-            returned = 0;
-        } else if (m1.getPointOfHappy() < m2.getPointOfHappy()) {
-            returned = -1;
-        }
-        return returned;
-    }
-
 }
