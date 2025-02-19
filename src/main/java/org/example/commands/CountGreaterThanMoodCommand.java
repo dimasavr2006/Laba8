@@ -1,8 +1,10 @@
 package org.example.commands;
 
+import org.example.enums.Mood;
 import org.example.exceptions.*;
 
-public class MinBySoundtrackNameCommand extends Command {
+
+public class CountGreaterThanMoodCommand extends Command {
     private String description;
     private String keyword;
 
@@ -13,6 +15,6 @@ public class MinBySoundtrackNameCommand extends Command {
         if (arguments.length != expected) {
             throw new IncorrectArgsNumber(expected);
         }
-        cm.minBySoundtrackName();
+        cm.countGreaterThanMood(Mood.valueOf(arguments[0]));
     }
 }

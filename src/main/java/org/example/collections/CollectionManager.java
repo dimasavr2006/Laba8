@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class CollectionManager{
     ZonedDateTime initialazed;
-    ArrayList<HumanBeing> collection;
+    static ArrayList<HumanBeing> collection;
     public CollectionManager() {
         initialazed = ZonedDateTime.now();
     }
@@ -19,8 +19,8 @@ public class CollectionManager{
     public String info(){
         return "Тип коллекции: " + collection.getClass() + ", Время создания: " + initialazed + ", Размер коллекции: " + collection.size();
     }
-    public void add(HumanBeing hb){
-        collection.add(hb);
+    public void add(Object object){
+        collection.add((HumanBeing) object);
     }
     public void updateID(int id, HumanBeing hb){
         collection.set(id, hb);
@@ -43,7 +43,8 @@ public class CollectionManager{
     public void removeFirst(){
         collection.removeFirst();
     }
-    public void addIfMin(HumanBeing hb){
+    public void addIfMin(Object object){
+        HumanBeing hb = (HumanBeing) object;
         if (hb.compareTo(findMin()) < 0){
             add(hb);
         }

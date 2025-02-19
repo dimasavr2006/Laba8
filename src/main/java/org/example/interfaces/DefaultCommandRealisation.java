@@ -1,19 +1,13 @@
-package org.example;
+package org.example.interfaces;
 
-import org.example.classes.HumanBeing;
-import org.example.collections.CollectionManager;
 import org.example.commands.Command;
 import org.example.functions.Invoker;
 
 import java.util.Scanner;
 
-public class Main {
+public interface DefaultCommandRealisation {
 
-    public static CollectionManager cm = new CollectionManager();
-
-
-
-    public static void main(String[] args) {
+    default void def(int numberOfArgs){
         Invoker invoker = new Invoker();
         Scanner sc = new Scanner(System.in);
         while (sc.hasNext()) {
@@ -22,8 +16,10 @@ public class Main {
             Command command = invoker.commands.get(tokens[0]);
             if (tokens.length > 1) {
                 command.execute(tokens[1]);
+            } else {
+                command.execute();
             }
-            command.execute();
         }
     }
+
 }
