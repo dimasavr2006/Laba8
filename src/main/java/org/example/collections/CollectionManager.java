@@ -11,9 +11,10 @@ import java.util.stream.Collectors;
 
 public class CollectionManager{
     ZonedDateTime initialazed;
-    static ArrayList<HumanBeing> collection;
+    public ArrayList<HumanBeing> collection;
     public CollectionManager() {
         initialazed = ZonedDateTime.now();
+        collection = new ArrayList<>();
     }
 
     public String info(){

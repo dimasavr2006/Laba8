@@ -10,5 +10,8 @@ public class AddElementCommand extends Command {
 
     public AddElementCommand() {}
 
-
+    @Override
+    public void execute(String args) {
+        super.execute(args);
+    }
 }

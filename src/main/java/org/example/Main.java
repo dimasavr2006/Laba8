@@ -17,6 +17,7 @@ public class Main {
         Invoker invoker = new Invoker();
         Scanner sc = new Scanner(System.in);
         while (sc.hasNext()) {
+            HumanBeing humanBeing = new HumanBeing();
             String line = sc.nextLine();
             String[] tokens = line.split(" ");
             Command command = invoker.commands.get(tokens[0]);
