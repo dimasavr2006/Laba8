@@ -18,14 +18,18 @@ public class Main {
         Invoker invoker = new Invoker();
         Scanner sc = new Scanner(System.in);
         while (sc.hasNext()) {
-            HumanBeing humanBeing = new HumanBeing();
-            String line = sc.nextLine();
-            String[] tokens = line.split(" ");
-            Command command = invoker.commands.get(tokens[0]);
-            if (tokens.length > 1) {
-                command.execute(tokens[1]);
+            try{
+                HumanBeing humanBeing = new HumanBeing();
+                String line = sc.nextLine();
+                String[] tokens = line.split(" ");
+                Command command = invoker.commands.get(tokens[0]);
+                if (tokens.length > 1) {
+                    command.execute(tokens[1]);
+                }
+                command.execute();
+            } catch (NullPointerException e){
+                System.out.println("Команда неизвестная, введите другую");
             }
-            command.execute();
         }
     }
 }

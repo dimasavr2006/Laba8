@@ -10,7 +10,7 @@ import java.util.*;
 
 public class CollectionManager{
     ZonedDateTime initialazed;
-    public static ArrayList<HumanBeing> collection;
+    public ArrayList<HumanBeing> collection;
     public CollectionManager() {
         initialazed = ZonedDateTime.now();
         collection = new ArrayList<>();
@@ -98,5 +98,7 @@ public class CollectionManager{
         return result;
     }
 
-
+    public ZonedDateTime getInitialazed() {
+        return initialazed;
+    }
 }

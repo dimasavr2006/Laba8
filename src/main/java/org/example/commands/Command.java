@@ -5,9 +5,13 @@ import org.example.collections.CollectionManager;
 import org.example.interfaces.Commander;
 import org.example.exceptions.*;
 
+import java.util.Scanner;
+
 public abstract class Command implements Commander {
 
     protected static CollectionManager cm = Main.cm;
+
+    Scanner sc = new Scanner(System.in);
 
     protected String description;
     protected String keyword;

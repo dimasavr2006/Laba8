@@ -6,6 +6,7 @@ import org.example.classes.HumanBeing;
 import org.example.collections.CollectionManager;
 import org.example.enums.Mood;
 import org.example.enums.WeaponType;
+import org.example.exceptions.IncorrectArgsNumber;
 import org.example.exceptions.NullStringException;
 
 import java.util.InputMismatchException;
@@ -22,7 +23,15 @@ public class AddElementCommand extends Command {
 
     @Override
     public void execute(String args) {
+
         HumanBeing addable = new HumanBeing();
+
+        int expected = 1;
+        String[] arguments = args.split(" ");
+        if (arguments.length != expected) {
+            throw new IncorrectArgsNumber(expected);
+        }
+
         System.out.println("Начато добавление нового элемента в колллекцию");
         System.out.println("Небольшая справка: пустая строка приравнивается к значению null :)");
         System.out.println("Введите имя, учтите, что оно не должно быть null");
@@ -132,7 +141,7 @@ public class AddElementCommand extends Command {
         Car car = new Car();
         addable.setCar(car);
 
-        CollectionManager.collection.add(addable);
+        cm.collection.add(addable);
         System.out.println("Задание элемента завершено");
     }
 }
