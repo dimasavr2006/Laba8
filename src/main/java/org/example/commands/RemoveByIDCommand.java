@@ -8,11 +8,15 @@ public class RemoveByIDCommand extends Command {
 
     @Override
     public void execute(String args) {
-        int expected = 1;
-        String[] arguments = args.split(" ");
-        if (arguments.length != expected) {
-            throw new IncorrectArgsNumber(expected);
+        try {
+            int expected = 1;
+            String[] arguments = args.split(" ");
+            if (arguments.length != expected) {
+                throw new IncorrectArgsNumber(expected);
+            }
+            cm.removeById(Integer.parseInt(arguments[0]));
+        } catch (IndexOutOfBoundsException e){
+            System.out.println("Удаление не удалось, данного элемента нет");
         }
-        cm.removeById(Integer.parseInt(arguments[0]));
     }
 }

@@ -1,9 +1,8 @@
 package org.example.collections;
 
-import org.example.classes.HumanBeing;
-import org.example.enums.Mood;
-import org.example.functions.MoodComparator;
-import org.example.functions.SoundtrackNameComparator;
+import org.example.classes.*;
+import org.example.enums.*;
+import org.example.functions.*;
 
 import java.time.ZonedDateTime;
 import java.util.*;

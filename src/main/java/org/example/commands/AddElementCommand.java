@@ -23,14 +23,22 @@ public class AddElementCommand extends Command {
 
     @Override
     public void execute(String args) {
-
-        HumanBeing addable = new HumanBeing();
-
-        int expected = 1;
+        int expected = 0;
         String[] arguments = args.split(" ");
         if (arguments.length != expected) {
             throw new IncorrectArgsNumber(expected);
         }
+    }
+
+    @Override
+    public void execute() {
+        HumanBeing addable = createNoAdd();
+
+        cm.collection.add(addable);
+        System.out.println("Задание элемента завершено");
+    }
+    public HumanBeing createNoAdd(){
+        HumanBeing addable = new HumanBeing();
 
         System.out.println("Начато добавление нового элемента в колллекцию");
         System.out.println("Небольшая справка: пустая строка приравнивается к значению null :)");
@@ -141,7 +149,8 @@ public class AddElementCommand extends Command {
         Car car = new Car();
         addable.setCar(car);
 
-        cm.collection.add(addable);
         System.out.println("Задание элемента завершено");
+
+        return addable;
     }
 }

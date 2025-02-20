@@ -9,10 +9,12 @@ public class InfoCommand extends Command {
     private String description = "info command test";
     private String nameOfCommand;
 
+    private String in = "Тип коллекции: " + cm.collection.getClass() + ", дата создания: " + cm.getInitialazed() + " Количество элементов: " + cm.collection.size();
+
     @Override
     public void execute(String args) {
         try{
-            int expected = 1;
+            int expected = 0;
             String[] arguments = args.split(" ");
             if (arguments.length != expected) {
                 throw new IncorrectArgsNumber(expected);
@@ -20,6 +22,11 @@ public class InfoCommand extends Command {
         } catch (IncorrectArgsNumber e) {
             System.out.println(e.getMessage());
         }
-        System.out.println("Тип коллекции: " + cm.collection.getClass() + ", дата создания: " + cm.getInitialazed() + "Количество элементов: " + cm.collection.size());
+        System.out.println(in);
+    }
+
+    @Override
+    public void execute() {
+        System.out.println(in);
     }
 }

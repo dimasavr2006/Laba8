@@ -4,6 +4,7 @@ import org.example.classes.HumanBeing;
 import org.example.collections.CollectionManager;
 import org.example.commands.Command;
 import org.example.enums.WeaponType;
+import org.example.exceptions.IncorrectArgsNumber;
 import org.example.functions.Invoker;
 
 import java.util.Scanner;
@@ -17,7 +18,7 @@ public class Main {
     public static void main(String[] args) {
         Invoker invoker = new Invoker();
         Scanner sc = new Scanner(System.in);
-        while (sc.hasNext()) {
+        while (true) {
             try{
                 HumanBeing humanBeing = new HumanBeing();
                 String line = sc.nextLine();
@@ -25,10 +26,13 @@ public class Main {
                 Command command = invoker.commands.get(tokens[0]);
                 if (tokens.length > 1) {
                     command.execute(tokens[1]);
+                } else if (tokens.length == 0){
+                    command.execute();
                 }
-                command.execute();
             } catch (NullPointerException e){
                 System.out.println("Команда неизвестная, введите другую");
+            } catch (IncorrectArgsNumber e){
+                System.out.println(e.getMessage());
             }
         }
     }
