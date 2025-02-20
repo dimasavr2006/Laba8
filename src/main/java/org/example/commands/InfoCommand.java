@@ -19,10 +19,10 @@ public class InfoCommand extends Command {
             if (arguments.length != expected) {
                 throw new IncorrectArgsNumber(expected);
             }
+            System.out.println(in);
         } catch (IncorrectArgsNumber e) {
             System.out.println(e.getMessage());
         }
-        System.out.println(in);
     }
 
     @Override

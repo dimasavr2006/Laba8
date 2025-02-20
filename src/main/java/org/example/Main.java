@@ -20,13 +20,12 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         while (true) {
             try{
-                HumanBeing humanBeing = new HumanBeing();
                 String line = sc.nextLine();
                 String[] tokens = line.split(" ");
                 Command command = invoker.commands.get(tokens[0]);
-                if (tokens.length > 1) {
+                if (tokens.length == 2) {
                     command.execute(tokens[1]);
-                } else if (tokens.length == 0){
+                } else if (tokens.length == 1){
                     command.execute();
                 }
             } catch (NullPointerException e){
