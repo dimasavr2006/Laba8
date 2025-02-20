@@ -16,4 +16,11 @@ public enum WeaponType {
     public int getDegreeOfCool() {
         return degreeOfCool;
     }
+    public static String getV(){
+        String v = "";
+        for (WeaponType wt : WeaponType.values()){
+            v += wt.toString() + " ";
+        }
+        return v;
+    }
 }

@@ -15,4 +15,12 @@ public enum Mood {
     public int getPointOfHappy() {
         return pointOfHappy;
     }
+
+    public static String getV(){
+        String v = "";
+        for (Mood wt : Mood.values()){
+            v += wt.toString() + " ";
+        }
+        return v;
+    }
 }

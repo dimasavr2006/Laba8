@@ -68,6 +68,50 @@ public class HumanBeing implements Comparable<HumanBeing>{
         return car;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCoordinates(Coordinates coordinates) {
+        this.coordinates = coordinates;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public void setRealHero(boolean realHero) {
+        this.realHero = realHero;
+    }
+
+    public void setHasToothpick(boolean hasToothpick) {
+        this.hasToothpick = hasToothpick;
+    }
+
+    public void setImpactSpeed(Long impactSpeed) {
+        this.impactSpeed = impactSpeed;
+    }
+
+    public void setSoundtrackName(String soundtrackName) {
+        this.soundtrackName = soundtrackName;
+    }
+
+    public void setWeaponType(WeaponType weaponType) {
+        this.weaponType = weaponType;
+    }
+
+    public void setMood(Mood mood) {
+        this.mood = mood;
+    }
+
+    public void setCar(Car car) {
+        this.car = car;
+    }
+
     @Override
     public int compareTo(HumanBeing comp) {
         return (this.mood.getPointOfHappy() - comp.mood.getPointOfHappy()) + (this.weaponType.getDegreeOfCool() - comp.weaponType.getDegreeOfCool());

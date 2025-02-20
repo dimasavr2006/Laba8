@@ -7,11 +7,10 @@ import org.example.functions.SoundtrackNameComparator;
 
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CollectionManager{
     ZonedDateTime initialazed;
-    public ArrayList<HumanBeing> collection;
+    public static ArrayList<HumanBeing> collection;
     public CollectionManager() {
         initialazed = ZonedDateTime.now();
         collection = new ArrayList<>();
