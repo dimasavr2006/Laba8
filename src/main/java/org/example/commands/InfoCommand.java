@@ -6,8 +6,8 @@ import org.example.exceptions.IncorrectArgsNumber;
 
 public class InfoCommand extends Command {
 
-    private String description = "info command test";
-    private String nameOfCommand;
+    private String description = "Выводит краткую справку про коллекцию";
+    private String nameOfCommand = "info";
 
     @Override
     public void execute(String args) {

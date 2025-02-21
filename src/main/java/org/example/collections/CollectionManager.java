@@ -26,7 +26,6 @@ public class CollectionManager{
         int num = 0;
         for (HumanBeing humanBeing : collection) {
             if (humanBeing.getId() == id) {
-
                 break;
             }
             num++;
@@ -34,7 +33,16 @@ public class CollectionManager{
         collection.set(num, hb);
     }
     public void removeById(int id){
-        collection.remove(id);
+
+        int num = 0;
+        for (HumanBeing humanBeing : collection) {
+            if (humanBeing.getId() == id) {
+                break;
+            }
+            num++;
+        }
+
+        collection.remove(num);
     }
     public void clear(){
         collection.clear();

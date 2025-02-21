@@ -3,8 +3,8 @@ package org.example.commands;
 import org.example.exceptions.*;
 
 public class MinBySoundtrackNameCommand extends Command {
-    private String description;
-    private String keyword;
+    private String description = "Выводит название элемента коллекции с минимальным значением поля soundtrackName";
+    private String nameOfCommand = "min_by_soundtrack_name";
 
     @Override
     public void execute(String args) {

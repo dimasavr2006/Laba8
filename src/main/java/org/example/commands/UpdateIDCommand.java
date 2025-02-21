@@ -4,7 +4,8 @@ import org.example.classes.HumanBeing;
 import org.example.exceptions.IncorrectArgsNumber;
 
 public class UpdateIDCommand extends Command {
-    private String description = "";
+    private String description = "Обновляет объект с заданным ID";
+    private String nameOfCommand = "update_id";
     public UpdateIDCommand() {}
 
     @Override

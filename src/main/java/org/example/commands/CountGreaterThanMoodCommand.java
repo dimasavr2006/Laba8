@@ -5,8 +5,8 @@ import org.example.exceptions.*;
 
 
 public class CountGreaterThanMoodCommand extends Command {
-    private String description;
-    private String keyword;
+    private String description = "Выводит количество элементов коллекции настроение которых хуже, чем заданное";
+    private String nameOfCommand = "count_greater_than_mood";
 
     @Override
     public void execute(String args) {

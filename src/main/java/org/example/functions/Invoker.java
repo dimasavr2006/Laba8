@@ -26,5 +26,6 @@ public class Invoker {
         commands.put("remove_any_by_mood", new RemoveAnyByMoodCommand());
         commands.put("min_by_soundtrack_name", new MinBySoundtrackNameCommand());
         commands.put("count_greater_than_mood", new CountGreaterThanMoodCommand());
+
     }
 }
