@@ -15,8 +15,9 @@ public class CollectionManager{
         collection = new ArrayList<>();
     }
 
-    public String info(){
-        return "Тип коллекции: " + collection.getClass() + ", Время создания: " + initialazed + ", Размер коллекции: " + collection.size();
+    public void info(){
+        String s = "Тип коллекции: " + collection.getClass() + ", Время создания: " + initialazed + ", Размер коллекции: " + collection.size();
+        System.out.println(s);
     }
     public void add(HumanBeing hb){
         collection.add(hb);

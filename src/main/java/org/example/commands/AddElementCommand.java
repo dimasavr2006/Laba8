@@ -34,8 +34,7 @@ public class AddElementCommand extends Command {
     public void execute() {
         HumanBeing addable = createNoAdd();
 
-        cm.collection.add(addable);
-        System.out.println("Задание элемента завершено");
+        cm.add(addable);
     }
     public HumanBeing createNoAdd(){
         HumanBeing addable = new HumanBeing();
