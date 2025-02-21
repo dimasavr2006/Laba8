@@ -58,6 +58,7 @@ public class AddElementCommand extends Command {
         }
 
         Coordinates coordinates = new Coordinates();
+        addable.setCoordinates(coordinates);
 
         System.out.println("Координаты заданы, идём дальше");
         while (true){
@@ -108,7 +109,7 @@ public class AddElementCommand extends Command {
             try {
                 System.out.println("Введите название саундтрека, пустой ввод не разрешён");
                 String sName = sc.nextLine();
-                if (sName == null || "".equals(sName)){
+                if (sName == "" || sName == " " || sName == null){
                     throw new NullStringException();
                 }
                 addable.setName(sName);

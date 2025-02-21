@@ -33,4 +33,11 @@ public class Car {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "Car: " +
+                "cool = " + cool +
+                ", name = " + name;
+    }
 }

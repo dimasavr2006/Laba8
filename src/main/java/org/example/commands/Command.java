@@ -13,6 +13,8 @@ public abstract class Command implements Commander {
 
     Scanner sc = new Scanner(System.in);
 
+    protected String splite = "----------";
+
     protected String description;
     protected String keyword;
 

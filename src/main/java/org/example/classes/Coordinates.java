@@ -19,7 +19,7 @@ public class Coordinates {
             try {
                 System.out.println("Введите координату x:");
                 Long xxx = sc.nextLong();
-                setX(xxx);
+                this.x = xxx;
                 break;
             } catch (InputMismatchException e){
                 System.out.println("Поле введено неверно, попробуйте ещё раз");
@@ -31,7 +31,7 @@ public class Coordinates {
             try {
                 System.out.println("Введите координату y:");
                 Long yyy = sc.nextLong();
-                setY(yyy);
+                this.y = yyy;
                 break;
             } catch (InputMismatchException e){
                 System.out.println("Поле введено неверно, попробуйте ещё раз");
@@ -39,6 +39,7 @@ public class Coordinates {
                 sc.nextLine();
             }
         }
+        Coordinates c = new Coordinates(x,y);
     }
 
     public long getX() {
@@ -55,5 +56,12 @@ public class Coordinates {
 
     public void setY(long y) {
         this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "Coordinates: " +
+                "y = " + y +
+                ", x = " + x;
     }
 }

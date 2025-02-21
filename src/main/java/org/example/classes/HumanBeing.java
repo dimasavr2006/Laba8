@@ -119,6 +119,6 @@ public class HumanBeing implements Comparable<HumanBeing>{
 
     @Override
     public String toString() {
-        return "id: " + id + "\nname: " + name + "\ncoordinates: " + coordinates + "\ncreationDate: " + creationDate;
+        return "ID: " + id + "\nName: " + name + "\nCoordinates: " + coordinates + "\nCreationDate: " + creationDate + "\nRealHero: " + realHero + "\nHasToothpick: " + hasToothpick + "\nImpactSpeed: " + impactSpeed + "\nSoundtrackName: " + soundtrackName + "\nWeaponType: " + weaponType + "\nMood: " + mood + "\nCar: " + car;
     }
 }
