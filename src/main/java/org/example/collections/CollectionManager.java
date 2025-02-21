@@ -23,7 +23,15 @@ public class CollectionManager{
         collection.add(hb);
     }
     public void updateID(int id, HumanBeing hb){
-        collection.set(id, hb);
+        int num = 0;
+        for (HumanBeing humanBeing : collection) {
+            if (humanBeing.getId() == id) {
+
+                break;
+            }
+            num++;
+        }
+        collection.set(num, hb);
     }
     public void removeById(int id){
         collection.remove(id);

@@ -1,19 +1,17 @@
 package org.example;
 
-import org.example.classes.HumanBeing;
-import org.example.collections.CollectionManager;
-import org.example.commands.Command;
-import org.example.enums.WeaponType;
-import org.example.exceptions.IncorrectArgsNumber;
-import org.example.functions.Invoker;
+import org.example.classes.*;
+import org.example.collections.*;
+import org.example.commands.*;
+import org.example.enums.*;
+import org.example.exceptions.*;
+import org.example.functions.*;
 
 import java.util.Scanner;
 
 public class Main {
 
     public static CollectionManager cm = new CollectionManager();
-
-
 
     public static void main(String[] args) {
         Invoker invoker = new Invoker();
