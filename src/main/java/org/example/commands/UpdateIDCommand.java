@@ -16,12 +16,12 @@ public class UpdateIDCommand extends Command {
         }
         try{
             int id = Integer.parseInt(arguments[0]);
+            System.out.println("Начнем создание элемента коллекции для данного ID");
+            AddElementCommand ad = new AddElementCommand();
+            cm.updateID(Integer.parseInt(arguments[0]), ad.createNoAdd());
         } catch (NumberFormatException e) {
             System.out.println("Неверный ID");
         }
-        System.out.println("Начнем создание элемента коллекции для данного ID");
-        AddElementCommand ad = new AddElementCommand();
-        cm.updateID(Integer.parseInt(arguments[0]), ad.createNoAdd());
     }
 
 }

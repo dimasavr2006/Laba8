@@ -72,8 +72,9 @@ public class CollectionManager{
     }
     public void minBySoundtrackName(){
         SoundtrackNameComparator snc = new SoundtrackNameComparator();
-        Collections.sort(collection, snc);
-        System.out.println(collection.getFirst());
+        ArrayList<HumanBeing> sortedC = collection;
+        Collections.sort(sortedC, snc);
+        System.out.println(sortedC.getFirst());
     }
     public int countGreaterThanMood(Mood mood){
         MoodComparator mc = new MoodComparator();

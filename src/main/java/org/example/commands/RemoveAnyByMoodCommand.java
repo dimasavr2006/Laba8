@@ -9,7 +9,7 @@ public class RemoveAnyByMoodCommand extends Command {
 
     @Override
     public void execute(String args) {
-        int expected = 2;
+        int expected = 1;
         String[] arguments = args.split(" ");
         if (arguments.length != expected) {
             throw new IncorrectArgsNumber(expected);
