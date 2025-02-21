@@ -116,4 +116,9 @@ public class HumanBeing implements Comparable<HumanBeing>{
     public int compareTo(HumanBeing comp) {
         return (this.mood.getPointOfHappy() - comp.mood.getPointOfHappy()) + (this.weaponType.getDegreeOfCool() - comp.weaponType.getDegreeOfCool());
     }
+
+    @Override
+    public String toString() {
+        return "id: " + id + "\nname: " + name + "\ncoordinates: " + coordinates + "\ncreationDate: " + creationDate;
+    }
 }
