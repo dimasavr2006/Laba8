@@ -16,10 +16,13 @@ public class AddElementCommand extends Command {
 
     Scanner sc = new Scanner(System.in);
 
-    private String description = "Добавление нового элемента в коллекцию";
-    private String nameOfCommand = "add";
+    private String desc = "Добавление нового элемента в коллекцию";
+    private String name = "add";
 
-    public AddElementCommand() {}
+    public AddElementCommand() {
+        this.nameOfCommand = name;
+        this.description = desc;
+    }
 
     @Override
     public void execute(String args) {

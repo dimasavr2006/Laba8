@@ -4,8 +4,14 @@ import org.example.exceptions.*;
 import org.example.functions.Invoker;
 
 public class ClearCommand extends Command {
-    private String description = "Очистка коллекции";
-    private String nameOfCommand = "clear";
+
+    private String desc = "Очистка коллекции";
+    private String name = "clear";
+
+    public ClearCommand() {
+        this.nameOfCommand = name;
+        this.description = desc;
+    }
 
     @Override
     public void execute(String args) {

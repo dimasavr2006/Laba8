@@ -1,13 +1,21 @@
 package org.example.commands;
 
 import org.example.Main;
-import org.example.exceptions.IncorrectArgsNumber;
+import org.example.exceptions.*;
 import org.example.functions.Invoker;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class HelpCommand extends Command{
 
-    private String description = "Выводит краткую справку на все команды программы";
-    private String nameOfCommand = "help";
+    private String desc = "Выводит краткую справку на все команды программы";
+    private String name = "help";
+
+    public HelpCommand(){
+        this.nameOfCommand = name;
+        this.description = desc;
+    }
 
     @Override
     public void execute(String args) {
@@ -20,11 +28,14 @@ public class HelpCommand extends Command{
 //        System.out.println("Коллекция очищена");
     }
 
-//    @Override
-//    public void execute() {
-//        for (int i = 0; i < invoker.commands.size(); i++) {
-//            invoker.commands.get(i).description();
-//        }
-//    }
+    @Override
+    public void execute() {
+        Invoker.adder();
+        Map<String, Command> commands = Main.inv.commands;
+
+        for (Command command : commands.values()) {
+            command.description();
+        }
+    }
 
 }

@@ -5,8 +5,13 @@ import org.example.exceptions.*;
 
 public class AddIfMinCommand extends Command {
 
-    private String description = "Добавление нового элемента в коллекцию при условии того, что он является минимальным";
-    private String nameOfCommand = "add_if_min";
+    private String desc = "Добавление нового элемента в коллекцию при условии того, что он является минимальным";
+    private String name = "add_if_min";
+
+    public AddIfMinCommand() {
+        this.nameOfCommand = name;
+        this.description = desc;
+    }
 
     @Override
     public void execute(String args) {

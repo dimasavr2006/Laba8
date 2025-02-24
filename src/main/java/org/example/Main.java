@@ -13,6 +13,8 @@ public class Main {
 
     public static CollectionManager cm = new CollectionManager();
 
+    public static Invoker inv = new Invoker();
+
     public static void main(String[] args) {
         Invoker invoker = new Invoker();
         Scanner sc = new Scanner(System.in);

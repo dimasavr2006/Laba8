@@ -2,7 +2,6 @@ package org.example.commands;
 
 import org.example.Main;
 import org.example.collections.CollectionManager;
-import org.example.functions.Invoker;
 import org.example.interfaces.Commander;
 
 import java.util.Scanner;
@@ -18,7 +17,6 @@ public abstract class Command implements Commander {
     protected String description;
     protected String nameOfCommand;
 
-
     @Override
     public void execute(String args) {}
 
@@ -26,8 +24,9 @@ public abstract class Command implements Commander {
     public void execute() {}
 
     @Override
-    public String description() {
-        return nameOfCommand + " - " + description;
+    public void description() {
+        String ret = nameOfCommand + " - " + description;
+        System.out.println(ret);
     }
 
     public String getDescription() {

@@ -3,8 +3,13 @@ package org.example.commands;
 import org.example.exceptions.*;
 
 public class RemoveByIDCommand extends Command {
-    private String description = "Удяляет элемент коллекции с заданным ID";
-    private String nameOfCommand = "remove_by_id";
+    private String desc = "Удяляет элемент коллекции с заданным ID";
+    private String name = "remove_by_id";
+
+    public RemoveByIDCommand() {
+        this.nameOfCommand = name;
+        this.description = desc;
+    }
 
     @Override
     public void execute(String args) {

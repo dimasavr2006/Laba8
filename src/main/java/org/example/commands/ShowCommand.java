@@ -5,10 +5,13 @@ import org.example.exceptions.IncorrectArgsNumber;
 
 public class ShowCommand extends Command {
 
-    private String description = "Выводит все элементы колллекции";
-    private String nameOfCommand = "show";
+    private String desc = "Выводит все элементы колллекции";
+    private String name = "show";
 
-    public ShowCommand() {}
+    public ShowCommand() {
+        this.nameOfCommand = name;
+        this.description = desc;
+    }
 
     @Override
     public void execute(String args) {

@@ -3,8 +3,13 @@ package org.example.commands;
 import org.example.exceptions.IncorrectArgsNumber;
 
 public class RemoveFirstCommand extends Command {
-    private String description = "Удаляет первый элемент коллекции";
-    private String nameOfCommand = "remove_first";
+    private String desc = "Удаляет первый элемент коллекции";
+    private String name = "remove_first";
+
+    public RemoveFirstCommand() {
+        this.nameOfCommand = name;
+        this.description = desc;
+    }
 
     @Override
     public void execute(String args) {

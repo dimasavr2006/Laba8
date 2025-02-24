@@ -3,8 +3,14 @@ package org.example.commands;
 import org.example.exceptions.*;
 
 public class ExitCommand extends Command {
-    private String description = "Выполняет выход из программы";
-    private String nameOfCommand = "exit";
+
+    private String desc = "Выполняет выход из программы";
+    private String name = "exit";
+
+    public ExitCommand() {
+        this.nameOfCommand = name;
+        this.description = desc;
+    }
 
     @Override
     public void execute(String args) {
