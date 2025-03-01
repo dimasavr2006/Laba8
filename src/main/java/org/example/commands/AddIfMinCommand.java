@@ -24,7 +24,8 @@ public class AddIfMinCommand extends Command {
 
     @Override
     public void execute() {
-        HumanBeing being = new HumanBeing();
+        boolean b = true;
+        HumanBeing being = new HumanBeing(b);
         HumanBeing min = cm.findMin();
         if (being.compareTo(min) < 0) {
             cm.updateID(min.getId(), being);

@@ -1,0 +1,68 @@
+[
+    {
+        "id": 52,
+        "name": "Буда",
+
+        "coordinates": {
+            "x": 1.80,
+            "y": 0.8
+        },
+
+        "creationDate": "06.10.2006",
+        "realHero": true,
+        "hasToothpick": false,
+        "impactSpeed": 0,
+        "soundtrackName": "ТРЕНБОЛОН КОЛЮ В ОЧКО ЧТОБЫ СТАТЬ БОЛЬШИМ КАЧКОМ",
+        "weaponType": "HAMMER",
+        "mood": "CALM",
+
+        "car": {
+            "name": "Pagani Huyarit",
+            "cool": "false"
+        }
+    },
+    {
+        "id": 996,
+        "name": "Дима",
+
+        "coordinates": {
+            "x": 1.74,
+            "y": 0.78
+        },
+
+        "creationDate": "09.09.2006",
+        "realHero": false,
+        "hasToothpick": false,
+        "impactSpeed": 0,
+        "soundtrackName": "ТЫ ЗАСТАВЛЯЛ МЕНЯ СОСАТЬ, НО Я ТЕБЕ НЕ СОСАЛА",
+        "weaponType": "KNIFE",
+        "mood": "CALM",
+
+        "car": {
+            "name": "Dodge Challenger SRT Hellcat",
+            "cool": true
+        }
+    },
+    {
+        "id": 5052,
+        "name": "Чирик",
+
+        "coordinates": {
+            "x": 1.75,
+            "y": 1
+        },
+
+        "creationDate": "26.02.1959",
+        "realHero": true,
+        "hasToothpick": false,
+        "impactSpeed": 88888,
+        "soundtrackName": "ТРАХАТЬ СУК ПИТЬ СОК",
+        "weaponType": "SHOTGUN",
+        "mood": "GLOOM",
+
+        "car": {
+            "name": "Lada Priora",
+            "cool": true
+        }
+    }
+]

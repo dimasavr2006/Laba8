@@ -4,19 +4,28 @@ import org.example.classes.*;
 import org.example.enums.*;
 import org.example.functions.*;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class CollectionManager{
-    ZonedDateTime initialazed;
+
+    LocalDateTime initialazed;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm:ss");
+    String timeOfCreation;
+
     public ArrayList<HumanBeing> collection;
+
     public CollectionManager() {
-        initialazed = ZonedDateTime.now();
+        initialazed = LocalDateTime.now();
+        timeOfCreation = initialazed.format(formatter);
+
         collection = new ArrayList<>();
     }
 
     public void info(){
-        String s = "Тип коллекции: " + collection.getClass() + ", Время создания: " + initialazed + ", Размер коллекции: " + collection.size();
+        String s = "Тип коллекции: " + collection.getClass() + ", Время создания: " + timeOfCreation + ", Размер коллекции: " + collection.size();
         System.out.println(s);
     }
     public void add(HumanBeing hb){
@@ -115,7 +124,19 @@ public class CollectionManager{
         return result;
     }
 
-    public ZonedDateTime getInitialazed() {
+    public LocalDateTime getInitialazed() {
         return initialazed;
+    }
+
+    public void setInitialazed(LocalDateTime initialazed) {
+        this.initialazed = initialazed;
+    }
+
+    public String getTimeOfCreation() {
+        return timeOfCreation;
+    }
+
+    public void setTimeOfCreation(String timeOfCreation) {
+        this.timeOfCreation = timeOfCreation;
     }
 }

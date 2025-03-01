@@ -1,9 +1,7 @@
 package org.example;
 
-import org.example.classes.*;
 import org.example.collections.*;
 import org.example.commands.*;
-import org.example.enums.*;
 import org.example.exceptions.*;
 import org.example.functions.*;
 
@@ -18,7 +16,7 @@ public class Main {
     public static void main(String[] args) {
         Invoker invoker = new Invoker();
         Scanner sc = new Scanner(System.in);
-        while (true) {
+        while (sc.hasNext()) {
             try{
                 String line = sc.nextLine();
                 String[] tokens = line.split(" ");

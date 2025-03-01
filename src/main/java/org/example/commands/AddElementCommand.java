@@ -40,7 +40,8 @@ public class AddElementCommand extends Command {
         cm.add(addable);
     }
     public HumanBeing createNoAdd(){
-        HumanBeing addable = new HumanBeing();
+        boolean b = true;
+        HumanBeing addable = new HumanBeing(b);
 
         System.out.println("Начато добавление нового элемента в колллекцию");
         System.out.println("Небольшая справка: пустая строка приравнивается к значению null :)");
@@ -60,7 +61,7 @@ public class AddElementCommand extends Command {
             }
         }
 
-        Coordinates coordinates = new Coordinates();
+        Coordinates coordinates = new Coordinates(b);
         addable.setCoordinates(coordinates);
 
         System.out.println("Координаты заданы, идём дальше");
@@ -149,7 +150,8 @@ public class AddElementCommand extends Command {
         }
         System.out.println("С настроением закончили, идём дальше");
 
-        Car car = new Car();
+
+        Car car = new Car(b);
         addable.setCar(car);
 
         System.out.println("Задание элемента завершено");
