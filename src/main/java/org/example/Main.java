@@ -6,7 +6,9 @@ import org.example.commands.*;
 import org.example.enums.*;
 import org.example.exceptions.*;
 import org.example.functions.*;
+import org.example.utils.EnvFileReader;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
@@ -14,23 +16,20 @@ public class Main {
     public static CollectionManager cm = new CollectionManager();
 
     public static void main(String[] args) {
-        Invoker invoker = new Invoker();
-        Scanner sc = new Scanner(System.in);
-        while (true) {
-            try{
-                String line = sc.nextLine();
-                String[] tokens = line.split(" ");
-                Command command = invoker.commands.get(tokens[0]);
-                if (tokens.length == 2) {
-                    command.execute(tokens[1]);
-                } else if (tokens.length == 1){
-                    command.execute();
-                }
-            } catch (NullPointerException e){
-                System.out.println("Команда неизвестная, введите другую");
-            } catch (IncorrectArgsNumber e){
-                System.out.println(e.getMessage());
-            }
+        String fileName = System.getenv("FILE_NAME");
+        if (fileName == null || fileName.isEmpty()) {
+            throw new IllegalArgumentException("Переменная окружения FILE_NAME не установлена.");
+        } else {
+            System.out.println("Читаем данные из файла: " + fileName);
+        }
+
+        EnvFileReader reader = new EnvFileReader();
+        ArrayList<HumanBeing> humanList = reader.readData();
+
+        // Выводим данные на экран
+        System.out.println("Данные из файла:");
+        for (HumanBeing human : humanList) {
+            System.out.println(human);
         }
     }
 }
