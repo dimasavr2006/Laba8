@@ -1,28 +1,64 @@
 package org.example.classes;
 
+import com.fasterxml.jackson.annotation.*;
 import org.example.enums.*;
 import org.example.utils.*;
 
-import java.util.Date;
+import java.time.*;
+import java.time.format.*;
+import java.util.*;
 
 public class HumanBeing implements Comparable<HumanBeing>{
+
+    @JsonProperty("id")
     private int id;
+    @JsonProperty("name")
     private String name; // not null
+
     private Coordinates coordinates; // not null
-    private java.util.Date creationDate; // not null
+
+    @JsonProperty("creationDate")
+    @JsonFormat(pattern = "dd.MM.yyyy")
+    private LocalDate creationDate; // not null
+
+    @JsonProperty("timeOfCreation")
+    String timeOfCreation;
+
+    @JsonProperty("realHero")
     private boolean realHero;
+    @JsonProperty("hasToothpick")
     private boolean hasToothpick;
+    @JsonProperty("impactSpeed")
     private Long impactSpeed; // not null
+    @JsonProperty("soundtrackName")
     private String soundtrackName; // not null
+    @JsonProperty("weaponType")
     private WeaponType weaponType; // not null
+    @JsonProperty("mood")
     private Mood mood; // not null
+
     private Car car; // not null
 
-    public HumanBeing() {
-        creationDate = new java.util.Date();
-        id = IDGen.gen(String.valueOf(creationDate));
+
+    public HumanBeing (){}
+
+    public HumanBeing(boolean b) {
+        creationDate = LocalDate.now();
     }
 
+    public HumanBeing(int id, String name, Coordinates coordinates, LocalDate creationDate, boolean realHero, boolean hasToothpick, Long impactSpeed, String soundtrackName, WeaponType weaponType, Mood mood, Car car) {
+        this.id = id;
+        this.name = name;
+        this.coordinates = coordinates;
+        this.creationDate = creationDate;
+        this.realHero = realHero;
+        this.hasToothpick = hasToothpick;
+        this.impactSpeed = impactSpeed;
+        this.soundtrackName = soundtrackName;
+        this.weaponType = weaponType;
+        this.mood = mood;
+        this.car = car;
+    }
 
     public int getId() {
         return id;
@@ -36,7 +72,7 @@ public class HumanBeing implements Comparable<HumanBeing>{
         return coordinates;
     }
 
-    public Date getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 
@@ -80,7 +116,7 @@ public class HumanBeing implements Comparable<HumanBeing>{
         this.coordinates = coordinates;
     }
 
-    public void setCreationDate(Date creationDate) {
+    public void setCreationDate(LocalDate creationDate) {
         this.creationDate = creationDate;
     }
 
@@ -112,6 +148,14 @@ public class HumanBeing implements Comparable<HumanBeing>{
         this.car = car;
     }
 
+    public String getTimeOfCreation() {
+        return timeOfCreation;
+    }
+
+    public void setTimeOfCreation(String timeOfCreation) {
+        this.timeOfCreation = timeOfCreation;
+    }
+
     @Override
     public int compareTo(HumanBeing comp) {
         return (this.mood.getPointOfHappy() - comp.mood.getPointOfHappy()) + (this.weaponType.getDegreeOfCool() - comp.weaponType.getDegreeOfCool());
@@ -119,6 +163,6 @@ public class HumanBeing implements Comparable<HumanBeing>{
 
     @Override
     public String toString() {
-        return "ID: " + id + "\nName: " + name + "\nCoordinates: " + coordinates + "\nCreationDate: " + creationDate + "\nRealHero: " + realHero + "\nHasToothpick: " + hasToothpick + "\nImpactSpeed: " + impactSpeed + "\nSoundtrackName: " + soundtrackName + "\nWeaponType: " + weaponType + "\nMood: " + mood + "\nCar: " + car;
+        return "ID: " + id + "\nCreationDate: " + creationDate + "\nName: " + name + "\n" + coordinates + "\nCreationDate: " + creationDate + "\nRealHero: " + realHero + "\nHasToothpick: " + hasToothpick + "\nImpactSpeed: " + impactSpeed + "\nSoundtrackName: " + soundtrackName + "\nWeaponType: " + weaponType + "\nMood: " + mood + "\n" + car;
     }
 }
