@@ -24,6 +24,7 @@ public class HumanBeing implements Comparable<HumanBeing>{
     }
 
 
+
     public int getId() {
         return id;
     }

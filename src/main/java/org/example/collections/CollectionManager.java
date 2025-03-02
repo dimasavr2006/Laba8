@@ -97,6 +97,9 @@ public class CollectionManager{
         return collection.size() - count;
     }
 
+    public ArrayList<HumanBeing> getCollection() {
+        return collection;
+    }
 
     public HumanBeing findMin(){
         HumanBeing result = null;

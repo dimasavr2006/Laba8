@@ -1,59 +1,25 @@
-[
-    {
-        "id": 1,
-        "name": "Alice",
-        "coordinates": {
-            "x": 10,
-            "y": 20
-        },
-        "creationDate": "2025-02-27T14:30:00Z",
-        "realHero": true,
-        "hasToothpick": false,
-        "impactSpeed": 120,
-        "soundtrackName": "Epic Adventure",
-        "weaponType": "HAMMER",
-        "mood": "CALM",
-        "car": {
-            "name": "Tesla",
-            "cool": true
-        }
-    },
-    {
-        "id": 2,
-        "name": "Bob",
-        "coordinates": {
-            "x": -5,
-            "y": 15
-        },
-        "creationDate": "2025-02-27T15:00:00Z",
-        "realHero": false,
-        "hasToothpick": true,
-        "impactSpeed": null,
-        "soundtrackName": "Mysterious Journey",
-        "weaponType": "PISTOL",
-        "mood": null,
-        "car": {
-            "name": "Ferrari",
-            "cool": true
-        }
-    },
-    {
-        "id": 3,
-        "name": "Charlie",
-        "coordinates": {
-            "x": 30,
-            "y": -25
-        },
-        "creationDate": "2025-02-27T16:45:00Z",
-        "realHero": true,
-        "hasToothpick": false,
-        "impactSpeed": 85,
-        "soundtrackName": "Heroic Theme",
-        "weaponType": "AXE",
-        "mood": "SADNESS",
-        "car": {
-            "name": "BMW",
-            "cool": false
-        }
-    }
-]
+[ {
+  "id" : 0,
+  "name" : null,
+  "coordinates" : null,
+  "creationDate" : null,
+  "realHero" : false,
+  "hasToothpick" : false,
+  "impactSpeed" : null,
+  "soundtrackName" : null,
+  "weaponType" : null,
+  "mood" : null,
+  "car" : null
+}, {
+  "id" : 0,
+  "name" : null,
+  "coordinates" : null,
+  "creationDate" : null,
+  "realHero" : false,
+  "hasToothpick" : false,
+  "impactSpeed" : null,
+  "soundtrackName" : null,
+  "weaponType" : null,
+  "mood" : null,
+  "car" : null
+} ]
