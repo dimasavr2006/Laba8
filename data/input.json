@@ -1,0 +1,25 @@
+[ {
+  "id" : 0,
+  "name" : null,
+  "coordinates" : null,
+  "creationDate" : null,
+  "realHero" : false,
+  "hasToothpick" : false,
+  "impactSpeed" : null,
+  "soundtrackName" : null,
+  "weaponType" : null,
+  "mood" : null,
+  "car" : null
+}, {
+  "id" : 0,
+  "name" : null,
+  "coordinates" : null,
+  "creationDate" : null,
+  "realHero" : false,
+  "hasToothpick" : false,
+  "impactSpeed" : null,
+  "soundtrackName" : null,
+  "weaponType" : null,
+  "mood" : null,
+  "car" : null
+} ]

@@ -1,31 +1,36 @@
 package org.example.utils;
 
-import com.fasterxml.jackson.datatype.jsr310.*;
-import com.fasterxml.jackson.databind.*;
-import org.example.classes.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.classes.HumanBeing;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class JsonParser {
-    public static void main(String[] args) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setDateFormat(new SimpleDateFormat("dd.MM.yyyy"));
-        mapper.registerModule(new JavaTimeModule());
-        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    private final ObjectMapper objectMapper;
 
+    public JsonParser() {
+        this.objectMapper = new ObjectMapper();
+    }
+
+    // Парсинг JSON в ArrayList<HumanBeing>
+    public ArrayList<HumanBeing> parseJson(String jsonContent) {
         try {
-            List<HumanBeing> hb = mapper.readValue(
-                    new File("src/main/jsonF/input.json"),
-                    mapper.getTypeFactory().constructCollectionType(List.class, HumanBeing.class)
-            );
-            hb.forEach(System.out::println);
-
-//            mapper.writeValue(new File("src/main/java/output.json"), hb);
-
+            return objectMapper.readValue(jsonContent, new TypeReference<ArrayList<HumanBeing>>() {});
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Ошибка при парсинге JSON: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    // Преобразование ArrayList<HumanBeing> в JSON
+    public String toJson(ArrayList<HumanBeing> data) {
+        try {
+            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
+        } catch (IOException e) {
+            System.err.println("Ошибка при преобразовании в JSON: " + e.getMessage());
+            return "[]";
         }
     }
 }

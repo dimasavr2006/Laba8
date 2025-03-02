@@ -1,7 +1,5 @@
 package org.example.utils;
 
-import java.util.Random;
-
 public class IDGen {
 
     static int num = 0;

@@ -37,6 +37,14 @@ public class Car {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public boolean isCool() {
+        return cool;
+    }
+
     public Car (){}
 
     @Override

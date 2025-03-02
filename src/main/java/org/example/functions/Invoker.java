@@ -19,7 +19,7 @@ public class Invoker {
         commands.put("update_id", new UpdateIDCommand());
         commands.put("remove_by_id", new RemoveByIDCommand());
         commands.put("clear", new ClearCommand());
-        commands.put("save", new SaveToFileCommand());
+//        commands.put("save", new SaveToFileCommand());
         commands.put("execute_script", new ExecuteScriptFromFileCommand());
         commands.put("exit", new ExitCommand());
         commands.put("remove_first", new RemoveFirstCommand());
