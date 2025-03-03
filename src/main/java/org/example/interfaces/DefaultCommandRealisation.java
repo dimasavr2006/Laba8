@@ -1,5 +1,6 @@
 package org.example.interfaces;
 
+import org.example.Main;
 import org.example.commands.Command;
 import org.example.functions.Invoker;
 
@@ -9,7 +10,7 @@ public interface DefaultCommandRealisation {
 
     default void def(int numberOfArgs){
         Invoker invoker = new Invoker();
-        Scanner sc = new Scanner(System.in);
+        Scanner sc = Main.sc;
         while (sc.hasNext()) {
             String line = sc.nextLine();
             String[] tokens = line.split(" ");

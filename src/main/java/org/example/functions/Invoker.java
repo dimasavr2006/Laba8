@@ -19,7 +19,7 @@ public class Invoker {
         commands.put("update_id", new UpdateIDCommand());
         commands.put("remove_by_id", new RemoveByIDCommand());
         commands.put("clear", new ClearCommand());
-//        commands.put("save", new SaveToFileCommand());
+        commands.put("save", new SaveToFileCommand());
         commands.put("execute_script", new ExecuteScriptFromFileCommand());
         commands.put("exit", new ExitCommand());
         commands.put("remove_first", new RemoveFirstCommand());
@@ -28,6 +28,8 @@ public class Invoker {
         commands.put("remove_any_by_mood", new RemoveAnyByMoodCommand());
         commands.put("min_by_soundtrack_name", new MinBySoundtrackNameCommand());
         commands.put("count_greater_than_mood", new CountGreaterThanMoodCommand());
+        commands.put("read", new ReadCommand());
+        commands.put("readEnv", new ReadEnvCommand());
     }
 
     public static void adder(){
@@ -47,5 +49,7 @@ public class Invoker {
         staticCommands.put("remove_any_by_mood", new RemoveAnyByMoodCommand());
         staticCommands.put("min_by_soundtrack_name", new MinBySoundtrackNameCommand());
         staticCommands.put("count_greater_than_mood", new CountGreaterThanMoodCommand());
+        staticCommands.put("read", new ReadCommand());
+        staticCommands.put("readEnv", new ReadEnvCommand());
     }
 }

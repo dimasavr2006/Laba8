@@ -1,6 +1,7 @@
 package org.example.classes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.Main;
 import org.example.exceptions.*;
 
 import java.util.Scanner;
@@ -11,7 +12,7 @@ public class Car {
     @JsonProperty("cool")
     private boolean cool;
 
-    Scanner sc = new Scanner(System.in);
+    Scanner sc = Main.sc;
 
     public Car(String name, boolean cool) {
         if (name == null) {

@@ -10,12 +10,14 @@ public abstract class Command implements Commander {
 
     protected static CollectionManager cm = Main.cm;
 
-    Scanner sc = new Scanner(System.in);
+    Scanner sc = Main.sc;
 
     protected String splite = "----------";
 
     protected String description;
     protected String nameOfCommand;
+
+    private CollectionManager collectionManager = Main.cm;
 
     @Override
     public void execute(String args) {}

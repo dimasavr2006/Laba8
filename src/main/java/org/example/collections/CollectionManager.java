@@ -2,10 +2,11 @@ package org.example.collections;
 
 import org.example.classes.*;
 import org.example.enums.*;
+import org.example.exceptions.NullStringException;
 import org.example.functions.*;
+import org.example.utils.JsonParser;
 
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -105,6 +106,39 @@ public class CollectionManager{
         }
         return collection.size() - count;
     }
+
+    public void readEnv(){
+        try {
+            String way = System.getenv("FILE_NAME");
+//            String way = "C:\\Users\\dimas\\IdeaProjects\\Laba5\\src\\main\\jsonF\\input.json";
+            if (way == null || way.isEmpty()) {
+                throw new NullStringException();
+            }
+
+            ArrayList<HumanBeing> startCollection = collection;
+            ArrayList<HumanBeing> endCollection = JsonParser.jsonToCollection(way);
+
+            startCollection.addAll(endCollection);
+
+            collection = startCollection;
+
+            System.out.println("Коллекция из переменной среды загружена!");
+
+        } catch (NullStringException e) {
+            System.out.println("Если вы хотите считать переменную среды, то запустите программу с другими данными");
+        }
+    }
+
+    public void readJson(String fileName){
+
+        ArrayList<HumanBeing> startCollection = collection;
+        ArrayList<HumanBeing> endCollection = JsonParser.jsonToCollection(fileName);
+
+        startCollection.addAll(endCollection);
+
+        collection = startCollection;
+    }
+
 
     public ArrayList<HumanBeing> getCollection() {
         return collection;

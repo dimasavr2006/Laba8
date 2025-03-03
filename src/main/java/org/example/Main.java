@@ -4,11 +4,8 @@ import org.example.collections.*;
 import org.example.commands.*;
 import org.example.exceptions.*;
 import org.example.functions.*;
-import org.example.utils.EnvFileReader;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
@@ -16,12 +13,13 @@ public class Main {
 
     public static Invoker inv = new Invoker();
 
+    public static Scanner sc = new Scanner(System.in);
+
     public static void main(String[] args) {
         Invoker invoker = new Invoker();
-        Scanner sc = new Scanner(System.in);
         while (sc.hasNext()) {
             try{
-                String line = sc.nextLine();
+                String line = sc.nextLine().trim();
                 String[] tokens = line.split(" ");
                 Command command = invoker.commands.get(tokens[0]);
                 if (tokens.length == 2) {
@@ -33,6 +31,7 @@ public class Main {
                 System.out.println("Команда неизвестная, введите другую");
             } catch (IncorrectArgsNumber e){
                 System.out.println(e.getMessage());
+                System.out.println("Попробуйте ещё раз");
             }
         }
     }

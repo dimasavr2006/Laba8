@@ -1,6 +1,7 @@
 package org.example.classes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.example.Main;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -12,7 +13,7 @@ public class Coordinates {
     @JsonProperty("y")
     private long y;
 
-    Scanner sc = new Scanner(System.in);
+    Scanner sc = Main.sc;
 
     public Coordinates(long x, long y) {
         this.x = x;

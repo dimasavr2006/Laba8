@@ -1,5 +1,6 @@
 package org.example.commands;
 
+import org.example.Main;
 import org.example.classes.Car;
 import org.example.classes.Coordinates;
 import org.example.classes.HumanBeing;
@@ -14,7 +15,7 @@ import java.util.Scanner;
 
 public class AddElementCommand extends Command {
 
-    Scanner sc = new Scanner(System.in);
+    Scanner sc = Main.sc;
 
     private String desc = "Добавление нового элемента в коллекцию";
     private String name = "add";
