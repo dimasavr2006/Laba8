@@ -1,16 +1,21 @@
 package org.example.commands;
 
 import org.example.Main;
-import org.example.exceptions.*;
+import org.example.exceptions.IncorrectArgsNumber;
 import org.example.functions.Invoker;
 
-import java.util.HashMap;
 import java.util.Map;
+
+/**
+ * @author Dimasavr
+ */
 
 public class HelpCommand extends Command{
 
     private String desc = "Выводит краткую справку на все команды программы";
     private String name = "help";
+
+    boolean needScannerToExecute = false;
 
     public HelpCommand(){
         this.nameOfCommand = name;

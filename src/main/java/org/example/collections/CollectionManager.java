@@ -1,22 +1,30 @@
 package org.example.collections;
 
-import org.example.classes.*;
-import org.example.enums.*;
+import org.example.classes.HumanBeing;
+import org.example.enums.Mood;
 import org.example.exceptions.NullStringException;
-import org.example.functions.*;
+import org.example.functions.MoodComparator;
+import org.example.functions.SoundtrackNameComparator;
 import org.example.utils.JsonParser;
+import org.example.utils.ScriptFileReader;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 public class CollectionManager{
+
+    /**
+     * @author Dimasavr
+     */
 
     LocalDateTime initialazed;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm:ss");
     String timeOfCreation;
 
-    public ArrayList<HumanBeing> collection;
+    public static ArrayList<HumanBeing> collection;
 
     public CollectionManager() {
         initialazed = LocalDateTime.now();
@@ -25,13 +33,27 @@ public class CollectionManager{
         collection = new ArrayList<>();
     }
 
+    /**
+     * Выводит в консоль информацию о коллекции
+     */
     public void info(){
         String s = "Тип коллекции: " + collection.getClass() + ", Время создания: " + timeOfCreation + ", Размер коллекции: " + collection.size();
         System.out.println(s);
     }
+
+    /**
+     * Добавляет элемент в коллекцию
+     * @param hb
+     */
     public void add(HumanBeing hb){
         collection.add(hb);
     }
+
+    /**
+     * Удаляет элемент коллекции с заданным id
+     * @param id
+     * @param hb
+     */
     public void updateID(int id, HumanBeing hb){
         int num = 0;
         for (HumanBeing humanBeing : collection) {
@@ -42,6 +64,11 @@ public class CollectionManager{
         }
         collection.set(num, hb);
     }
+
+    /**
+     * Удаляет элемент коллекции с заданным id
+     * @param id
+     */
     public void removeById(int id){
 
         int num = 0;
@@ -54,29 +81,65 @@ public class CollectionManager{
 
         collection.remove(num);
     }
+
+    /**
+     * Очищает коллекцию полностью
+     */
     public void clear(){
         collection.clear();
     }
-    public void saveToFile(){
-        // реализация
+
+    /**
+     * Сохраняет коллекцию в файл
+     * @param way
+     */
+    public void saveToFile(String way){
+        JsonParser.collectionToJson(way, collection);
     }
-    public void executeScriptFromFilename(){
-        // реализация
+
+    /**
+     * Запускает скрипт из файла с заданным именем и путём
+     */
+    public void executeScriptFromFilename(String filename){
+        ScriptFileReader sfl = new ScriptFileReader();
+        sfl.readFile(filename);
     }
+
+    /**
+     * Выход из программы
+     */
     public void exit(){
         System.exit(0);
     }
+
+    /**
+     * Удаляет первый элемент коллекции
+     */
     public void removeFirst(){
         collection.removeFirst();
     }
+
+    /**
+     * Добавляет элемент, если он меньше всех остальных в коллекции
+     * @param hb
+     */
     public void addIfMin(HumanBeing hb){
         if (hb.compareTo(findMin()) < 0){
             add(hb);
         }
     }
+
+    /**
+     * Сортирует коллекцию по возрастанию
+     */
     public void sort(){
         Collections.sort(collection);
     }
+
+    /**
+     * Удаляет элемент с заданным значением поля mood
+     * @param mood
+     */
     public void removeAnyByMood (Mood mood){
         ArrayList<HumanBeing> toRemove = new ArrayList<>();
         for (HumanBeing hb : collection){
@@ -88,17 +151,28 @@ public class CollectionManager{
         int index = random.nextInt(toRemove.size());
         collection.remove(toRemove.get(index));
     }
+
+    /**
+     * Выводит элемент с минимальным значением поля soundtrackName
+     */
     public void minBySoundtrackName(){
         SoundtrackNameComparator snc = new SoundtrackNameComparator();
         ArrayList<HumanBeing> sortedC = collection;
         Collections.sort(sortedC, snc);
         System.out.println(sortedC.getFirst());
     }
+
+    /**
+     * Выводит количество элементов поле mood, которое больше заданного
+     * @param mood
+     * @return int
+     */
     public int countGreaterThanMood(Mood mood){
         MoodComparator mc = new MoodComparator();
-        Collections.sort(collection, mc);
+        ArrayList<HumanBeing> sortedC = collection;
+        Collections.sort(sortedC, mc);
         int count = 0;
-        for (HumanBeing hb : collection){
+        for (HumanBeing hb : sortedC){
             count++;
             if (hb.getMood().getPointOfHappy() > mood.getPointOfHappy()){
                 break;
@@ -107,10 +181,12 @@ public class CollectionManager{
         return collection.size() - count;
     }
 
+    /**
+     * Загружает коллекцию из файла, хранящегося в переменной среды
+     */
     public void readEnv(){
         try {
             String way = System.getenv("FILE_NAME");
-//            String way = "C:\\Users\\dimas\\IdeaProjects\\Laba5\\src\\main\\jsonF\\input.json";
             if (way == null || way.isEmpty()) {
                 throw new NullStringException();
             }
@@ -129,6 +205,10 @@ public class CollectionManager{
         }
     }
 
+    /**
+     * Загружает коллекцию из файла
+     * @param fileName
+     */
     public void readJson(String fileName){
 
         ArrayList<HumanBeing> startCollection = collection;
@@ -140,10 +220,18 @@ public class CollectionManager{
     }
 
 
+    /**
+     * Возвращает коллекцию
+     * @return collection
+     */
     public ArrayList<HumanBeing> getCollection() {
         return collection;
     }
 
+    /**
+     * Ищет минимальный элемент коллекции
+     * @return HumanBeing
+     */
     public HumanBeing findMin(){
         HumanBeing result = null;
         int count = 0;
@@ -161,18 +249,34 @@ public class CollectionManager{
         return result;
     }
 
+    /**
+     * Возвращает время создания коллекции
+     * @return
+     */
     public LocalDateTime getInitialazed() {
         return initialazed;
     }
 
+    /**
+     * Устанавливает время создания коллекции
+     * @param initialazed
+     */
     public void setInitialazed(LocalDateTime initialazed) {
         this.initialazed = initialazed;
     }
 
+    /**
+     * Возвращает время создания коллекции
+     * @return
+     */
     public String getTimeOfCreation() {
         return timeOfCreation;
     }
 
+    /**
+     * Устанавливает время создания коллекции
+     * @param timeOfCreation
+     */
     public void setTimeOfCreation(String timeOfCreation) {
         this.timeOfCreation = timeOfCreation;
     }

@@ -1,10 +1,16 @@
 package org.example.commands;
 
-import org.example.exceptions.*;
+import org.example.exceptions.IncorrectArgsNumber;
+
+/**
+ * @author Dimasavr
+ */
 
 public class ReadEnvCommand extends Command {
     private String desc = "Чтение данных из переменной среды";
     private String name = "readEnv";
+
+    boolean needScannerToExecute = false;
 
     public ReadEnvCommand() {
         this.nameOfCommand = name;

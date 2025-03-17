@@ -1,11 +1,17 @@
 package org.example.commands;
 
 import org.example.enums.Mood;
-import org.example.exceptions.*;
+import org.example.exceptions.IncorrectArgsNumber;
+
+/**
+ * @author Dimasavr
+ */
 
 public class RemoveAnyByMoodCommand extends Command {
     private String desc = "Удаляет случайный элемент коллекции, настроение которого равно заданному";
     private String name = "remove_any_by_mood";
+
+    boolean needScannerToExecute = false;
 
     public RemoveAnyByMoodCommand() {
         this.nameOfCommand = name;

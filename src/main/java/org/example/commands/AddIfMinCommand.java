@@ -1,12 +1,20 @@
 package org.example.commands;
 
-import org.example.classes.*;
-import org.example.exceptions.*;
+import org.example.classes.HumanBeing;
+import org.example.exceptions.IncorrectArgsNumber;
+
+/**
+ * @author Dimasavr
+ */
 
 public class AddIfMinCommand extends Command {
 
     private String desc = "Добавление нового элемента в коллекцию при условии того, что он является минимальным";
     private String name = "add_if_min";
+
+    int expected = 0;
+
+    boolean needScannerToExecute = false;
 
     public AddIfMinCommand() {
         this.nameOfCommand = name;
@@ -15,7 +23,6 @@ public class AddIfMinCommand extends Command {
 
     @Override
     public void execute(String args) {
-        int expected = 0;
         String[] arguments = args.split(" ");
         if (arguments.length != expected) {
             throw new IncorrectArgsNumber(expected);
@@ -34,4 +41,5 @@ public class AddIfMinCommand extends Command {
             System.out.println("Добавление не произошло так как элемент не является наименьшим");
         }
     }
+
 }

@@ -1,12 +1,17 @@
 package org.example.commands;
 
-import org.example.exceptions.*;
-import org.example.functions.Invoker;
+import org.example.exceptions.IncorrectArgsNumber;
+
+/**
+ * @author Dimasavr
+ */
 
 public class ClearCommand extends Command {
 
     private String desc = "Очистка коллекции";
     private String name = "clear";
+
+    boolean needScannerToExecute = false;
 
     public ClearCommand() {
         this.nameOfCommand = name;
@@ -20,8 +25,6 @@ public class ClearCommand extends Command {
         if (arguments.length != expected) {
             throw new IncorrectArgsNumber(expected);
         }
-//        cm.clear();
-//        System.out.println("Коллекция очищена");
     }
 
     @Override
@@ -29,4 +32,6 @@ public class ClearCommand extends Command {
         cm.clear();
         System.out.println("Коллекция очищена");
     }
+
+
 }

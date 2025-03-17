@@ -1,5 +1,9 @@
 package org.example.exceptions;
 
+/**
+ * @author Dimasavr
+ */
+
 public class NullStringException extends RuntimeException {
     @Override
     public String getMessage() {

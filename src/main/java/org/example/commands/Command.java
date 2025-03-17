@@ -2,11 +2,16 @@ package org.example.commands;
 
 import org.example.Main;
 import org.example.collections.CollectionManager;
-import org.example.interfaces.Commander;
 
 import java.util.Scanner;
 
-public abstract class Command implements Commander {
+/**
+ * @author Dimasavr
+ */
+
+public abstract class Command {
+
+    protected boolean needScannerToExecute;
 
     protected static CollectionManager cm = Main.cm;
 
@@ -17,15 +22,19 @@ public abstract class Command implements Commander {
     protected String description;
     protected String nameOfCommand;
 
-    private CollectionManager collectionManager = Main.cm;
-
-    @Override
+//    @Override
     public void execute(String args) {}
 
-    @Override
+//    @Override
     public void execute() {}
 
-    @Override
+//    @Override
+    public void execute(String args, Scanner sc) {}
+
+//    @Override
+    public void execute(Scanner sc) {}
+
+//    @Override
     public void description() {
         String ret = nameOfCommand + " - " + description;
         System.out.println(ret);
@@ -37,5 +46,9 @@ public abstract class Command implements Commander {
 
     public String getNameOfCommand() {
         return nameOfCommand;
+    }
+
+    public boolean isNeedScannerToExecute() {
+        return needScannerToExecute;
     }
 }

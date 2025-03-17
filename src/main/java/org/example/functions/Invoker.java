@@ -5,7 +5,16 @@ import org.example.commands.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Dimasavr
+ */
+
 public class Invoker {
+
+    /**
+     * Класс Invoker
+     * В нём хранятся все доступные команды
+     */
 
     public Map<String, Command> commands = new HashMap<>();
 

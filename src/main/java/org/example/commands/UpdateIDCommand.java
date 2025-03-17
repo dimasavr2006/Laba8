@@ -1,12 +1,19 @@
 package org.example.commands;
 
-import org.example.classes.HumanBeing;
 import org.example.exceptions.IncorrectArgsNumber;
+
+/**
+ * @author Dimasavr
+ */
 
 public class UpdateIDCommand extends Command {
 
     private String desc = "Обновляет объект с заданным ID";
     private String name = "update_id";
+
+    int expected = 1;
+
+    boolean needScannerToExecute = false;
 
     public UpdateIDCommand() {
         this.nameOfCommand = name;
@@ -15,7 +22,6 @@ public class UpdateIDCommand extends Command {
 
     @Override
     public void execute(String args) {
-        int expected = 1;
         String[] arguments = args.split(" ");
         if (arguments.length != expected) {
             throw new IncorrectArgsNumber(expected);

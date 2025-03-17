@@ -1,5 +1,9 @@
 package org.example.exceptions;
 
+/**
+ * @author Dimasavr
+ */
+
 public class WrongNameHumanBeingException extends RuntimeException {
   @Override
   public String getMessage() {

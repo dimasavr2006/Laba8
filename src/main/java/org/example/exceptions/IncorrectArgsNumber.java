@@ -1,5 +1,9 @@
 package org.example.exceptions;
 
+/**
+ * @author Dimasavr
+ */
+
 public class IncorrectArgsNumber extends RuntimeException{
     private final int number;
     public IncorrectArgsNumber(int number) {

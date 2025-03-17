@@ -1,13 +1,17 @@
 package org.example.commands;
 
-import org.example.collections.CollectionManager;
 import org.example.exceptions.IncorrectArgsNumber;
 
+/**
+ * @author Dimasavr
+ */
 
 public class InfoCommand extends Command {
 
     private String desc = "Выводит краткую справку про коллекцию";
     private String name = "info";
+
+    boolean needScannerToExecute = false;
 
     public InfoCommand() {
         this.nameOfCommand = name;

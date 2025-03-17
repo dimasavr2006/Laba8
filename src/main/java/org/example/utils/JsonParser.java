@@ -1,48 +1,34 @@
 package org.example.utils;
 
-import com.fasterxml.jackson.core.type.*;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.datatype.jsr310.*;
-import org.example.classes.*;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.example.classes.HumanBeing;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
+/**
+ * @author Dimasavr
+ */
 
 public class JsonParser {
-    private final ObjectMapper objectMapper;
+    private ObjectMapper mapper;
 
-    public JsonParser() {
-        this.objectMapper = new ObjectMapper();
-    }
-
-    // Парсинг JSON в ArrayList<HumanBeing>
-    public ArrayList<HumanBeing> parseJson(String jsonContent) {
-        try {
-            return objectMapper.readValue(jsonContent, new TypeReference<ArrayList<HumanBeing>>() {});
-        } catch (IOException e) {
-            System.err.println("Ошибка при парсинге JSON: " + e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
-    // Преобразование ArrayList<HumanBeing> в JSON
-    public String toJson(ArrayList<HumanBeing> data) {
-        try {
-            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
-        } catch (IOException e) {
-            System.err.println("Ошибка при преобразовании в JSON: " + e.getMessage());
-            return "[]";
-        }
-    }
-
+    /**
+     * Чтение коллекции из файла JSON
+     * @param nameOfFile
+     * @return ArrayList<HumanBeing>
+     */
     public static ArrayList<HumanBeing> jsonToCollection(String nameOfFile) {
         try {
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
-            mapper.setDateFormat(new SimpleDateFormat("dd.MM.yyyy"));
+            mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
             mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
             CollectionType hbFile = mapper.getTypeFactory().constructCollectionType(ArrayList.class, HumanBeing.class);
@@ -56,6 +42,23 @@ public class JsonParser {
             System.out.println("Ошибка при чтении файла: " + e.getMessage());
             System.out.println("Попробуйте ещё раз");
             return null;
+        }
+    }
+
+    /**
+     * Запись коллекции в файл JSON
+     * @param way
+     * @param data
+     */
+    public static void collectionToJson(String way, ArrayList<HumanBeing> data) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            mapper.registerModule(new JavaTimeModule());
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            mapper.writeValue(new File(way), data);
+        } catch (IOException e) {
+            System.out.println("Ошибка сохранения коллекции в файл: " + e.getMessage());
         }
     }
 

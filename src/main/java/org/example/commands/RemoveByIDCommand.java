@@ -1,10 +1,16 @@
 package org.example.commands;
 
-import org.example.exceptions.*;
+import org.example.exceptions.IncorrectArgsNumber;
+
+/**
+ * @author Dimasavr
+ */
 
 public class RemoveByIDCommand extends Command {
     private String desc = "Удяляет элемент коллекции с заданным ID";
     private String name = "remove_by_id";
+
+    boolean needScannerToExecute = false;
 
     public RemoveByIDCommand() {
         this.nameOfCommand = name;

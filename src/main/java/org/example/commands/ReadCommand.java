@@ -2,9 +2,15 @@ package org.example.commands;
 
 import org.example.exceptions.IncorrectArgsNumber;
 
+/**
+ * @author Dimasavr
+ */
+
 public class ReadCommand extends Command {
     private String desc = "Чтение данных из заданного json файла";
     private String name = "read";
+
+    boolean needScannerToExecute = false;
 
     public ReadCommand() {
         this.nameOfCommand = name;

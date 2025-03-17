@@ -1,11 +1,17 @@
 package org.example.commands;
 
-import org.example.exceptions.*;
+import org.example.exceptions.IncorrectArgsNumber;
+
+/**
+ * @author Dimasavr
+ */
 
 public class ExitCommand extends Command {
 
     private String desc = "Выполняет выход из программы";
     private String name = "exit";
+
+    boolean needScannerToExecute = false;
 
     public ExitCommand() {
         this.nameOfCommand = name;
@@ -14,13 +20,11 @@ public class ExitCommand extends Command {
 
     @Override
     public void execute(String args) {
-        int expected = 0;
+        int expected = 1;
         String[] arguments = args.split(" ");
         if (arguments.length != expected) {
             throw new IncorrectArgsNumber(expected);
         }
-        System.out.println("Выполняется выход из программы... .");
-        cm.exit();
     }
 
     @Override

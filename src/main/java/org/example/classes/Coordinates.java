@@ -6,6 +6,10 @@ import org.example.Main;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+/**
+ * @author Dimasavr
+ */
+
 public class Coordinates {
 
     @JsonProperty("x")
@@ -20,51 +24,91 @@ public class Coordinates {
         this.y = y;
     }
     public Coordinates (boolean b){
-        System.out.println("Начинается ввод координат");
-        while (true){
+        while (true) {
+            System.out.println("Введите координату x:");
+            String xxx = sc.nextLine();
             try {
-                System.out.println("Введите координату x:");
-                Long xxx = sc.nextLong();
-                this.x = xxx;
+                this.x = Long.parseLong(xxx.trim());
                 break;
-            } catch (InputMismatchException e){
+            } catch (NumberFormatException e) {
                 System.out.println("Поле введено неверно, попробуйте ещё раз");
-            } finally {
-                sc.nextLine();
             }
         }
         while (true){
+            System.out.println("Введите координату y:");
+            String yyy = sc.nextLine();
             try {
-                System.out.println("Введите координату y:");
-                Long yyy = sc.nextLong();
-                this.y = yyy;
+                this.y = Long.parseLong(yyy.trim());
                 break;
             } catch (InputMismatchException e){
                 System.out.println("Поле введено неверно, попробуйте ещё раз");
-            } finally {
-                sc.nextLine();
             }
         }
         Coordinates c = new Coordinates(x,y);
     }
-    public Coordinates() {}
 
+    public Coordinates (boolean b, Scanner sc) {
+        while (true) {
+            System.out.println("Введите координату x:");
+            String xxx = sc.nextLine();
+            try {
+                this.x = Long.parseLong(xxx.trim());
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Поле введено неверно, попробуйте ещё раз");
+            }
+        }
+        while (true){
+            System.out.println("Введите координату y:");
+            String yyy = sc.nextLine();
+            try {
+                this.y = Long.parseLong(yyy.trim());
+                break;
+            } catch (InputMismatchException e){
+                System.out.println("Поле введено неверно, попробуйте ещё раз");
+            }
+        }
+        Coordinates c = new Coordinates(x,y);
+    }
+    public Coordinates() {
+    }
+
+    /**
+     * Возвращает координату x
+     * @return x
+     */
     public long getX() {
         return x;
     }
 
+    /**
+     * Задаёт координату x
+     * @param x
+     */
     public void setX(long x) {
         this.x = x;
     }
 
+    /**
+     * Возвращает координату y
+     * @return y
+     */
     public long getY() {
         return y;
     }
 
+    /**
+     * Задаёт координату y
+     * @param y
+     */
     public void setY(long y) {
         this.y = y;
     }
 
+    /**
+     * Возвращает описание координат
+     * @return Строка координат
+     */
     @Override
     public String toString() {
         return "Coordinates: " +

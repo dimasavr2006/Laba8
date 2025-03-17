@@ -1,5 +1,9 @@
 package org.example.enums;
 
+/**
+ * @author Dimasavr
+ */
+
 public enum WeaponType {
     HAMMER (2),
     AXE (3),
@@ -13,9 +17,18 @@ public enum WeaponType {
         this.degreeOfCool = degreeOfCool;
     }
 
+    /**
+     * Возвращает степень крутости оружия.
+     * @return
+     */
     public int getDegreeOfCool() {
         return degreeOfCool;
     }
+
+    /**
+     * Возвращает все значения enum
+     * @return
+     */
     public static String getV(){
         String v = "";
         for (WeaponType wt : WeaponType.values()){

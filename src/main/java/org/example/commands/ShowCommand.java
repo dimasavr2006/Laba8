@@ -3,10 +3,16 @@ package org.example.commands;
 import org.example.classes.HumanBeing;
 import org.example.exceptions.IncorrectArgsNumber;
 
+/**
+ * @author Dimasavr
+ */
+
 public class ShowCommand extends Command {
 
     private String desc = "Выводит все элементы колллекции";
     private String name = "show";
+
+    boolean needScannerToExecute = false;
 
     public ShowCommand() {
         this.nameOfCommand = name;
