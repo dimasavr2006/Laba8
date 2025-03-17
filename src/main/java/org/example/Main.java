@@ -5,7 +5,6 @@ import org.example.commands.Command;
 import org.example.exceptions.IncorrectArgsNumber;
 import org.example.functions.Invoker;
 
-import java.util.Date;
 import java.util.Scanner;
 
 /**
@@ -23,7 +22,6 @@ public class Main {
 
 
     public static void main(String[] args) {
-        System.out.println(new Date());
         while (sc.hasNext()) {
             try{
                 String line = sc.nextLine().trim();
