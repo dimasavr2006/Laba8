@@ -1,8 +1,7 @@
 package org.example;
 
 import org.example.collections.CollectionManager;
-import org.example.commands.Command;
-import org.example.exceptions.IncorrectArgsNumber;
+import org.example.functions.ConsoleManager;
 import org.example.functions.Invoker;
 
 import java.util.Scanner;
@@ -22,24 +21,7 @@ public class Main {
 
 
     public static void main(String[] args) {
-        while (sc.hasNext()) {
-            try{
-                String line = sc.nextLine().trim();
-                String[] tokens = line.split(" ");
-                Command command = inv.commands.get(tokens[0]);
-
-                if (tokens.length == 2) {
-                    command.execute(tokens[1]);
-                } else if (tokens.length == 1) {
-                    command.execute();
-                }
-
-            } catch (NullPointerException e){
-                System.out.println("Команда неизвестная, введите другую");
-            } catch (IncorrectArgsNumber e){
-                System.out.println(e.getMessage());
-                System.out.println("Попробуйте ещё раз");
-            }
-        }
+        ConsoleManager consM = new ConsoleManager();
+        consM.startConsole();
     }
 }

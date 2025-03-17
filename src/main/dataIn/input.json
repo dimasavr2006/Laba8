@@ -5,7 +5,7 @@
         "y" : 0
       },
       "car" : {
-        "name" : "Pagani Huyarit",
+        "name" : "Cal",
         "cool" : false
       },
       "id" : 52,
@@ -14,7 +14,7 @@
       "realHero" : true,
       "hasToothpick" : false,
       "impactSpeed" : 0,
-      "soundtrackName" : "ТРЕНБОЛОН КОЛЮ В ОЧКО ЧТОБЫ СТАТЬ БОЛЬШИМ КАЧКОМ",
+      "soundtrackName" : "nevergonna",
       "weaponType" : "HAMMER",
       "mood" : "CALM"
     }, {
@@ -32,7 +32,7 @@
       "realHero" : false,
       "hasToothpick" : false,
       "impactSpeed" : 0,
-      "soundtrackName" : "ТЫ ЗАСТАВЛЯЛ МЕНЯ СОСАТЬ, НО Я ТЕБЕ НЕ СОСАЛА",
+      "soundtrackName" : "umpla lumpa song",
       "weaponType" : "KNIFE",
       "mood" : "CALM"
     }, {
@@ -50,7 +50,7 @@
       "realHero" : true,
       "hasToothpick" : false,
       "impactSpeed" : 88888,
-      "soundtrackName" : "ТРАХАТЬ СУК ПИТЬ СОК",
+      "soundtrackName" : "opa gangam style",
       "weaponType" : "SHOTGUN",
       "mood" : "GLOOM"
 } ]

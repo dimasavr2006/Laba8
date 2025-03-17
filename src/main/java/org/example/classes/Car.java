@@ -123,13 +123,7 @@ public class Car {
     }
 
     public Car (){
-        try {
-            if (name == null) {
-                throw new IllegalArgumentException("Имя машины не может быть null");
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());;
-        }
+
     }
 
     /**
