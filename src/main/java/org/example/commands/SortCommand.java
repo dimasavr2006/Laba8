@@ -1,30 +1,35 @@
 package org.example.commands;
 
-import org.example.exceptions.IncorrectArgsNumber;
-
 /**
  * @author Dimasavr
  */
 
 public class SortCommand extends Command {
 
-    private String desc = "Выолняет стандартную сортировку коллекции";
+    private String desc = "Выполняет стандартную сортировку коллекции";
     private String name = "sort";
-
-    boolean needScannerToExecute = false;
+    private int expected = 0;
 
     public SortCommand() {
         this.nameOfCommand = name;
         this.description = desc;
+        this.numberOfArgs = expected;
     }
 
     @Override
-    public void execute(String args) {
-        int expected = 0;
-        String[] arguments = args.split(" ");
-        if (arguments.length != expected) {
-            throw new IncorrectArgsNumber(expected);
-        }
+    public void bodyOfCommand(String argument) {
         cm.sort();
+        System.out.println("Сортировка выполнена");
     }
+
+    //    @Override
+//    public void execute(String argument) {
+//        int expected = 0;
+//        String[] arguments = argument.split(" ");
+//        if (arguments.length != expected) {
+//            throw new IncorrectArgsNumber(expected);
+//        }
+//        cm.sort();
+//        System.out.println("Сортировка выполнена!");
+//    }
 }

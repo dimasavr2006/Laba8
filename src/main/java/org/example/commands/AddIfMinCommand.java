@@ -1,7 +1,6 @@
 package org.example.commands;
 
 import org.example.classes.HumanBeing;
-import org.example.exceptions.IncorrectArgsNumber;
 
 /**
  * @author Dimasavr
@@ -14,32 +13,45 @@ public class AddIfMinCommand extends Command {
 
     int expected = 0;
 
-    boolean needScannerToExecute = false;
-
     public AddIfMinCommand() {
         this.nameOfCommand = name;
         this.description = desc;
+        this.numberOfArgs = expected;
     }
 
     @Override
-    public void execute(String args) {
-        String[] arguments = args.split(" ");
-        if (arguments.length != expected) {
-            throw new IncorrectArgsNumber(expected);
-        }
-    }
-
-    @Override
-    public void execute() {
-        boolean b = true;
-        HumanBeing being = new HumanBeing(b);
+    public void bodyOfCommand(String line) {
+        AddElementCommand a = new AddElementCommand();
+        HumanBeing h = a.createNoAddNew(sc, false);
+        System.out.println("Начато сравнение двух элементов");
         HumanBeing min = cm.findMin();
-        if (being.compareTo(min) < 0) {
-            cm.updateID(min.getId(), being);
+        if (h.compareTo(min) < 0) {
+            cm.updateID(min.getId(), h);
             System.out.println("Элемент добавлен в коллекцию");
         } else {
             System.out.println("Добавление не произошло так как элемент не является наименьшим");
         }
     }
+
+    //    @Override
+//    public void execute(String argument) {
+//        String[] arguments = argument.split(" ");
+//        if (arguments.length != expected) {
+//            throw new IncorrectArgsNumber(expected);
+//        }
+//    }
+//
+//    @Override
+//    public void execute() {
+//        boolean b = true;
+//        HumanBeing being = new HumanBeing(b);
+//        HumanBeing min = cm.findMin();
+//        if (being.compareTo(min) < 0) {
+//            cm.updateID(min.getId(), being);
+//            System.out.println("Элемент добавлен в коллекцию");
+//        } else {
+//            System.out.println("Добавление не произошло так как элемент не является наименьшим");
+//        }
+//    }
 
 }

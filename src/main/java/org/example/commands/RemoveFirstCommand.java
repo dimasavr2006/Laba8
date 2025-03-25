@@ -1,7 +1,5 @@
 package org.example.commands;
 
-import org.example.exceptions.IncorrectArgsNumber;
-
 /**
  * @author Dimasavr
  */
@@ -9,8 +7,7 @@ import org.example.exceptions.IncorrectArgsNumber;
 public class RemoveFirstCommand extends Command {
     private String desc = "Удаляет первый элемент коллекции";
     private String name = "remove_first";
-
-    boolean needScannerToExecute = false;
+    private int expected = 0;
 
     public RemoveFirstCommand() {
         this.nameOfCommand = name;
@@ -18,12 +15,17 @@ public class RemoveFirstCommand extends Command {
     }
 
     @Override
-    public void execute(String args) {
-        int expected = 0;
-        String[] arguments = args.split(" ");
-        if (arguments.length != expected) {
-            throw new IncorrectArgsNumber(expected);
-        }
+    public void bodyOfCommand(String argument) {
         cm.removeFirst();
     }
+
+    //    @Override
+//    public void execute(String argument) {
+//        int expected = 0;
+//        String[] arguments = argument.split(" ");
+//        if (arguments.length != expected) {
+//            throw new IncorrectArgsNumber(expected);
+//        }
+//        cm.removeFirst();
+//    }
 }

@@ -5,6 +5,7 @@ import org.example.enums.Mood;
 import org.example.exceptions.NullStringException;
 import org.example.functions.MoodComparator;
 import org.example.functions.SoundtrackNameComparator;
+import org.example.utils.IDGen;
 import org.example.utils.JsonParser;
 import org.example.utils.ScriptFileReader;
 
@@ -95,6 +96,7 @@ public class CollectionManager{
      */
     public void saveToFile(String way){
         JsonParser.collectionToJson(way, collection);
+        System.out.println("Коллекция сохранена в " + way);
     }
 
     /**
@@ -116,7 +118,8 @@ public class CollectionManager{
      * Удаляет первый элемент коллекции
      */
     public void removeFirst(){
-        collection.removeFirst();
+//        collection.removeFirst();
+        collection.remove(0);
     }
 
     /**
@@ -159,7 +162,8 @@ public class CollectionManager{
         SoundtrackNameComparator snc = new SoundtrackNameComparator();
         ArrayList<HumanBeing> sortedC = collection;
         Collections.sort(sortedC, snc);
-        System.out.println(sortedC.getFirst());
+//        System.out.println(sortedC.getFirst());
+        System.out.println(sortedC.get(0));
     }
 
     /**
@@ -194,6 +198,10 @@ public class CollectionManager{
             ArrayList<HumanBeing> startCollection = collection;
             ArrayList<HumanBeing> endCollection = JsonParser.jsonToCollection(way);
 
+            for (HumanBeing hb : endCollection) {
+                hb.setId(IDGen.gen());
+            }
+
             startCollection.addAll(endCollection);
 
             collection = startCollection;
@@ -214,6 +222,10 @@ public class CollectionManager{
         ArrayList<HumanBeing> startCollection = collection;
         ArrayList<HumanBeing> endCollection = JsonParser.jsonToCollection(fileName);
 
+        for (HumanBeing hb : endCollection) {
+            hb.setId(IDGen.gen());
+        }
+
         startCollection.addAll(endCollection);
 
         collection = startCollection;
@@ -229,7 +241,7 @@ public class CollectionManager{
     }
 
     /**
-     * Ищет минимальный элемент коллекции
+     * ищет минимальный элемент коллекции
      * @return HumanBeing
      */
     public HumanBeing findMin(){

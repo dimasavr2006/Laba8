@@ -1,11 +1,5 @@
 package org.example.commands;
 
-import org.example.Main;
-import org.example.exceptions.IncorrectArgsNumber;
-import org.example.functions.Invoker;
-
-import java.util.Map;
-
 /**
  * @author Dimasavr
  */
@@ -14,33 +8,39 @@ public class HelpCommand extends Command{
 
     private String desc = "Выводит краткую справку на все команды программы";
     private String name = "help";
-
-    boolean needScannerToExecute = false;
+    private int expected = 0;
 
     public HelpCommand(){
         this.nameOfCommand = name;
         this.description = desc;
+        this.numberOfArgs = expected;
     }
 
     @Override
-    public void execute(String args) {
-        int expected = 0;
-        String[] arguments = args.split(" ");
-        if (arguments.length != expected) {
-            throw new IncorrectArgsNumber(expected);
-        }
-//        cm.clear();
-//        System.out.println("Коллекция очищена");
+    public void bodyOfCommand(String argument) {
+        cm.clear();
+        System.out.println("Коллекция очищена");
     }
 
-    @Override
-    public void execute() {
-        Invoker.adder();
-        Map<String, Command> commands = Main.inv.commands;
-
-        for (Command command : commands.values()) {
-            command.description();
-        }
-    }
+    //    @Override
+//    public void execute(String argument) {
+//        int expected = 0;
+//        String[] arguments = argument.split(" ");
+//        if (arguments.length != expected) {
+//            throw new IncorrectArgsNumber(expected);
+//        }
+////        cm.clear();
+////        System.out.println("Коллекция очищена");
+//    }
+//
+//    @Override
+//    public void execute() {
+//        Invoker.adder();
+//        Map<String, Command> commands = Main.inv.commands;
+//
+//        for (Command command : commands.values()) {
+//            command.description();
+//        }
+//    }
 
 }

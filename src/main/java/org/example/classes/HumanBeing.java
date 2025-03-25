@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.example.enums.Mood;
 import org.example.enums.WeaponType;
+import org.example.utils.IDGen;
 
 import java.util.Date;
 
@@ -17,7 +18,7 @@ public class HumanBeing implements Comparable<HumanBeing>{
     private int id;
 
     /**
-     * Имя элемента коллекции
+     * имя элемента коллекции
      * NotNull
      */
     private String name; // not null
@@ -75,9 +76,10 @@ public class HumanBeing implements Comparable<HumanBeing>{
 
     public HumanBeing (){
         this.creationDate = new Date();
+        this.id = IDGen.gen();
         try {
             if (name == null) {
-                throw new IllegalArgumentException("Имя может быть null");
+                throw new IllegalArgumentException("имя может быть null");
             }
             if (coordinates == null) {
                 throw new IllegalArgumentException("Координаты не могут быть null");
@@ -104,6 +106,7 @@ public class HumanBeing implements Comparable<HumanBeing>{
 
     public HumanBeing(boolean b) {
         creationDate = new Date();
+        id = IDGen.gen();
     }
 
     public HumanBeing(int id, String name, Coordinates coordinates, Date creationDate, boolean realHero, boolean hasToothpick, Long impactSpeed, String soundtrackName, WeaponType weaponType, Mood mood, Car car) {
@@ -122,13 +125,14 @@ public class HumanBeing implements Comparable<HumanBeing>{
 
     public HumanBeing(String name, Coordinates coordinates, boolean realHero, boolean hasToothpick, Long impactSpeed, String soundtrackName, WeaponType weaponType, Mood mood, Car car) {
 
+        this.id = IDGen.gen();
         this.creationDate = new Date();
         this.realHero = realHero;
         this.hasToothpick = hasToothpick;
 
         try {
             if (name == null) {
-                throw new IllegalArgumentException("Имя может быть null");
+                throw new IllegalArgumentException("имя может быть null");
             }
             this.name = name;
             if (coordinates == null) {

@@ -9,11 +9,10 @@ public class IDGen {
     static int num = 0;
 
     /**
-     *
-     * @param string
-     * @return
+     * Генерируеь айди
+     * @return id
      */
-    public static int gen(String string){
+    public static int gen(){
         num++;
         return num;
     }

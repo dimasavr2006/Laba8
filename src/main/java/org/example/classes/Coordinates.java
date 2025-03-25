@@ -73,6 +73,26 @@ public class Coordinates {
     public Coordinates() {
     }
 
+//    public Coordinates createFromConsole() {
+//        Scanner sc = new Scanner(System.in);
+//        Long x = InputFieldBuilder.build(sc, Long.class)
+//                .start("Введите координату x")
+//                .inputParams("Поле не может быть пустым")
+//                .againMsg("Перевведите значение")
+//                .againMsgParams("Пустой ввод не разрешён")
+//                .end("x задали, идём дальше")
+//                .build();
+//        Long y = InputFieldBuilder.build(sc, Long.class)
+//                .start("Введите координату y")
+//                .inputParams("Поле не может быть пустым")
+//                .againMsg("Перевведите значение")
+//                .againMsgParams("Пустой ввод не разрешён")
+//                .end("y задали, идём дальше")
+//                .build();
+//        Coordinates c = new Coordinates(x,y);
+//        return c;
+//    }
+
     /**
      * Возвращает координату x
      * @return x

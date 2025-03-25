@@ -1,7 +1,5 @@
 package org.example.commands;
 
-import org.example.exceptions.IncorrectArgsNumber;
-
 /**
  * @author Dimasavr
  */
@@ -9,28 +7,32 @@ import org.example.exceptions.IncorrectArgsNumber;
 public class ReadCommand extends Command {
     private String desc = "Чтение данных из заданного json файла";
     private String name = "read";
-
-    boolean needScannerToExecute = false;
+    private int expected = 1;
 
     public ReadCommand() {
         this.nameOfCommand = name;
         this.description = desc;
+        this.numberOfArgs = expected;
     }
 
-    int expected = 1;
-
     @Override
-    public void execute(String args) {
-        String[] arguments = args.split(" ");
-        if (arguments.length != expected) {
-            throw new IncorrectArgsNumber(expected);
-        }
-        cm.readJson(arguments[0]);
+    public void bodyOfCommand(String argument) {
+        cm.readJson(argument);
         System.out.println("Коллекция из файла была успешно добавлена");
     }
 
-    @Override
-    public void execute() {
-        throw new IncorrectArgsNumber(expected);
-    }
+    //    @Override
+//    public void execute(String argument) {
+//        String[] arguments = argument.split(" ");
+//        if (arguments.length != expected) {
+//            throw new IncorrectArgsNumber(expected);
+//        }
+//        cm.readJson(arguments[0]);
+//        System.out.println("Коллекция из файла была успешно добавлена");
+//    }
+//
+//    @Override
+//    public void execute() {
+//        throw new IncorrectArgsNumber(expected);
+//    }
 }

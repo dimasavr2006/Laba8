@@ -21,7 +21,7 @@ public class JsonParser {
     /**
      * Чтение коллекции из файла JSON
      * @param nameOfFile
-     * @return ArrayList<HumanBeing>
+     * @return ArrayList
      */
     public static ArrayList<HumanBeing> jsonToCollection(String nameOfFile) {
         try {

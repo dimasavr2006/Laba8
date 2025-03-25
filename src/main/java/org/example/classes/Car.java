@@ -32,7 +32,7 @@ public class Car {
 
     public Car(String name, boolean cool) {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Имя машины не может быть null или пустой");
+            throw new IllegalArgumentException("имя машины не может быть null или пустой");
         }
         this.name = name;
         this.cool = cool;
@@ -108,7 +108,7 @@ public class Car {
 
     /**
      * Возвращает имя машины
-     * @return Имя
+     * @return имя
      */
     public String getName() {
         return name;

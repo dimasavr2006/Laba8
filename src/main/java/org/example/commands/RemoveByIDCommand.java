@@ -1,7 +1,5 @@
 package org.example.commands;
 
-import org.example.exceptions.IncorrectArgsNumber;
-
 /**
  * @author Dimasavr
  */
@@ -9,25 +7,34 @@ import org.example.exceptions.IncorrectArgsNumber;
 public class RemoveByIDCommand extends Command {
     private String desc = "Удяляет элемент коллекции с заданным ID";
     private String name = "remove_by_id";
-
-    boolean needScannerToExecute = false;
+    private int expected = 1;
 
     public RemoveByIDCommand() {
         this.nameOfCommand = name;
         this.description = desc;
+        this.numberOfArgs = expected;
     }
 
     @Override
-    public void execute(String args) {
+    public void bodyOfCommand(String argument) {
         try {
-            int expected = 1;
-            String[] arguments = args.split(" ");
-            if (arguments.length != expected) {
-                throw new IncorrectArgsNumber(expected);
-            }
-            cm.removeById(Integer.parseInt(arguments[0]));
-        } catch (IndexOutOfBoundsException e){
+            cm.removeById(Integer.parseInt(argument));
+        } catch (IndexOutOfBoundsException e) {
             System.out.println("Удаление не удалось, данного элемента нет");
         }
     }
+
+    //    @Override
+//    public void execute(String argument) {
+//        try {
+//            int expected = 1;
+//            String[] arguments = argument.split(" ");
+//            if (arguments.length != expected) {
+//                throw new IncorrectArgsNumber(expected);
+//            }
+//            cm.removeById(Integer.parseInt(arguments[0]));
+//        } catch (IndexOutOfBoundsException e){
+//            System.out.println("Удаление не удалось, данного элемента нет");
+//        }
+//    }
 }
