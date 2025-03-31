@@ -1,5 +1,10 @@
 package org.example.commands;
 
+import org.example.Main;
+import org.example.functions.Invoker;
+
+import java.util.Map;
+
 /**
  * @author Dimasavr
  */
@@ -18,8 +23,12 @@ public class HelpCommand extends Command{
 
     @Override
     public void bodyOfCommand(String argument) {
-        cm.clear();
-        System.out.println("Коллекция очищена");
+        Invoker.adder();
+        Map<String, Command> commands = Main.inv.commands;
+
+        for (Command command : commands.values()) {
+            command.description();
+        }
     }
 
     //    @Override

@@ -1,6 +1,7 @@
 package org.example.commands;
 
 import org.example.classes.HumanBeing;
+import org.example.utils.BuildersOfElement;
 
 /**
  * @author Dimasavr
@@ -21,8 +22,8 @@ public class AddIfMinCommand extends Command {
 
     @Override
     public void bodyOfCommand(String line) {
-        AddElementCommand a = new AddElementCommand();
-        HumanBeing h = a.createNoAddNew(sc, false);
+        BuildersOfElement b = new BuildersOfElement();
+        HumanBeing h = b.createNoAdd(true, sc, null);
         System.out.println("Начато сравнение двух элементов");
         HumanBeing min = cm.findMin();
         if (h.compareTo(min) < 0) {

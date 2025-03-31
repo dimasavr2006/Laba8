@@ -1,5 +1,7 @@
 package org.example.commands;
 
+import org.example.utils.BuildersOfElement;
+
 /**
  * @author Dimasavr
  */
@@ -21,8 +23,8 @@ public class UpdateIDCommand extends Command {
         try {
             int id = Integer.parseInt(argument);
             System.out.println("Начнем создание элемента коллекции для данного ID");
-            AddElementCommand ad = new AddElementCommand();
-            cm.updateID(id, ad.createNoAddNew(sc, false));
+            BuildersOfElement b = new BuildersOfElement();
+            cm.updateID(id, b.createNoAdd(true, sc, null));
         } catch (NumberFormatException e) {
             System.out.println("Неверный ID");
         }

@@ -122,6 +122,14 @@ public class Car {
         return cool;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setCool(boolean cool) {
+        this.cool = cool;
+    }
+
     public Car (){
 
     }
@@ -136,4 +144,6 @@ public class Car {
                 "cool = " + cool +
                 ", name = " + name;
     }
+
+
 }

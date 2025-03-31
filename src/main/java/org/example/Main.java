@@ -26,7 +26,9 @@ public class Main {
         System.out.println("А для выхода из программы советую использовать сочетание клавиш Ctrl+C/D (в зависимости от вашей системы)");
         System.out.println("Желаю удачи!");
         ConsoleManager consM = new ConsoleManager();
+
         consM.startConsole();
+
         System.out.println("Выход из программы...");
     }
 }

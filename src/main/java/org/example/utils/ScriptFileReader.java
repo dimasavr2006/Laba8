@@ -22,29 +22,11 @@ public class ScriptFileReader {
         Invoker inv = Main.inv;
         int numberOfLine = 1;
 
-//        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                String[] tokens = line.split(" ");
-//                Command command = null;
-//                try {
-//                    command = inv.commands.get(tokens[0]);
-//                } catch (NullPointerException e) {
-//                    System.out.println("Строка " + numberOfLine + "Пропущена так как такой команды не существует");
-//                }
-//                if (tokens.length == 2) {
-//                    command.execute(tokens[1]);
-//                } else if (tokens.length == 1) {
-//                    command.execute();
-//                }
-//            }
-//        }
-
         try (Scanner scanner = new Scanner(new File(fileName))) {
             System.out.println("Начато выполнение команд из файла");
             while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] tokens = line.split(" ");
+                String lineIn = scanner.nextLine();
+                String[] tokens = lineIn.split(" ");
 
                 String commandString = tokens[0].toLowerCase();
 
@@ -60,11 +42,12 @@ public class ScriptFileReader {
                 }
 
                 try {
-                    if (commandString.equals("add") && tokens.length == 1) {
+                    if (commandString.equals("add") && tokens.length == 12) {
                         AddElementCommand ch = new AddElementCommand() {
                             @Override
                             public void bodyOfCommand(String line) {
-                                HumanBeing toAdd = createNoAddNewScanner(scanner);
+                                BuildersOfElement b = new BuildersOfElement();
+                                HumanBeing toAdd = b.createNoAdd(false, scanner, lineIn);
                                 cm.add(toAdd);
                             }
                         };
@@ -73,8 +56,8 @@ public class ScriptFileReader {
                         AddIfMinCommand ch = new AddIfMinCommand() {
                             @Override
                             public void bodyOfCommand(String line) {
-                                AddElementCommand a = new AddElementCommand();
-                                HumanBeing h = a.createNoAddNewScanner(scanner);
+                                BuildersOfElement b = new BuildersOfElement();
+                                HumanBeing h = b.createNoAdd(false, scanner, lineIn);
                                 HumanBeing min = cm.findMin();
                                 if (h.compareTo(min) < 0) {
                                     cm.updateID(min.getId(), h);
@@ -88,8 +71,8 @@ public class ScriptFileReader {
                             public void bodyOfCommand(String argument) {
                                 try {
                                     int id = Integer.parseInt(argument);
-                                    AddElementCommand ad = new AddElementCommand();
-                                    cm.updateID(id, ad.createNoAddNewScanner(scanner));
+                                    BuildersOfElement b = new BuildersOfElement();
+                                    cm.updateID(id, b.createNoAdd(false, scanner, lineIn));
                                 } catch (NumberFormatException e) {
                                     System.out.println("Неверный ID");
                                 }
