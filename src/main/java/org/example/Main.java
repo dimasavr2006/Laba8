@@ -3,6 +3,7 @@ package org.example;
 import org.example.collections.CollectionManager;
 import org.example.functions.ConsoleManager;
 import org.example.functions.Invoker;
+import org.example.utils.JSCh;
 
 import java.util.Scanner;
 
@@ -21,6 +22,14 @@ public class Main {
 
 
     public static void main(String[] args) {
+
+        JSCh jsc = new JSCh();
+        try {
+            jsc.connectSSH();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         System.out.println("Приветствую в консольной части моей программы!");
         System.out.println("Напоминаю, что для справки напишите help");
         System.out.println("А для выхода из программы советую использовать сочетание клавиш Ctrl+C/D (в зависимости от вашей системы)");
