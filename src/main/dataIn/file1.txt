@@ -1,5 +1,0 @@
-add 3 33 33 true true 3 3 AXE CALM 3 true
-show
-info
-help
-execute_script src/main/dataIn/file1.txt

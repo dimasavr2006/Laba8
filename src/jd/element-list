@@ -1,10 +1,10 @@
 unnamed package
 org.example
-org.example.classes
-org.example.collections
-org.example.commands
-org.example.enums
-org.example.exceptions
-org.example.functions
-org.example.interfaces
-org.example.utils
+classes
+managers
+commands
+enums
+exceptions
+functions
+interfaces
+utils

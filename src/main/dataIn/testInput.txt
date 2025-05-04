@@ -1,3 +1,0 @@
-readEnv
-show
-exit

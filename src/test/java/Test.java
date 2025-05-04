@@ -1,4 +1,4 @@
-import org.example.utils.DocumentFieldBuilder;
+import utils.DocumentFieldBuilder;
 
 import java.util.Scanner;
 
