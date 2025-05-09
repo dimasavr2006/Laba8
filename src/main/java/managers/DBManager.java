@@ -3,13 +3,15 @@ package managers;
 import classes.*;
 import enums.Mood;
 import enums.WeaponType;
-import exceptions.NoAccessToElement;
+import exceptions.*;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import run.Main;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 import java.util.HashMap;
 
@@ -17,11 +19,11 @@ public class DBManager {
 
     CollectionManager cm = Main.cm;
 
-    private Connection conn;
-    private ResultSet rs;
-    private ScriptRunner runner;
+    private static Connection conn;
+    private static ResultSet rs;
+    private static ScriptRunner runner;
 
-    public DBManager() {
+    public void connect() {
         try {
             this.conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/studs", "s467055", System.getenv("PASSWD"));
             this.runner = new ScriptRunner(this.conn);
@@ -110,15 +112,80 @@ public class DBManager {
         return users;
     }
 
-    public void registerUser(String username, int password) {
+    public void registerUser(String username, String password) {
         try {
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO users (login, password) VALUES (?, ?)");
-            ps.setString(1, username);
-            ps.setInt(2, password);
-            ps.executeQuery();
+            conn.setAutoCommit(false);
+
+            boolean flag = false;
+            for (User user : getUsers().values()) {
+                if (username.equals(user.getLogin())) {
+                    flag = true;
+                    System.out.println("Такой пользователь уже существует");
+                }
+            }
+            if (!flag) {
+                PreparedStatement ps = conn.prepareStatement("INSERT INTO users (login, password) VALUES (?, ?)");
+                ps.setString(1, username);
+                ps.setString(2, hashSmth(password));
+                int rows = ps.executeUpdate();
+
+                if (rows > 0) {
+                    conn.commit();
+                    System.out.println("Пользователь " + username + " успешно зарегистрирован.");
+                }
+                Main.login = true;
+                Main.toBreak = false;
+
+//            PreparedStatement ps = conn.prepareStatement("INSERT INTO users (login, password) VALUES (?, ?)");
+//            ps.setString(1, username);
+//            ps.setString(2, hashSmth(password));
+//            ps.executeQuery();
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
+    }
+
+    public boolean login(String username, String password) {
+        boolean result = false;
+        try {
+            conn.setAutoCommit(false);
+
+            PreparedStatement ps = conn.prepareStatement("SELECT password FROM users WHERE login = ?");
+            ps.setString(1, username);
+            rs = ps.executeQuery();
+            String ourHash = hashSmth(password);
+            boolean uFound = false;
+            while (rs.next()) {
+                uFound = true;
+                String sHash = rs.getString("password");
+                result = ourHash.equals(sHash);
+            }
+
+            if (!uFound || !result) {
+                System.out.println("Неверный логин или пароль");
+                result = false;
+            } else {
+                System.out.println("Авторизация успешна!");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
     }
 
     public boolean add (String key, HumanBeing hb, String username) {
@@ -373,7 +440,10 @@ public class DBManager {
             checkAccessToElement(min, username);
             int idElement = findIDElementByElement(min);
 
-            PreparedStatement ps = conn.prepareStatement("DELETE element_id from collection WHERE element_id = (SELECT id FROM hb WHERE owner_id = ?) ORDER BY element_id ASC LIMIT 1");
+            PreparedStatement ps = conn.prepareStatement("DELETE FROM collection WHERE element_id = ? AND owner_id = (SELECT user_id FROM users WHERE login = ?)");
+            ps.setInt(1, idElement);
+            ps.setString(2, username);
+            ps.execute();
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -471,6 +541,43 @@ public class DBManager {
             }
         }
         return id;
+    }
+
+    public boolean removeAnyByMood (String mood) {
+        boolean success = false;
+        try {
+            conn.setAutoCommit(false);
+            PreparedStatement psM = conn.prepareStatement("DELETE FROM hb WHERE id IN (SELECT id FROM hb WHERE mood = ? ORDER BY id ASC LIMIT 1)");
+            psM.setString(1, mood);
+            psM.execute();
+            success = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return success;
+    }
+
+    public String hashSmth (String string) {
+        StringBuilder hashPassword = new StringBuilder();
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+
+            byte[] pass = string.getBytes(StandardCharsets.UTF_8);
+            byte[] digest = md.digest(pass);
+            for (byte b : digest) {
+                String hex = String.format("%02x", b & 0xff);
+                hashPassword.append(hex);
+            }
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return hashPassword.toString();
     }
 
     private void setScriptRunnerConfig() {

@@ -32,7 +32,7 @@ public class JSCh {
     public void disconnectSSH() {
         if (session != null && session.isConnected()) {
             session.disconnect();
-            System.out.println("Выполнено отключение отт БД...");
+            System.out.println("Выполнено отключение от БД...");
         }
     }
 }

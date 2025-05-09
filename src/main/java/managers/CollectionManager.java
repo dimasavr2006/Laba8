@@ -149,8 +149,7 @@ public class CollectionManager{
                 toRemove.add(hb);
             }
         }
-        Random random = new Random();
-        int index = random.nextInt(toRemove.size());
+        int index = 0;
         collection.remove(toRemove.get(index));
     }
 

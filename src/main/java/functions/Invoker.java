@@ -38,6 +38,8 @@ public class Invoker {
         commands.put("min_by_soundtrack_name", new MinBySoundtrackNameCommand());
         commands.put("count_greater_than_mood", new CountGreaterThanMoodCommand());
         commands.put("read", new ReadCommand());
+//        commands.put("reg", new RegisterUserCommand());
+//        commands.put("login", new LoginCommand());
     }
 
     public static void adder(){
