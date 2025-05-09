@@ -28,6 +28,7 @@ public class AddIfMinCommand extends Command {
         HumanBeing min = cm.findMin();
         if (h.compareTo(min) < 0) {
             cm.updateID(min.getId(), h);
+            db.updateID(min.getId(), h, username);
             System.out.println("Элемент добавлен в коллекцию");
         } else {
             System.out.println("Добавление не произошло так как элемент не является наименьшим");

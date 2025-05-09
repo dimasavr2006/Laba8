@@ -1,5 +1,6 @@
 package commands;
 
+import classes.HumanBeing;
 import utils.BuildersOfElement;
 
 /**
@@ -24,7 +25,9 @@ public class UpdateIDCommand extends Command {
             int id = Integer.parseInt(argument);
             System.out.println("Начнем создание элемента коллекции для данного ID");
             BuildersOfElement b = new BuildersOfElement();
-            cm.updateID(id, b.createNoAdd(true, sc, null));
+            HumanBeing h = b.createNoAdd(true, sc, null);
+            cm.updateID(id, h);
+            db.updateID(id, h, username);
         } catch (NumberFormatException e) {
             System.out.println("Неверный ID");
         }

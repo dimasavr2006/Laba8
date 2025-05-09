@@ -17,6 +17,7 @@ public class RemoveFirstCommand extends Command {
     @Override
     public void bodyOfCommand(String argument) {
         cm.removeFirst();
+        db.removeFirst(username);
     }
 
     //    @Override

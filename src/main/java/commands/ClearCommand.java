@@ -19,6 +19,7 @@ public class ClearCommand extends Command {
     @Override
     public void bodyOfCommand(String line) {
         cm.clear();
+        db.clear(username);
         System.out.println("Коллекция очищена");
     }
 

@@ -21,6 +21,8 @@ public abstract class Command {
 
     protected static DBManager db = Main.db;
 
+    protected static String username = Main.username;
+
     Scanner sc = Main.sc;
 
     protected String splite = "----------";
@@ -49,9 +51,14 @@ public abstract class Command {
 //    public void execute(Scanner sc) {}
 
     public void execute(String argument) throws AccessDeniedException, AccessException {
-        if (argument.trim().isEmpty() && numberOfArgs == 0) {
+        if ((argument.trim().isEmpty() && numberOfArgs == 0) || (!argument.trim().isEmpty() && numberOfArgs == 1) || (!argument.trim().isEmpty() && numberOfArgs == 3)) {
             bodyOfCommand(argument);
-        } else if (argument.trim().isEmpty() && numberOfArgs != 0) {
+        } else {
+            throw new IncorrectArgsNumber(numberOfArgs);
+        }
+
+            /*
+            if (argument.trim().isEmpty() && numberOfArgs != 0) {
             throw new IncorrectArgsNumber(numberOfArgs);
         } else if (!argument.trim().isEmpty() && numberOfArgs == 0) {
             throw new IncorrectArgsNumber(numberOfArgs);
@@ -61,6 +68,7 @@ public abstract class Command {
             throw new IncorrectArgsNumber(numberOfArgs);
         } else if (!argument.trim().isEmpty() && numberOfArgs == 3) {}
         bodyOfCommand(argument);
+             */
     }
     public void bodyOfCommand(String argument) throws AccessException, AccessDeniedException {}
 

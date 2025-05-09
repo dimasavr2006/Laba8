@@ -43,56 +43,56 @@ public class DBManager {
         }
     }
 
-    public Pair<HashMap<Integer, User>, HashMap<String, HumanBeing>> getCollection() {
-        HashMap<Integer, User> users = new HashMap<>();
-        HashMap<String, HumanBeing> hb = new HashMap<>();
-
-        try {
-            Statement s = conn.createStatement();
-            rs = s.executeQuery("SELECT * FROM collection JOIN s467055.users users on users.user_id = collection.owner_id JOIN s467055.hb humanB on humanB.id = collection.element_id JOIN s467055.cars car on humanB.car_id = car.id_car JOIN s467055.coords coord on coord.id_coord = humanB.coords_id");
-            while (rs.next()) {
-                Integer uID = rs.getInt("user_id");
-                String uName = rs.getString("login");
-                String uPassword = rs.getString("password");
-                User user = new User(uName, uPassword);
-                users.put(uID, user);
-
-                Integer id = rs.getInt("id");
-                String name = rs.getString("name");
-                Long x = rs.getLong("x");
-                Long y = rs.getLong("y");
-                java.util.Date date = rs.getDate("creation_date");
-                Boolean realHero = rs.getBoolean("real_hero");
-                Boolean hasToothpick = rs.getBoolean("has_toothpick");
-                Long impactSpeed = rs.getLong("impact_speed");
-                String soundtrackName = rs.getString("soundtrack_name");
-                WeaponType weaponType = WeaponType.valueOf(rs.getString("weapon_type"));
-                Mood mood = Mood.valueOf(rs.getString("mood"));
-                String nameCar = rs.getString("name_car");
-                Boolean cool = rs.getBoolean("cool_down");
-
-                String key = rs.getString("key");
-
-                HumanBeing being = new HumanBeing(id,
-                        name,
-                        new Coordinates(x, y),
-                        date,
-                        realHero,
-                        hasToothpick,
-                        impactSpeed,
-                        soundtrackName,
-                        weaponType,
-                        mood,
-                        new Car(nameCar, cool)
-                );
-                hb.put(key, being);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return new Pair<>(users, hb);
-    }
+//    public Pair<HashMap<Integer, User>, HashMap<String, HumanBeing>> getCollection() {
+//        HashMap<Integer, User> users = new HashMap<>();
+//        HashMap<String, HumanBeing> hb = new HashMap<>();
+//
+//        try {
+//            Statement s = conn.createStatement();
+//            rs = s.executeQuery("SELECT * FROM collection JOIN s467055.users users on users.user_id = collection.owner_id JOIN s467055.hb humanB on humanB.id = collection.element_id JOIN s467055.cars car on humanB.car_id = car.id_car JOIN s467055.coords coord on coord.id_coord = humanB.coords_id");
+//            while (rs.next()) {
+//                Integer uID = rs.getInt("user_id");
+//                String uName = rs.getString("login");
+//                String uPassword = rs.getString("password");
+//                User user = new User(uName, uPassword);
+//                users.put(uID, user);
+//
+//                Integer id = rs.getInt("id");
+//                String name = rs.getString("name");
+//                Long x = rs.getLong("x");
+//                Long y = rs.getLong("y");
+//                java.util.Date date = rs.getDate("creation_date");
+//                Boolean realHero = rs.getBoolean("real_hero");
+//                Boolean hasToothpick = rs.getBoolean("has_toothpick");
+//                Long impactSpeed = rs.getLong("impact_speed");
+//                String soundtrackName = rs.getString("soundtrack_name");
+//                WeaponType weaponType = WeaponType.valueOf(rs.getString("weapon_type"));
+//                Mood mood = Mood.valueOf(rs.getString("mood"));
+//                String nameCar = rs.getString("name_car");
+//                Boolean cool = rs.getBoolean("cool_down");
+//
+//                String key = rs.getString("key");
+//
+//                HumanBeing being = new HumanBeing(id,
+//                        name,
+//                        new Coordinates(x, y),
+//                        date,
+//                        realHero,
+//                        hasToothpick,
+//                        impactSpeed,
+//                        soundtrackName,
+//                        weaponType,
+//                        mood,
+//                        new Car(nameCar, cool)
+//                );
+//                hb.put(key, being);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        return new Pair<>(users, hb);
+//    }
 
     public HashMap<Integer, User> getUsers() {
         HashMap<Integer, User> users = new HashMap<>();
@@ -188,7 +188,7 @@ public class DBManager {
         return result;
     }
 
-    public boolean add (String key, HumanBeing hb, String username) {
+    public boolean add (HumanBeing hb, String username) {
         boolean success = false;
         try {
             hb.setOwnerId(findUserIDbyUsername(username));
@@ -239,10 +239,9 @@ public class DBManager {
                 maxID = rs.getInt("id");
             }
 
-            PreparedStatement psCol = conn.prepareStatement("INSERT INTO collection (key, element_id, owner_id) VALUES (?, ?, ?)");
-            psCol.setString(1, key);
-            psCol.setInt(2, maxID);
-            psCol.setInt(3, hb.getOwnerId());
+            PreparedStatement psCol = conn.prepareStatement("INSERT INTO collection (element_id, owner_id) VALUES (?, ?)");
+            psCol.setInt(1, maxID);
+            psCol.setInt(2, hb.getOwnerId());
             psCol.execute();
 
             conn.commit();
@@ -265,19 +264,13 @@ public class DBManager {
         return success;
     }
 
-    public boolean updateID (int id, HumanBeing hb) {
+    public boolean updateID (int id, HumanBeing hb, String username) {
         boolean success = false;
 
         try {
             conn.setAutoCommit(false);
 
-            PreparedStatement psOID = conn.prepareStatement("SELECT collection.owner_id FROM collection WHERE owner_id = ?");
-            psOID.setInt(1, id);
-            rs = psOID.executeQuery();
-            Integer ownerID = null;
-            while (rs.next()) {
-                ownerID = rs.getInt("owner_id");
-            }
+            checkAccessToElement(hb, username);
 
             PreparedStatement psCoord = conn.prepareStatement("SELECT coords_id FROM hb WHERE coords_id = ?");
             psCoord.setInt(1, id);
@@ -346,17 +339,15 @@ public class DBManager {
         try {
             boolean flag = false;
             conn.setAutoCommit(false);
-            PreparedStatement ps = conn.prepareStatement("SELECT collection.element_id FROM collection JOIN users ON collection.owner_id = users.user_id JOIN hb ON collection.element_id = hb.id JOIN coords ON hb.coords_id = coords.id_coord WHERE collection.key = ? AND users.user_id = ?");
+            PreparedStatement ps = conn.prepareStatement("SELECT collection.element_id FROM collection JOIN users ON collection.owner_id = users.user_id JOIN hb ON collection.element_id = hb.id JOIN coords ON hb.coords_id = coords.id_coord WHERE users.user_id = ?");
             ps.setString(1, id);
-            ps.setInt(2, findUserIDbyUsername(username));
             rs = ps.executeQuery();
             if (rs.next()) {
                 flag = true;
             }
 
-            PreparedStatement psD = conn.prepareStatement("DELETE FROM coords WHERE id_coord = (SELECT hb.coords_id FROM hb WHERE coords_id = (SELECT element_id FROM collection WHERE collection.key = ? AND owner_id = ?))");
+            PreparedStatement psD = conn.prepareStatement("DELETE FROM coords WHERE id_coord = (SELECT hb.coords_id FROM hb WHERE coords_id = (SELECT element_id FROM collection WHERE owner_id = ?))");
             psD.setString(1, id);
-            psD.setInt(2, findUserIDbyUsername(username));
             psD.execute();
 
             conn.commit();
@@ -472,7 +463,25 @@ public class DBManager {
     private boolean checkAccessToElement (HumanBeing hb, String yourUN) {
         boolean access = false;
         if (findIDElementByElement(hb) == findUserIDbyUsername(yourUN)) {
-            access = true;
+//            access = true;
+            try {
+                conn.setAutoCommit(false);
+
+                Integer idOfUser = findUserIDbyUsername(yourUN);
+                Integer ifOfElement = findIDElementByElement(hb);
+
+                PreparedStatement ps = conn.prepareStatement("SELECT collection.element_id FROM collection WHERE element_id = ? AND owner_id = ?");
+                ps.setInt(1, ifOfElement);
+                ps.setInt(2, idOfUser);
+                int affectedRows = ps.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new NoAccessToElement(yourUN);
+                } else {
+                    access = true;
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         } else {
             access = false;
             throw new NoAccessToElement(yourUN);
@@ -561,6 +570,40 @@ public class DBManager {
             }
         }
         return success;
+    }
+
+    public int findOwnerIDByElement (HumanBeing hb) {
+        int id = 0;
+        int idEl = findIDElementByElement(hb);
+        try {
+            PreparedStatement ps = conn.prepareStatement("SELECT collection.owner_id FROM collection WHERE element_id = ?");
+            ps.setInt(1, idEl);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                id = rs.getInt("owner_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
+    }
+
+    public int findOwnerIDByElementID (int id) {
+        int ownerID = 0;
+        try {
+            conn.setAutoCommit(false);
+
+            PreparedStatement ps = conn.prepareStatement("SELECT collection.owner_id FROM collection WHERE element_id = ?");
+            ps.setInt(1, id);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                ownerID = rs.getInt("owner_id");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ownerID;
     }
 
     public String hashSmth (String string) {

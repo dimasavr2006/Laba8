@@ -19,7 +19,12 @@ public class RemoveAnyByMoodCommand extends Command {
 
     @Override
     public void bodyOfCommand(String argument) {
-        cm.removeAnyByMood(Mood.valueOf(argument));
+        try {
+            cm.removeAnyByMood(Mood.valueOf(argument));
+            db.removeAnyByMood(argument);
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("Удаление не было произведено так как нет элементов с данным настроением или такого настроения нет");
+        }
     }
 
     //    @Override

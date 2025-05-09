@@ -27,8 +27,14 @@ public class LoginManager {
                 String commandStr = parts[0].toLowerCase();
                 if (commandStr.equals("login") && parts.length == 3) {
                     Main.login = db.login(parts[1], parts[2]);
+                    if (Main.login) {
+                        Main.username = parts[1];
+                    }
                 } else if (commandStr.equals("register") && parts.length == 3) {
                     db.registerUser(parts[1], parts[2]);
+                    if (Main.login) {
+                        Main.username = parts[1];
+                    }
                     if (Main.toBreak) {
                         Main.toBreak = false;
                         break;

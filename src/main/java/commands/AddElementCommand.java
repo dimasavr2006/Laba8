@@ -1,6 +1,7 @@
 package commands;
 
 import classes.HumanBeing;
+import run.Main;
 import utils.BuildersOfElement;
 
 import java.util.Scanner;
@@ -30,6 +31,7 @@ public class AddElementCommand extends Command {
         BuildersOfElement b = new BuildersOfElement();
         HumanBeing toAdd = b.createNoAdd(true, sc, null);
         cm.add(toAdd);
+        db.add(toAdd, username);
     }
 
 }

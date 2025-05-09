@@ -23,6 +23,8 @@ public class Main {
     public static boolean login = false;
     public static boolean toBreak = false;
 
+    public static String username = "";
+
     public static void main(String[] args) {
 
         JSCh jsc = new JSCh();

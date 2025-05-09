@@ -1,7 +1,6 @@
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS collection (
-    key TEXT NOT NULL ,
     element_id INTEGER ,
     owner_id INTEGER NOT NULL
 );
