@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"org.example"},{"l":"classes"},{"l":"org.example.collections"},{"l":"commands"},{"l":"enums"},{"l":"exceptions"},{"l":"functions"},{"l":"interfaces"},{"l":"utils"}];updateSearchResults();
