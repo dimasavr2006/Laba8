@@ -3,6 +3,9 @@ package commands;
 import classes.HumanBeing;
 import utils.BuildersOfElement;
 
+import java.nio.file.AccessDeniedException;
+import java.rmi.AccessException;
+
 /**
  * @author Dimasavr
  */
@@ -19,20 +22,28 @@ public class UpdateIDCommand extends Command {
         this.numberOfArgs = expected;
     }
 
+    static HumanBeing toAdd = null;
+    static BuildersOfElement b = new BuildersOfElement();
+
     @Override
     public void bodyOfCommand(String argument) {
-        try {
-            int id = Integer.parseInt(argument);
-            System.out.println("Начнем создание элемента коллекции для данного ID");
-            BuildersOfElement b = new BuildersOfElement();
-            HumanBeing h = b.createNoAdd(true, sc, null);
-            cm.updateID(id, h);
-            db.updateID(id, h, username);
-        } catch (NumberFormatException e) {
-            System.out.println("Неверный ID");
-        }
+//        try {
+//            int id = Integer.parseInt(argument);
+//            System.out.println("Начнем создание элемента коллекции для данного ID");
+//            BuildersOfElement b = new BuildersOfElement();
+//            HumanBeing h = b.createNoAdd(true, sc, null);
+//            cm.updateID(id, h);
+//            db.updateID(id, h, username);
+//        } catch (NumberFormatException e) {
+//            System.out.println("Неверный ID");
+//        }
     }
 
+    @Override
+    public Boolean bodyOfDBCommand(String argument) throws AccessException, AccessDeniedException {
+        toAdd = b.createNoAdd(true, sc, null);
+        return db.updateID(Integer.parseInt(argument), toAdd, username);
+    }
     //    @Override
 //    public void execute(String argument) {
 //        String[] arguments = argument.split(" ");

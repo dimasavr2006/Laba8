@@ -1,9 +1,11 @@
 package managers;
 
-import classes.*;
+import classes.Car;
+import classes.Coordinates;
+import classes.HumanBeing;
+import classes.User;
 import enums.Mood;
 import enums.WeaponType;
-import exceptions.*;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import run.Main;
 
@@ -13,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DBManager {
@@ -43,56 +46,74 @@ public class DBManager {
         }
     }
 
-//    public Pair<HashMap<Integer, User>, HashMap<String, HumanBeing>> getCollection() {
-//        HashMap<Integer, User> users = new HashMap<>();
-//        HashMap<String, HumanBeing> hb = new HashMap<>();
-//
-//        try {
-//            Statement s = conn.createStatement();
-//            rs = s.executeQuery("SELECT * FROM collection JOIN s467055.users users on users.user_id = collection.owner_id JOIN s467055.hb humanB on humanB.id = collection.element_id JOIN s467055.cars car on humanB.car_id = car.id_car JOIN s467055.coords coord on coord.id_coord = humanB.coords_id");
-//            while (rs.next()) {
-//                Integer uID = rs.getInt("user_id");
-//                String uName = rs.getString("login");
-//                String uPassword = rs.getString("password");
-//                User user = new User(uName, uPassword);
-//                users.put(uID, user);
-//
-//                Integer id = rs.getInt("id");
-//                String name = rs.getString("name");
-//                Long x = rs.getLong("x");
-//                Long y = rs.getLong("y");
-//                java.util.Date date = rs.getDate("creation_date");
-//                Boolean realHero = rs.getBoolean("real_hero");
-//                Boolean hasToothpick = rs.getBoolean("has_toothpick");
-//                Long impactSpeed = rs.getLong("impact_speed");
-//                String soundtrackName = rs.getString("soundtrack_name");
-//                WeaponType weaponType = WeaponType.valueOf(rs.getString("weapon_type"));
-//                Mood mood = Mood.valueOf(rs.getString("mood"));
-//                String nameCar = rs.getString("name_car");
-//                Boolean cool = rs.getBoolean("cool_down");
-//
-//                String key = rs.getString("key");
-//
-//                HumanBeing being = new HumanBeing(id,
-//                        name,
-//                        new Coordinates(x, y),
-//                        date,
-//                        realHero,
-//                        hasToothpick,
-//                        impactSpeed,
-//                        soundtrackName,
-//                        weaponType,
-//                        mood,
-//                        new Car(nameCar, cool)
-//                );
-//                hb.put(key, being);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return new Pair<>(users, hb);
-//    }
+    public ArrayList<HumanBeing> getCollection() {
+        ArrayList<HumanBeing> hb = new ArrayList<>();
+
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT " +
+                        "hb.id, " +
+                        "hb.name, " +
+                        "coord.x, " +
+                        "coord.y, " +
+                        "hb.creation_date, " +
+                        "hb.real_hero, " +
+                        "hb.has_toothpick, " +
+                        "hb.impact_speed, " +
+                        "hb.soundtrack_name, " +
+                        "hb.weapon_type, " +
+                        "hb.mood, " +
+                        "car.name_car, " +
+                        "car.cool, " +
+                        "col.owner_id " +
+                        "FROM hb " +
+                        "JOIN cars car on car.id_car = hb.car_id " +
+                        "JOIN coords coord on coord.id_coord = hb.coords_id " +
+                        "JOIN collection col on hb.id = col.element_id"
+        );
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Integer id = rs.getInt("id");
+                String name = rs.getString("name");
+                Long x = rs.getLong("x");
+                Long y = rs.getLong("y");
+                java.util.Date date = rs.getDate("creation_date");
+                Boolean realHero = rs.getBoolean("real_hero");
+                Boolean hasToothpick = rs.getBoolean("has_toothpick");
+                Long impactSpeed = rs.getLong("impact_speed");
+                String soundtrackName = rs.getString("soundtrack_name");
+                WeaponType weaponType = WeaponType.valueOf(rs.getString("weapon_type"));
+                String moodString = rs.getString("mood");
+                Mood mood = (moodString != null && !moodString.trim().isEmpty()) ? Mood.valueOf(moodString) : null;
+
+                String nameCar = rs.getString("name_car");
+                Boolean cool = rs.getBoolean("cool");
+
+                Integer owner_id = rs.getInt("owner_id");
+
+                HumanBeing being = new HumanBeing(
+                        id,
+                        name,
+                        new Coordinates(x, y),
+                        date,
+                        realHero,
+                        hasToothpick,
+                        impactSpeed,
+                        soundtrackName,
+                        weaponType,
+                        mood,
+                        new Car(nameCar, cool),
+                        owner_id
+                );
+                hb.add(being);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        return hb;
+    }
 
     public HashMap<Integer, User> getUsers() {
         HashMap<Integer, User> users = new HashMap<>();
@@ -188,75 +209,201 @@ public class DBManager {
         return result;
     }
 
-    public boolean add (HumanBeing hb, String username) {
-        boolean success = false;
+public boolean add(HumanBeing hb, String username) {
+    boolean success = false;
+    int ownerId = findUserIDbyUsername(username);
+
+    if (ownerId <= 0) {
+        System.err.println("Ошибка: Пользователь '" + username + "' не найден или невозможно получить его ID.");
+        return false;
+    }
+
+    hb.setOwnerId(ownerId);
+
+    try {
+        conn.setAutoCommit(false);
+
+        int coordId = -1;
+        try (PreparedStatement psCoords = conn.prepareStatement("INSERT INTO coords (x, y) VALUES (?, ?) RETURNING id_coord", Statement.RETURN_GENERATED_KEYS)) {
+            psCoords.setLong(1, hb.getCoordinates().getX());
+            psCoords.setLong(2, hb.getCoordinates().getY());
+            int affectedRows = psCoords.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Ошибка при добавлении координат, ни одна строка не затронута.");
+            }
+            try (ResultSet generatedKeys = psCoords.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    coordId = generatedKeys.getInt(1);
+                }
+            }
+        }
+
+        int carId = -1;
+        try (PreparedStatement psCars = conn.prepareStatement("INSERT INTO cars (name_car, cool) VALUES (?, ?) RETURNING id_car", Statement.RETURN_GENERATED_KEYS)) {
+            psCars.setString(1, hb.getCar().getName());
+            psCars.setBoolean(2, hb.getCar().isCool());
+            int affectedRows = psCars.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Ошибка при добавлении машины, ни одна строка не затронута.");
+            }
+            try (ResultSet generatedKeys = psCars.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    carId = generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Ошибка при добавлении машины, не получен сгенерированный ID.");
+                }
+            }
+        }
+
+        int humanBeingId = -1;
+        try (PreparedStatement psHB = conn.prepareStatement("INSERT INTO hb (name, coords_id, creation_date, real_hero, has_toothpick, impact_speed, soundtrack_name, weapon_type, mood, car_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id", Statement.RETURN_GENERATED_KEYS)) {
+            psHB.setString(1, hb.getName());
+            psHB.setInt(2, coordId);
+            psHB.setDate(3, new java.sql.Date(System.currentTimeMillis()));
+            psHB.setBoolean(4, hb.isRealHero());
+            psHB.setBoolean(5, hb.isHasToothpick());
+            psHB.setLong(6, hb.getImpactSpeed());
+            psHB.setString(7, hb.getSoundtrackName());
+            psHB.setString(8, hb.getWeaponType().name());
+            psHB.setString(9, hb.getMood() != null ? hb.getMood().name() : null);
+            psHB.setInt(10, carId);
+
+            int affectedRows = psHB.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Ошибка при добавлении HumanBeing");
+            }
+            try (ResultSet generatedKeys = psHB.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    humanBeingId = generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Ошибка при добавлении HumanBeing, не получен сгенерированный ID.");
+                }
+            }
+        }
+
+        try (PreparedStatement psCollection = conn.prepareStatement(
+                "INSERT INTO collection (element_id, owner_id) VALUES (?, ?)")) {
+            psCollection.setInt(1, humanBeingId);
+            psCollection.setInt(2, ownerId);
+            psCollection.executeUpdate();
+        }
+
+        conn.commit();
+        success = true;
+    } catch (SQLException e) {
         try {
-            hb.setOwnerId(findUserIDbyUsername(username));
-            conn.setAutoCommit(false);
+            if (conn != null) {
+                conn.rollback();
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        e.printStackTrace();
+    } finally {
+        try {
+            if (conn != null) {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            System.err.println("Ошибка при сбросе autoCommit:");
+            e.printStackTrace();
+        }
+    }
+    return success;
+}
 
-            PreparedStatement psCommand = conn.prepareStatement("INSERT INTO coords (x, y) VALUES (?, ?)");
-            psCommand.setLong(1, hb.getCoordinates().getX());
-            psCommand.setLong(2, hb.getCoordinates().getY());
-            psCommand.execute();
-            Statement sCoord = conn.createStatement();
-            rs = sCoord.executeQuery("SELECT id_coord FROM coords ORDER BY id_coord DESC LIMIT 1");
+    public boolean updateID(int id, HumanBeing hb, String username) { // Принимаем int id
+        boolean success = false;
+        int ownerId = findUserIDbyUsername(username); // Находим ID пользователя
+        if (ownerId <= 0) {
+            System.err.println("Ошибка updateID: Пользователь '" + username + "' не найден или невозможно получить его ID.");
+            return false;
+        }
 
-            int maxIDCoord = 1;
-            while (rs.next()) {
-                maxIDCoord = rs.getInt("id_coord");
+        try {
+            conn.setAutoCommit(false); // Начинаем транзакцию
+
+            // 1. Проверяем, принадлежит ли элемент с данным id текущему пользователю,
+            //    и получаем IDs связанных координат и машины.
+            int existingCoordsId = -1;
+            int existingCarId = -1;
+
+            try (PreparedStatement psCheckAndGetIds = conn.prepareStatement("SELECT hb.coords_id, hb.car_id FROM hb JOIN collection ON hb.id = collection.element_id WHERE hb.id = ? AND collection.owner_id = ?")) {
+                psCheckAndGetIds.setInt(1, id);
+                psCheckAndGetIds.setInt(2, ownerId);
+                try (ResultSet rsCheck = psCheckAndGetIds.executeQuery()) {
+                    if (!rsCheck.next()) {
+                        System.err.println("Ошибка updateID: Элемент с ID " + id + " не найден или не принадлежит пользователю '" + username + "'.");
+                        try {
+                            if (conn != null) conn.rollback();
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
+                        return false;
+                    }
+                    existingCoordsId = rsCheck.getInt("coords_id");
+                    existingCarId = rsCheck.getInt("car_id");
+                }
+            }
+            try (PreparedStatement psUCoord = conn.prepareStatement("UPDATE coords SET x = ?, y = ? WHERE id_coord = ?")) {
+                psUCoord.setLong(1, hb.getCoordinates().getX());
+                psUCoord.setLong(2, hb.getCoordinates().getY());
+                psUCoord.setInt(3, existingCoordsId);
+                int affectedRows = psUCoord.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new SQLException("Обновление координат (id_coord: " + existingCoordsId + ") не удалось");
+                }
             }
 
-            PreparedStatement psCar = conn.prepareStatement("INSERT INTO cars (name_car, cool) VALUES (?, ?)");
-            psCar.setString(1, hb.getCar().getName());
-            psCar.setBoolean(2, hb.getCar().isCool());
-            psCar.execute();
-            Statement sCar = conn.createStatement();
-            rs = sCar.executeQuery("SELECT id_car FROM cars ORDER BY id_car DESC LIMIT 1");
-
-            int maxIDCar = 1;
-            while (rs.next()) {
-                maxIDCar = rs.getInt("id_car");
+            try (PreparedStatement psUCar = conn.prepareStatement("UPDATE cars SET name_car = ?, cool = ? WHERE id_car = ?")) {
+                psUCar.setString(1, hb.getCar().getName());
+                psUCar.setBoolean(2, hb.getCar().isCool());
+                psUCar.setInt(3, existingCarId);
+                int affectedRows = psUCar.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new SQLException("Обновление машины (id_car: " + existingCarId + ") не удалось");
+                }
             }
 
-            PreparedStatement psE = conn.prepareStatement("INSERT INTO hb (name, coords_id, creation_date, real_hero, has_toothpick, impact_speed, soundtrack_name, weapon_type, mood, car_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            psE.setString(1, hb.getName());
-            psE.setInt(2, maxIDCoord);
-            psE.setDate(3, (Date) hb.getCreationDate());
-            psE.setBoolean(4, hb.isRealHero());
-            psE.setBoolean(5, hb.isHasToothpick());
-            psE.setLong(6, hb.getImpactSpeed());
-            psE.setString(7, hb.getSoundtrackName());
-            psE.setString(8, hb.getWeaponType().name());
-            psE.setString(9, hb.getMood().name());
-            psE.setInt(10, maxIDCar);
+            try (PreparedStatement psE = conn.prepareStatement(
+                    "UPDATE hb SET name = ? , real_hero = ?, has_toothpick = ?, impact_speed = ?, soundtrack_name = ?, weapon_type = ?, mood = ? WHERE id = ?")) { // Убрали обновление coords_id и car_id т.к. они не меняются, меняются данные по ним
+                psE.setString(1, hb.getName());
+                // psE.setDate(2, new java.sql.Date(hb.getCreationDate().getTime()));
+                psE.setBoolean(2, hb.isRealHero());
+                psE.setBoolean(3, hb.isHasToothpick());
+                psE.setLong(4, hb.getImpactSpeed());
+                psE.setString(5, hb.getSoundtrackName());
+                psE.setString(6, hb.getWeaponType().name());
+                psE.setString(7, hb.getMood() != null ? hb.getMood().name() : null);
+                psE.setInt(8, id);
 
-            psE.execute();
-
-            Statement s = conn.createStatement();
-            rs = s.executeQuery("SELECT hb.id FROM hb ORDER BY id DESC LIMIT 1");
-            int maxID = 1;
-            while (rs.next()) {
-                maxID = rs.getInt("id");
+                int affectedRows = psE.executeUpdate();
+                if (affectedRows == 0) {
+                    // Это может произойти, если элемент был удален после проверки владения, но до UPDATE hb
+                    throw new SQLException("Обновление HumanBeing (id: " + id + ") не удалось");
+                }
             }
-
-            PreparedStatement psCol = conn.prepareStatement("INSERT INTO collection (element_id, owner_id) VALUES (?, ?)");
-            psCol.setInt(1, maxID);
-            psCol.setInt(2, hb.getOwnerId());
-            psCol.execute();
 
             conn.commit();
             success = true;
+            System.out.println("Элемент с ID " + id + " успешно обновлен.");
 
         } catch (SQLException e) {
             try {
-                e.printStackTrace();
-                conn.rollback();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException ex) {
+                System.err.println("Ошибка при откате транзакции updateID:");
+                ex.printStackTrace();
             }
+            System.err.println("Подробности ошибки updateID:");
+            e.printStackTrace();
         } finally {
             try {
-                conn.setAutoCommit(true);
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -264,110 +411,66 @@ public class DBManager {
         return success;
     }
 
-    public boolean updateID (int id, HumanBeing hb, String username) {
+    public boolean removeByID(String username, int id) {
         boolean success = false;
+        int ownerId = findUserIDbyUsername(username);
+        if (ownerId <= 0) {
+            System.err.println("Ошибка removeByID: Пользователь '" + username + "' не найден или невозможно получить его ID.");
+            return false;
+        }
 
         try {
             conn.setAutoCommit(false);
 
-            checkAccessToElement(hb, username);
-
-            PreparedStatement psCoord = conn.prepareStatement("SELECT coords_id FROM hb WHERE coords_id = ?");
-            psCoord.setInt(1, id);
-            rs = psCoord.executeQuery();
-            Integer coordsID = null;
-            while (rs.next()) {
-                coordsID = rs.getInt("coords_id");
+            boolean elementOwned = false;
+            try (PreparedStatement psCO = conn.prepareStatement(
+                    "SELECT 1 FROM collection WHERE element_id = ? AND owner_id = ?")) {
+                psCO.setInt(1, id);
+                psCO.setInt(2, ownerId);
+                try (ResultSet rsCheck = psCO.executeQuery()) {
+                    if (rsCheck.next()) {
+                        elementOwned = true;
+                    }
+                }
             }
 
-            PreparedStatement psCar = conn.prepareStatement("SELECT car_id FROM hb WHERE car_id = ?");
-            psCoord.setInt(1, id);
-            rs = psCoord.executeQuery();
-            Integer carID = null;
-            while (rs.next()) {
-                carID = rs.getInt("car_id");
+            if (!elementOwned) {
+                System.err.println("Ошибка removeByID: Элемент с ID " + id + " не найден или не принадлежит пользователю '" + username + "'.");
+                try {
+                    if (conn != null) {
+                        conn.rollback();
+                    }
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                return false;
             }
 
-            PreparedStatement psUCoord = conn.prepareStatement("UPDATE coords SET x = ?, y = ? WHERE id_coord = ?");
-            psUCoord.setLong(1, hb.getCoordinates().getX());
-            psUCoord.setLong(2, hb.getCoordinates().getY());
-            psUCoord.setInt(3, coordsID);
-            psUCoord.execute();
+            try (PreparedStatement psDBID = conn.prepareStatement("DELETE FROM hb WHERE id = ?")) {
+                psDBID.setInt(1, id);
+                int affectedRows = psDBID.executeUpdate();
 
-            PreparedStatement psUCar = conn.prepareStatement("UPDATE cars SET name_car = ?, cool = ? WHERE id_car = ?");
-            psUCar.setLong(1, hb.getCoordinates().getX());
-            psUCar.setLong(2, hb.getCoordinates().getY());
-            psUCar.setInt(3, carID);
-            psUCar.execute();
-
-            PreparedStatement psE = conn.prepareStatement("UPDATE hb SET name = ? , creation_date = ?, coords_id = ?, real_hero = ?, has_toothpick = ?, impact_speed = ?, soundtrack_name = ?, weapon_type = ?, mood = ?, car_id = ? WHERE id = ? AND ? = ?");
-            psE.setString(1, hb.getName());
-            psE.setDate(2, (Date) hb.getCreationDate());
-            psE.setInt(3, coordsID);
-            psE.setBoolean(4, hb.isRealHero());
-            psE.setBoolean(5, hb.isHasToothpick());
-            psE.setLong(6, hb.getImpactSpeed());
-            psE.setString(7, hb.getSoundtrackName());
-            psE.setString(8, hb.getWeaponType().name());
-            psE.setString(9, hb.getMood().name());
-            psE.setInt(10, carID);
-
-            psE.execute();
-            conn.commit();
-            success = true;
-
-        } catch (SQLException e) {
-            try {
-                e.printStackTrace();
-                conn.rollback();
-            } catch (SQLException ex) {
-                e.printStackTrace();
-            }
-        }
-        finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return success;
-    }
-
-    public boolean removeByID (String username, String id) {
-        boolean success = false;
-        try {
-            boolean flag = false;
-            conn.setAutoCommit(false);
-            PreparedStatement ps = conn.prepareStatement("SELECT collection.element_id FROM collection JOIN users ON collection.owner_id = users.user_id JOIN hb ON collection.element_id = hb.id JOIN coords ON hb.coords_id = coords.id_coord WHERE users.user_id = ?");
-            ps.setString(1, id);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                flag = true;
-            }
-
-            PreparedStatement psD = conn.prepareStatement("DELETE FROM coords WHERE id_coord = (SELECT hb.coords_id FROM hb WHERE coords_id = (SELECT element_id FROM collection WHERE owner_id = ?))");
-            psD.setString(1, id);
-            psD.execute();
-
-            conn.commit();
-            success = true;
-
-            if (flag) {
-                success = false;
+                if (affectedRows > 0) {
+                    conn.commit();
+                    success = true;
+                    System.out.println("Элемент с ID " + id + " успешно удален.");
+                }
             }
 
         } catch (SQLException e) {
             try {
-                e.printStackTrace();
-                conn.rollback();
+                if (conn != null) {
+                    conn.rollback();
+                }
             } catch (SQLException ex) {
-                e.printStackTrace();
+                ex.printStackTrace();
             }
-        }
-        finally {
+            e.printStackTrace();
+        } finally {
             try {
-                conn.setAutoCommit(true);
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -377,24 +480,39 @@ public class DBManager {
 
     public boolean clear(String username) {
         boolean success = false;
+        int ownerId = findUserIDbyUsername(username);
+        if (ownerId <= 0) {
+            System.err.println("Ошибка clear: Пользователь '" + username + "' не найден или невозможно получить его ID.");
+            return false;
+        }
+
         try {
             conn.setAutoCommit(false);
 
-            PreparedStatement psD = conn.prepareStatement("DELETE FROM coords WHERE id_coord = (SELECT hb.coords_id FROM hb WHERE id_coord = (SELECT collection.element_id FROM collection WHERE owner_id = (SELECT owner_id FROM users WHERE login = ?)))");
-            psD.setString(1, username);
-            psD.execute();
-            conn.commit();
-            success = true;
+            try (PreparedStatement psClearCollection = conn.prepareStatement(
+                    "DELETE FROM collection WHERE owner_id = ?")) {
+                psClearCollection.setInt(1, ownerId);
+                int affectedRows = psClearCollection.executeUpdate();
+
+                conn.commit();
+                success = true;
+                System.out.println("Все элементы пользователя '" + username + "' успешно удалены (" + affectedRows + " элементов).");
+            }
+
         } catch (SQLException e) {
             try {
-                e.printStackTrace();
-                conn.rollback();
+                if (conn != null) {
+                    conn.rollback();
+                }
             } catch (SQLException ex) {
-                e.printStackTrace();
+                ex.printStackTrace();
             }
+            e.printStackTrace();
         } finally {
             try {
-                conn.setAutoCommit(true);
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -424,182 +542,150 @@ public class DBManager {
         return id;
     }
 
-    public boolean removeFirst (String username) {
+    public boolean removeFirst(String username) {
         boolean success = false;
+        int ownerId = findUserIDbyUsername(username); // Находим ID пользователя
+        if (ownerId <= 0) {
+            System.err.println("Ошибка removeFirst: Пользователь '" + username + "' не найден или невозможно получить его ID.");
+            return false; // Пользователь не найден
+        }
+
         try {
-            HumanBeing min = cm.findMin();
-            checkAccessToElement(min, username);
-            int idElement = findIDElementByElement(min);
+            conn.setAutoCommit(false);
 
-            PreparedStatement ps = conn.prepareStatement("DELETE FROM collection WHERE element_id = ? AND owner_id = (SELECT user_id FROM users WHERE login = ?)");
-            ps.setInt(1, idElement);
-            ps.setString(2, username);
-            ps.execute();
+            int elementIdToRemove = -1;
+            try (PreparedStatement psFindMinOwned = conn.prepareStatement("SELECT hb.id FROM hb JOIN collection ON hb.id = collection.element_id WHERE collection.owner_id = ? ORDER BY hb.id ASC LIMIT 1")) {
+                psFindMinOwned.setInt(1, ownerId);
 
+                try (ResultSet rsMinOwned = psFindMinOwned.executeQuery()) {
+                    if (!rsMinOwned.next()) {
+                        System.out.println("У пользователя '" + username + "' нет элементов для удаления.");
+                        try {
+                            if (conn != null) conn.rollback();
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
+                        return false;
+                    }
+                    elementIdToRemove = rsMinOwned.getInt(1);
+                }
+            }
+
+            try (PreparedStatement psDeleteHB = conn.prepareStatement("DELETE FROM hb WHERE id = ?")) {
+                psDeleteHB.setInt(1, elementIdToRemove);
+                int affectedRows = psDeleteHB.executeUpdate();
+
+                if (affectedRows > 0) {
+                    conn.commit();
+                    success = true;
+//                    System.out.println("Минимальный элемент пользователя '" + username + "' (ID: " + elementIdToRemove + ") успешно удален.");
+                } else {
+                    System.err.println("Ошибка removeFirst: Элемент с ID " + elementIdToRemove + " не был удален (возможно, уже отсутствует?).");
+                    try {
+                        if (conn != null) conn.rollback();
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (NoAccessToElement e) {
-            e.printStackTrace();
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace(); // Печатаем информацию об исходной ошибке
         } finally {
             try {
-                conn.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return success;
-    }
-
-    private boolean checkAccessToElement (String toFindUN, String yourUN) {
-        boolean access = false;
-        if (toFindUN.equals(yourUN)) {
-            access = true;
-        } else {
-            access = false;
-            throw new NoAccessToElement(yourUN);
-        }
-        return access;
-    }
-    private boolean checkAccessToElement (HumanBeing hb, String yourUN) {
-        boolean access = false;
-        if (findIDElementByElement(hb) == findUserIDbyUsername(yourUN)) {
-//            access = true;
-            try {
-                conn.setAutoCommit(false);
-
-                Integer idOfUser = findUserIDbyUsername(yourUN);
-                Integer ifOfElement = findIDElementByElement(hb);
-
-                PreparedStatement ps = conn.prepareStatement("SELECT collection.element_id FROM collection WHERE element_id = ? AND owner_id = ?");
-                ps.setInt(1, ifOfElement);
-                ps.setInt(2, idOfUser);
-                int affectedRows = ps.executeUpdate();
-                if (affectedRows == 0) {
-                    throw new NoAccessToElement(yourUN);
-                } else {
-                    access = true;
+                if (conn != null) {
+                    conn.setAutoCommit(true);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } else {
-            access = false;
-            throw new NoAccessToElement(yourUN);
         }
-        return access;
+        return success;
     }
 
-    public int findIDElementByElement (HumanBeing hb) {
-        int id = 0;
-
-        Integer coordsID = null;
-        Integer carID = null;
-
-        String moodString = hb.getMood().toString();
-        String weaponTypeString = hb.getWeaponType().toString();
-
-        try {
-            conn.setAutoCommit(false);
-
-            PreparedStatement psCoord = conn.prepareStatement("SELECT coords.id_coord FROM coords WHERE x = ? AND y = ?");
-            psCoord.setLong(1, hb.getCoordinates().getX());
-            psCoord.setLong(2, hb.getCoordinates().getY());
-            rs = psCoord.executeQuery();
-            while (rs.next()) {
-                coordsID = rs.getInt("id_coord");
-            }
-
-            PreparedStatement psCar = conn.prepareStatement("SELECT id_car FROM cars WHERE name_car = ? AND cool = ?");
-            psCar.setString(1, hb.getCar().getName());
-            psCar.setBoolean(2, hb.getCar().isCool());
-            rs = psCar.executeQuery();
-            while (rs.next()) {
-                carID = rs.getInt("id_car");
-            }
-
-            String request = "SELECT id FROM hb WHERE (" +
-                    "name = ? " +
-                    "AND coords_id = " + coordsID +
-                    "AND creation_date = ?" +
-                    "AND real_hero = ? " +
-                    "AND has_toothpick = ? " +
-                    "AND impact_speed = ? " +
-                    "AND soundtrack_name = ?" +
-                    "AND weapon_type = " + hb.getWeaponType().toString() +
-                    "AND mood = " + hb.getMood().toString() +
-                    "AND car_id = " + carID + ")";
-
-            PreparedStatement psAll = conn.prepareStatement(request);
-            psAll.setString(1, hb.getName());
-            psAll.setDate(2, (Date) hb.getCreationDate());
-            psAll.setBoolean(3, hb.isRealHero());
-            psAll.setBoolean(4, hb.isHasToothpick());
-            psAll.setLong(5, hb.getImpactSpeed());
-            psAll.setString(6, hb.getSoundtrackName());
-            rs = psAll.executeQuery();
-            while (rs.next()) {
-                id = rs.getInt("id");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return id;
-    }
-
-    public boolean removeAnyByMood (String mood) {
+    public boolean removeAnyByMood (String username, String moodString) {
         boolean success = false;
+        int ownerId = findUserIDbyUsername(username);
+        if (ownerId <= 0) {
+            System.err.println("Ошибка removeAnyByMood: Пользователь '" + username + "' не найден или невозможно получить его ID.");
+            return false;
+        }
+
+        String upperMoodString = moodString.toUpperCase();
+        try {
+            Mood.valueOf(upperMoodString);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Ошибка removeAnyByMood: Неверное значение настроения: " + moodString);
+            return false;
+        }
+
         try {
             conn.setAutoCommit(false);
-            PreparedStatement psM = conn.prepareStatement("DELETE FROM hb WHERE id IN (SELECT id FROM hb WHERE mood = ? ORDER BY id ASC LIMIT 1)");
-            psM.setString(1, mood);
-            psM.execute();
-            success = true;
+
+            int elementIdToRemove = -1;
+            try(PreparedStatement psFind = conn.prepareStatement("SELECT hb.id FROM hb JOIN collection ON hb.id = collection.element_id WHERE collection.owner_id = ? AND hb.mood = ? ORDER BY hb.id ASC LIMIT 1")) {
+                psFind.setInt(1, ownerId);
+                psFind.setString(2, upperMoodString);
+                try(ResultSet rsFind = psFind.executeQuery()) {
+                    if (!rsFind.next()) {
+                        System.out.println("У пользователя '" + username + "' нет элементов с настроением " + moodString + " для удаления.");
+                        try {
+                            if (conn != null) conn.rollback();
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
+                        return false;
+                    }
+                    elementIdToRemove = rsFind.getInt(1);
+                }
+            }
+
+            if (elementIdToRemove != -1) {
+                try(PreparedStatement psDeleteHB = conn.prepareStatement("DELETE FROM hb WHERE id = ?")) {
+                    psDeleteHB.setInt(1, elementIdToRemove);
+                    int affectedRows = psDeleteHB.executeUpdate();
+                    if (affectedRows > 0) {
+                        conn.commit();
+                        success = true;
+                        System.out.println("Один элемент пользователя '" + username + "' с настроением " + moodString + " (ID: " + elementIdToRemove + ") успешно удален.");
+                    }
+                }
+            }
+
         } catch (SQLException e) {
+            try {
+                if (conn != null) conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.printStackTrace();
         } finally {
             try {
-                conn.setAutoCommit(true);
+                if (conn != null) conn.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
         return success;
-    }
-
-    public int findOwnerIDByElement (HumanBeing hb) {
-        int id = 0;
-        int idEl = findIDElementByElement(hb);
-        try {
-            PreparedStatement ps = conn.prepareStatement("SELECT collection.owner_id FROM collection WHERE element_id = ?");
-            ps.setInt(1, idEl);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                id = rs.getInt("owner_id");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return id;
     }
 
     public int findOwnerIDByElementID (int id) {
         int ownerID = 0;
         try {
-            conn.setAutoCommit(false);
-
-            PreparedStatement ps = conn.prepareStatement("SELECT collection.owner_id FROM collection WHERE element_id = ?");
-            ps.setInt(1, id);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                ownerID = rs.getInt("owner_id");
+            try (PreparedStatement ps = conn.prepareStatement("SELECT collection.owner_id FROM collection WHERE element_id = ?")) {
+                ps.setInt(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        ownerID = rs.getInt("owner_id");
+                    }
+                }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

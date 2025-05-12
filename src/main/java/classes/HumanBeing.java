@@ -78,6 +78,7 @@ public class HumanBeing implements Comparable<HumanBeing>{
 
     public HumanBeing (){
         this.creationDate = new Date();
+        creationDate.setTime(System.currentTimeMillis());
         try {
             if (name == null) {
                 throw new IllegalArgumentException("имя может быть null");
@@ -123,9 +124,20 @@ public class HumanBeing implements Comparable<HumanBeing>{
         this.car = car;
     }
 
-    public HumanBeing(String name, Coordinates coordinates, boolean realHero, boolean hasToothpick, Long impactSpeed, String soundtrackName, WeaponType weaponType, Mood mood, Car car) {
+    public HumanBeing(
+            String name,
+            Coordinates coordinates,
+            boolean realHero,
+            boolean hasToothpick,
+            Long impactSpeed,
+            String soundtrackName,
+            WeaponType weaponType,
+            Mood mood,
+            Car car
+    ) {
 
         this.creationDate = new Date();
+        creationDate.setTime(System.currentTimeMillis());
         this.realHero = realHero;
         this.hasToothpick = hasToothpick;
 

@@ -19,7 +19,7 @@ public class RemoveByIDCommand extends Command {
     public void bodyOfCommand(String argument) {
         try {
             cm.removeById(Integer.parseInt(argument));
-            db.removeByID(username, argument);
+            db.removeByID(username, Integer.parseInt(argument));
         } catch (IndexOutOfBoundsException e) {
             System.out.println("Удаление не удалось, данного элемента нет");
         }

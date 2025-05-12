@@ -1,8 +1,11 @@
 package run;
 
-import functions.*;
-import managers.*;
-import utils.*;
+import functions.Invoker;
+import managers.CollectionManager;
+import managers.ConsoleManager;
+import managers.DBManager;
+import managers.LoginManager;
+import utils.JSCh;
 
 import java.util.Scanner;
 
@@ -12,13 +15,15 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static CollectionManager cm = new CollectionManager();
+    public static DBManager db = new DBManager();
+
+    public static CollectionManager cm = new CollectionManager(db);
 
     public static Invoker inv = new Invoker();
 
     public static Scanner sc = new Scanner(System.in);
 
-    public static DBManager db = new DBManager();
+//    public static DBManager db = new DBManager();
 
     public static boolean login = false;
     public static boolean toBreak = false;
@@ -31,6 +36,7 @@ public class Main {
         try {
             jsc.connectSSH();
             db.connect();
+            cm.startCM();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -43,8 +49,6 @@ public class Main {
         System.out.println("Напоминаю, что для справки напишите help");
         System.out.println("А для выхода из программы советую использовать сочетание клавиш Ctrl+C/D (в зависимости от вашей системы)");
         System.out.println("Желаю удачи!");
-
-        boolean login = false;
 
         ConsoleManager consM = new ConsoleManager();
         consM.startConsole();

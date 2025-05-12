@@ -2,7 +2,7 @@ package managers;
 
 import run.Main;
 
-import java.util.*;
+import java.util.Scanner;
 
 public class LoginManager {
 
@@ -29,6 +29,8 @@ public class LoginManager {
                     Main.login = db.login(parts[1], parts[2]);
                     if (Main.login) {
                         Main.username = parts[1];
+                    } else {
+//                        System.out.println("Неверный пользователь или пароль");
                     }
                 } else if (commandStr.equals("register") && parts.length == 3) {
                     db.registerUser(parts[1], parts[2]);

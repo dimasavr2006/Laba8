@@ -1,9 +1,10 @@
 package commands;
 
 import classes.HumanBeing;
-import run.Main;
 import utils.BuildersOfElement;
 
+import java.nio.file.AccessDeniedException;
+import java.rmi.AccessException;
 import java.util.Scanner;
 
 /**
@@ -19,6 +20,9 @@ public class AddElementCommand extends Command {
 
     int expected = 0;
 
+    static HumanBeing toAdd = null;
+    static BuildersOfElement b = new BuildersOfElement();
+
     public AddElementCommand() {
         super();
         this.nameOfCommand = name;
@@ -28,10 +32,16 @@ public class AddElementCommand extends Command {
 
     @Override
     public void bodyOfCommand(String line) {
-        BuildersOfElement b = new BuildersOfElement();
-        HumanBeing toAdd = b.createNoAdd(true, sc, null);
+//        BuildersOfElement b = new BuildersOfElement();
+//        toAdd = b.createNoAdd(true, sc, null);
         cm.add(toAdd);
-        db.add(toAdd, username);
+//        db.add(toAdd, username);
     }
 
+    @Override
+    public Boolean bodyOfDBCommand(String argument) throws AccessException, AccessDeniedException {
+//        BuildersOfElement b = new BuildersOfElement();
+        toAdd = b.createNoAdd(true, sc, null);
+        return db.add(toAdd, username);
+    }
 }

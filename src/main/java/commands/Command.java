@@ -21,7 +21,7 @@ public abstract class Command {
 
     protected static DBManager db = Main.db;
 
-    protected static String username = Main.username;
+    protected static String username;
 
     Scanner sc = Main.sc;
 
@@ -52,7 +52,17 @@ public abstract class Command {
 
     public void execute(String argument) throws AccessDeniedException, AccessException {
         if ((argument.trim().isEmpty() && numberOfArgs == 0) || (!argument.trim().isEmpty() && numberOfArgs == 1) || (!argument.trim().isEmpty() && numberOfArgs == 3)) {
-            bodyOfCommand(argument);
+            setUsernameAgain();
+            Boolean b = bodyOfDBCommand(argument);
+            if (b == null) {
+                bodyOfCommand(argument);
+            } else if (b == true) {
+//                bodyOfCommand(argument);
+                CollectionManager.collection = db.getCollection();
+            } else if (b == false) {
+                CollectionManager.collection = db.getCollection();
+            }
+            CollectionManager.collection = db.getCollection();
         } else {
             throw new IncorrectArgsNumber(numberOfArgs);
         }
@@ -72,6 +82,10 @@ public abstract class Command {
     }
     public void bodyOfCommand(String argument) throws AccessException, AccessDeniedException {}
 
+    public Boolean bodyOfDBCommand(String argument) throws AccessException, AccessDeniedException {
+        return null;
+    }
+
 //    @Override
     public void description() {
         String ret = nameOfCommand + " - " + description;
@@ -84,5 +98,9 @@ public abstract class Command {
 
     public String getNameOfCommand() {
         return nameOfCommand;
+    }
+
+    public static void setUsernameAgain() {
+        username = Main.username;
     }
 }

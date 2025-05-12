@@ -8,7 +8,7 @@ public class MinBySoundtrackNameCommand extends Command {
 
     private String desc = "Выводит название элемента коллекции с минимальным значением поля soundtrackName";
     private String name = "min_by_soundtrack_name";
-    private int expected = 1;
+    private int expected = 0;
 
     public MinBySoundtrackNameCommand() {
         this.nameOfCommand = name;

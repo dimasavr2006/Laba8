@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Random;
 
 public class CollectionManager{
 
@@ -23,14 +22,23 @@ public class CollectionManager{
     LocalDateTime initialazed;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd:MM:yyyy HH:mm:ss");
     String timeOfCreation;
+    DBManager db;
 
     public static ArrayList<HumanBeing> collection;
 
-    public CollectionManager() {
-        initialazed = LocalDateTime.now();
-        timeOfCreation = initialazed.format(formatter);
+    public CollectionManager(DBManager db) {
+        this.db = db;;
+//        initialazed = LocalDateTime.now();
+//        timeOfCreation = initialazed.format(formatter);
+//        db = new DBManager();
+////        collection = new ArrayList<>();
+//        collection = db.getCollection();
+    }
 
-        collection = new ArrayList<>();
+    public void startCM () {
+        initialazed = LocalDateTime.now();
+        timeOfCreation = LocalDateTime.now().format(formatter);
+        collection = db.getCollection();
     }
 
     /**
