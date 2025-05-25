@@ -1,7 +1,9 @@
 package classes;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
+@Deprecated(forRemoval = true)
 public class Passwords {
     public Map<String, String> passwords = new HashMap<>();
 

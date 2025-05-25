@@ -18,7 +18,7 @@ public class AddIfMinCommand extends Command {
     int expected = 0;
 
     static HumanBeing toAdd = null;
-    static BuildersOfElement b = new BuildersOfElement();
+    private static BuildersOfElement b = new BuildersOfElement();
 
     public AddIfMinCommand() {
         this.nameOfCommand = name;
