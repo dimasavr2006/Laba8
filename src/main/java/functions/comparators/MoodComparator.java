@@ -1,4 +1,4 @@
-package functions;
+package functions.comparators;
 
 import classes.HumanBeing;
 

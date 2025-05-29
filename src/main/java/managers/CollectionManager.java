@@ -3,8 +3,8 @@ package managers;
 import classes.HumanBeing;
 import enums.Mood;
 import exceptions.NullStringException;
-import functions.MoodComparator;
-import functions.SoundtrackNameComparator;
+import functions.comparators.MoodComparator;
+import functions.comparators.SoundtrackNameComparator;
 import utils.JsonParser;
 import utils.ScriptFileReader;
 
