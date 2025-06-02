@@ -16,6 +16,8 @@ public class UpdateIDCommand extends Command {
     private String name = "update_id";
     private int expected = 1;
 
+    private static HumanBeing objectFromGUI = null;
+
     public UpdateIDCommand() {
         this.nameOfCommand = name;
         this.description = desc;
@@ -41,8 +43,32 @@ public class UpdateIDCommand extends Command {
 
     @Override
     public Boolean bodyOfDBCommand(String argument) throws AccessException, AccessDeniedException {
-        toAdd = b.createNoAdd(true, sc, null);
-        return db.updateID(Integer.parseInt(argument), toAdd, username);
+//        toAdd = b.createNoAdd(true, sc, null);
+//        return db.updateID(Integer.parseInt(argument), toAdd, username);
+
+        if (objectFromGUI == null) {
+            return false; // Не можем обновить без новых данных
+        }
+
+        int idToUpdate;
+        try {
+            idToUpdate = Integer.parseInt(argument.trim());
+        } catch (NumberFormatException e) {
+            System.err.println("UpdateIDCommand: Некорректный ID для обновления: " + argument);
+            objectFromGUI = null;
+            return false;
+        }
+
+        HumanBeing updatedHuman = objectFromGUI;
+        objectFromGUI = null;
+
+        System.out.println("UpdateIDCommand: Получен объект из GUI для обновления ID=" + idToUpdate);
+        boolean success = db.updateID(idToUpdate, updatedHuman, username);
+        if (!success) {
+            System.err.println("UpdateIDCommand: Ошибка обновления объекта ID=" + idToUpdate + " в БД.");
+        }
+        return success;
+
     }
     //    @Override
 //    public void execute(String argument) {
@@ -59,5 +85,9 @@ public class UpdateIDCommand extends Command {
 //            System.out.println("Неверный ID");
 //        }
 //    }
+
+    public static void setObjectFromGUI(HumanBeing hb) {
+        objectFromGUI = hb;
+    }
 
 }

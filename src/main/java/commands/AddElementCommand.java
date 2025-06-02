@@ -23,6 +23,8 @@ public class AddElementCommand extends Command {
     static HumanBeing toAdd = null;
     static BuildersOfElement b = new BuildersOfElement();
 
+    private static HumanBeing objectFromGUI = null;
+
     public AddElementCommand() {
         super();
         this.nameOfCommand = name;
@@ -32,16 +34,49 @@ public class AddElementCommand extends Command {
 
     @Override
     public void bodyOfCommand(String line) {
-//        BuildersOfElement b = new BuildersOfElement();
-//        toAdd = b.createNoAdd(true, sc, null);
-        cm.add(toAdd);
-//        db.add(toAdd, username);
+////        BuildersOfElement b = new BuildersOfElement();
+////        toAdd = b.createNoAdd(true, sc, null);
+//        cm.add(toAdd);
+////        db.add(toAdd, username);
+        if (objectFromGUI != null) {
+            cm.add(objectFromGUI);
+            System.out.println("Объект из GUI добавлен в локальную коллекцию (операция с БД могла быть неуспешной).");
+            objectFromGUI = null;
+        }
+//        else if (AddElementCommand.toAdd != null) { // Старый механизм для скриптов/консоли, если он еще используется
+//            cm.add(AddElementCommand.toAdd);
+//            System.out.println("Объект (через статический toAdd) добавлен в локальную коллекцию.");
+//            AddElementCommand.toAdd = null;
+//        }
+        else {
+            System.err.println("AddElementCommand (bodyOfCommand): Нет объекта для добавления.");
+        }
     }
 
     @Override
     public Boolean bodyOfDBCommand(String argument) throws AccessException, AccessDeniedException {
-//        BuildersOfElement b = new BuildersOfElement();
-        toAdd = b.createNoAdd(true, sc, null);
-        return db.add(toAdd, username);
+////        BuildersOfElement b = new BuildersOfElement();
+//        toAdd = b.createNoAdd(true, sc, null);
+//        return db.add(toAdd, username);
+        if (objectFromGUI == null) {
+            System.err.println("AddElementCommand (bodyOfDBCommand): Объект HumanBeing не был предоставлен из GUI. Добавление отменено.");
+            return false;
+        }
+
+        HumanBeing humanToAdd = objectFromGUI;
+        objectFromGUI = null;
+
+        boolean success = db.add(humanToAdd, username);
+
+        if (success) {
+            System.out.println("AddElementCommand: Объект, полученный из GUI, успешно добавлен в БД.");
+        } else {
+            System.err.println("AddElementCommand: Ошибка добавления объекта из GUI в БД.");
+        }
+        return success;
+    }
+
+    public static void setObjectFromGUI(HumanBeing hb) {
+        objectFromGUI = hb;
     }
 }

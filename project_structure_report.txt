@@ -1,5 +1,5 @@
 Структура проекта: C:\Users\dimas\IdeaProjects\Laba8\src
-Сгенерировано: 2025-05-29 22:56:40
+Сгенерировано: 2025-06-02 19:30:17
 ================================================================================
 
 📂 src/
@@ -782,7 +782,7 @@
                   --- КОНЕЦ СОДЕРЖИМОГО (User.java) ---
 
             📂 commands/
-                📄 AddElementCommand.java (1247 bytes)
+                📄 AddElementCommand.java (3042 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (AddElementCommand.java) ---
                   | package commands;
                   | 
@@ -809,6 +809,8 @@
                   |     static HumanBeing toAdd = null;
                   |     static BuildersOfElement b = new BuildersOfElement();
                   | 
+                  |     private static HumanBeing objectFromGUI = null;
+                  | 
                   |     public AddElementCommand() {
                   |         super();
                   |         this.nameOfCommand = name;
@@ -818,17 +820,50 @@
                   | 
                   |     @Override
                   |     public void bodyOfCommand(String line) {
-                  | //        BuildersOfElement b = new BuildersOfElement();
-                  | //        toAdd = b.createNoAdd(true, sc, null);
-                  |         cm.add(toAdd);
-                  | //        db.add(toAdd, username);
+                  | ////        BuildersOfElement b = new BuildersOfElement();
+                  | ////        toAdd = b.createNoAdd(true, sc, null);
+                  | //        cm.add(toAdd);
+                  | ////        db.add(toAdd, username);
+                  |         if (objectFromGUI != null) {
+                  |             cm.add(objectFromGUI);
+                  |             System.out.println("Объект из GUI добавлен в локальную коллекцию (операция с БД могла быть неуспешной).");
+                  |             objectFromGUI = null;
+                  |         }
+                  | //        else if (AddElementCommand.toAdd != null) { // Старый механизм для скриптов/консоли, если он еще используется
+                  | //            cm.add(AddElementCommand.toAdd);
+                  | //            System.out.println("Объект (через статический toAdd) добавлен в локальную коллекцию.");
+                  | //            AddElementCommand.toAdd = null;
+                  | //        }
+                  |         else {
+                  |             System.err.println("AddElementCommand (bodyOfCommand): Нет объекта для добавления.");
+                  |         }
                   |     }
                   | 
                   |     @Override
                   |     public Boolean bodyOfDBCommand(String argument) throws AccessException, AccessDeniedException {
-                  | //        BuildersOfElement b = new BuildersOfElement();
-                  |         toAdd = b.createNoAdd(true, sc, null);
-                  |         return db.add(toAdd, username);
+                  | ////        BuildersOfElement b = new BuildersOfElement();
+                  | //        toAdd = b.createNoAdd(true, sc, null);
+                  | //        return db.add(toAdd, username);
+                  |         if (objectFromGUI == null) {
+                  |             System.err.println("AddElementCommand (bodyOfDBCommand): Объект HumanBeing не был предоставлен из GUI. Добавление отменено.");
+                  |             return false;
+                  |         }
+                  | 
+                  |         HumanBeing humanToAdd = objectFromGUI;
+                  |         objectFromGUI = null;
+                  | 
+                  |         boolean success = db.add(humanToAdd, username);
+                  | 
+                  |         if (success) {
+                  |             System.out.println("AddElementCommand: Объект, полученный из GUI, успешно добавлен в БД.");
+                  |         } else {
+                  |             System.err.println("AddElementCommand: Ошибка добавления объекта из GUI в БД.");
+                  |         }
+                  |         return success;
+                  |     }
+                  | 
+                  |     public static void setObjectFromGUI(HumanBeing hb) {
+                  |         objectFromGUI = hb;
                   |     }
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (AddElementCommand.java) ---
@@ -970,7 +1005,7 @@
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (ClearCommand.java) ---
 
-                📄 Command.java (3191 bytes)
+                📄 Command.java (2559 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (Command.java) ---
                   | package commands;
                   | 
@@ -1040,19 +1075,6 @@
                   |         } else {
                   |             throw new IncorrectArgsNumber(numberOfArgs);
                   |         }
-                  | 
-                  |             /*
-                  |             if (argument.trim().isEmpty() && numberOfArgs != 0) {
-                  |             throw new IncorrectArgsNumber(numberOfArgs);
-                  |         } else if (!argument.trim().isEmpty() && numberOfArgs == 0) {
-                  |             throw new IncorrectArgsNumber(numberOfArgs);
-                  |         } else if (!argument.trim().isEmpty() && numberOfArgs == 1) {
-                  |             bodyOfCommand(argument);
-                  |         } else if (argument.trim().isEmpty() && numberOfArgs == 2) {
-                  |             throw new IncorrectArgsNumber(numberOfArgs);
-                  |         } else if (!argument.trim().isEmpty() && numberOfArgs == 3) {}
-                  |         bodyOfCommand(argument);
-                  |              */
                   |     }
                   |     public void bodyOfCommand(String argument) throws AccessException, AccessDeniedException {}
                   | 
@@ -1773,7 +1795,7 @@
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (SortCommand.java) ---
 
-                📄 UpdateIDCommand.java (2202 bytes)
+                📄 UpdateIDCommand.java (3333 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (UpdateIDCommand.java) ---
                   | package commands;
                   | 
@@ -1792,6 +1814,8 @@
                   |     private String desc = "Обновляет объект с заданным ID";
                   |     private String name = "update_id";
                   |     private int expected = 1;
+                  | 
+                  |     private static HumanBeing objectFromGUI = null;
                   | 
                   |     public UpdateIDCommand() {
                   |         this.nameOfCommand = name;
@@ -1818,8 +1842,32 @@
                   | 
                   |     @Override
                   |     public Boolean bodyOfDBCommand(String argument) throws AccessException, AccessDeniedException {
-                  |         toAdd = b.createNoAdd(true, sc, null);
-                  |         return db.updateID(Integer.parseInt(argument), toAdd, username);
+                  | //        toAdd = b.createNoAdd(true, sc, null);
+                  | //        return db.updateID(Integer.parseInt(argument), toAdd, username);
+                  | 
+                  |         if (objectFromGUI == null) {
+                  |             return false; // Не можем обновить без новых данных
+                  |         }
+                  | 
+                  |         int idToUpdate;
+                  |         try {
+                  |             idToUpdate = Integer.parseInt(argument.trim());
+                  |         } catch (NumberFormatException e) {
+                  |             System.err.println("UpdateIDCommand: Некорректный ID для обновления: " + argument);
+                  |             objectFromGUI = null;
+                  |             return false;
+                  |         }
+                  | 
+                  |         HumanBeing updatedHuman = objectFromGUI;
+                  |         objectFromGUI = null;
+                  | 
+                  |         System.out.println("UpdateIDCommand: Получен объект из GUI для обновления ID=" + idToUpdate);
+                  |         boolean success = db.updateID(idToUpdate, updatedHuman, username);
+                  |         if (!success) {
+                  |             System.err.println("UpdateIDCommand: Ошибка обновления объекта ID=" + idToUpdate + " в БД.");
+                  |         }
+                  |         return success;
+                  | 
                   |     }
                   |     //    @Override
                   | //    public void execute(String argument) {
@@ -1836,6 +1884,10 @@
                   | //            System.out.println("Неверный ID");
                   | //        }
                   | //    }
+                  | 
+                  |     public static void setObjectFromGUI(HumanBeing hb) {
+                  |         objectFromGUI = hb;
+                  |     }
                   | 
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (UpdateIDCommand.java) ---
@@ -2221,61 +2273,183 @@
                       --- КОНЕЦ СОДЕРЖИМОГО (SoundtrackNameComparator.java) ---
 
                 📂 filter/
-                    📄 ColumnRowFilter.java (2373 bytes)
+                    📄 ColumnRowFilter.java (9765 bytes)
                       --- СОДЕРЖИМОЕ ФАЙЛА (ColumnRowFilter.java) ---
-                      | package gui.filter; // Твой пакет
+                      | //package gui.filter; // Твой пакет
+                      | //
+                      | //import classes.HumanBeing;
+                      | //import gui.HBTable;
+                      | //
+                      | //import javax.swing.*;
+                      | //import java.util.stream.Stream;
+                      | //
+                      | //public class ColumnRowFilter extends RowFilter<HBTable, Integer> {
+                      | //    private String searchText;
+                      | //    private int columnIndexToFilter; // Эта переменная теперь будет использоваться
+                      | //    private HBTable tableModel;
+                      | //
+                      | //    public ColumnRowFilter(String searchText, int columnIndexToFilter, HBTable model) {
+                      | //        this.searchText = searchText.toLowerCase().trim();
+                      | //        this.columnIndexToFilter = columnIndexToFilter;
+                      | //        this.tableModel = model;
+                      | //    }
+                      | //
+                      | //    @Override
+                      | //    public boolean include(Entry<? extends HBTable, ? extends Integer> entry) {
+                      | //        if (searchText.isEmpty()) {
+                      | //            return true;
+                      | //        }
+                      | //
+                      | //        HumanBeing human = tableModel.getHumanBeingAt(entry.getIdentifier());
+                      | //        if (human == null) {
+                      | //            return false;
+                      | //        }
+                      | //
+                      | //        Object valueFromColumn;
+                      | //
+                      | //        // Получаем значение ТОЛЬКО для указанной columnIndexToFilter
+                      | //        // Важно: Model getValueAt возвращает "сырые" данные (Date, Enum, etc.)
+                      | //        // Мы должны привести их к строке для текстового поиска.
+                      | //        try {
+                      | //            // Используем метод TableModel для получения значения, которое будет отсортировано/отфильтровано
+                      | //            // entry.getValue(columnIndexToFilter) - это значение из модели для этой колонки
+                      | //            valueFromColumn = entry.getValue(columnIndexToFilter);
+                      | //
+                      | //        } catch (IndexOutOfBoundsException e) {
+                      | //            System.err.println("Неверный индекс колонки в ColumnRowFilter: " + columnIndexToFilter);
+                      | //            return false; // Не включать, если индекс колонки неверный
+                      | //        }
+                      | //
+                      | //
+                      | //        if (valueFromColumn == null) {
+                      | //            return false;
+                      | //        }
+                      | //
+                      | //        // Используем Stream API, как требовалось
+                      | //        return Stream.of(String.valueOf(valueFromColumn).toLowerCase())
+                      | //                .anyMatch(fieldValue -> fieldValue.contains(searchText));
+                      | //    }
+                      | //}
+                      | 
+                      | package functions.filter;
                       | 
                       | import classes.HumanBeing;
                       | import gui.HBTable;
+                      | import managers.LocalisationManager; // Для локализации boolean, если нужно
+                      | 
                       | import javax.swing.RowFilter;
+                      | import java.text.DateFormat;
+                      | import java.text.ParseException;
+                      | import java.util.Date;
+                      | import java.util.Locale;
                       | import java.util.Objects;
                       | import java.util.stream.Stream;
                       | 
                       | public class ColumnRowFilter extends RowFilter<HBTable, Integer> {
-                      |     private String searchText;
-                      |     private int columnIndexToFilter; // Эта переменная теперь будет использоваться
+                      |     private String filterText;
+                      |     private int columnIndex;
+                      |     private String operatorKey; // Ключ оператора, например "operator.contains", "operator.greaterThan"
                       |     private HBTable tableModel;
                       | 
-                      |     public ColumnRowFilter(String searchText, int columnIndexToFilter, HBTable model) {
-                      |         this.searchText = searchText.toLowerCase().trim();
-                      |         this.columnIndexToFilter = columnIndexToFilter;
+                      |     public ColumnRowFilter(String filterText, int columnIndex, String operatorKey, HBTable model) {
+                      |         this.filterText = filterText.trim(); // Убираем пробелы только здесь
+                      |         this.columnIndex = columnIndex;
+                      |         this.operatorKey = operatorKey;
                       |         this.tableModel = model;
                       |     }
                       | 
                       |     @Override
                       |     public boolean include(Entry<? extends HBTable, ? extends Integer> entry) {
-                      |         if (searchText.isEmpty()) {
-                      |             return true;
-                      |         }
-                      | 
                       |         HumanBeing human = tableModel.getHumanBeingAt(entry.getIdentifier());
-                      |         if (human == null) {
-                      |             return false;
+                      |         if (human == null) return false;
+                      | 
+                      |         Object modelValue = entry.getValue(columnIndex); // Получаем "сырое" значение из модели
+                      | 
+                      |         // Если оператор не требует значения (например, для boolean "is true" / "is false")
+                      |         if (modelValue instanceof Boolean) {
+                      |             if (operatorKey.equals("operator.isTrue")) return (Boolean) modelValue;
+                      |             if (operatorKey.equals("operator.isFalse")) return !(Boolean) modelValue;
                       |         }
                       | 
-                      |         Object valueFromColumn;
+                      |         // Если текст фильтра пуст, а оператор требует значение, то строка не проходит
+                      |         if (filterText.isEmpty() && !(modelValue instanceof Boolean && (operatorKey.equals("operator.isTrue") || operatorKey.equals("operator.isFalse")))) {
+                      |             // Для некоторых операторов (IS NULL, IS NOT NULL) пустой текст мог бы быть валидным, но у нас их пока нет.
+                      |             return false; // Или true, если пустой фильтр должен все показывать (но это обычно обрабатывается выше)
+                      |         }
                       | 
-                      |         // Получаем значение ТОЛЬКО для указанной columnIndexToFilter
-                      |         // Важно: Model getValueAt возвращает "сырые" данные (Date, Enum, etc.)
-                      |         // Мы должны привести их к строке для текстового поиска.
+                      | 
+                      |         if (modelValue == null) {
+                      |             // Обработка null значений в колонке - для большинства операторов сравнения это false
+                      |             // Кроме, возможно, "is null" / "is not null", которых у нас пока нет
+                      |             return operatorKey.equals("operator.notEquals") && !filterText.isEmpty(); // Пример: "не равно пустоте" может пройти
+                      |         }
+                      | 
+                      |         String modelValueString = String.valueOf(modelValue).toLowerCase();
+                      |         String filterTextLower = filterText.toLowerCase();
+                      | 
+                      |         // Используем Streams API для соответствия ТЗ, хотя для одного сравнения это избыточно
                       |         try {
-                      |             // Используем метод TableModel для получения значения, которое будет отсортировано/отфильтровано
-                      |             // entry.getValue(columnIndexToFilter) - это значение из модели для этой колонки
-                      |             valueFromColumn = entry.getValue(columnIndexToFilter);
+                      |             switch (operatorKey) {
+                      |                 case "operator.contains":
+                      |                     return Stream.of(modelValueString).anyMatch(s -> s.contains(filterTextLower));
+                      |                 case "operator.equals":
+                      |                 case "operator.equalsNum": // Для чисел и строк можно использовать одно и то же
+                      |                 case "operator.equalsEnum":
+                      |                     return Stream.of(modelValueString).anyMatch(s -> s.equals(filterTextLower));
+                      |                 case "operator.notEquals":
+                      |                 case "operator.notEqualsNum":
+                      |                     return Stream.of(modelValueString).noneMatch(s -> s.equals(filterTextLower)); // или !anyMatch
+                      |                 case "operator.startsWith":
+                      |                     return Stream.of(modelValueString).anyMatch(s -> s.startsWith(filterTextLower));
+                      |                 case "operator.endsWith":
+                      |                     return Stream.of(modelValueString).anyMatch(s -> s.endsWith(filterTextLower));
                       | 
-                      |         } catch (IndexOutOfBoundsException e) {
-                      |             System.err.println("Неверный индекс колонки в ColumnRowFilter: " + columnIndexToFilter);
-                      |             return false; // Не включать, если индекс колонки неверный
+                      |                 // Для чисел
+                      |                 case "operator.greaterThan":
+                      |                     if (modelValue instanceof Number) {
+                      |                         return ((Number) modelValue).doubleValue() > Double.parseDouble(filterText);
+                      |                     } break;
+                      |                 case "operator.lessThan":
+                      |                     if (modelValue instanceof Number) {
+                      |                         return ((Number) modelValue).doubleValue() < Double.parseDouble(filterText);
+                      |                     } break;
+                      |                 case "operator.greaterOrEquals":
+                      |                     if (modelValue instanceof Number) {
+                      |                         return ((Number) modelValue).doubleValue() >= Double.parseDouble(filterText);
+                      |                     } break;
+                      |                 case "operator.lessOrEquals":
+                      |                     if (modelValue instanceof Number) {
+                      |                         return ((Number) modelValue).doubleValue() <= Double.parseDouble(filterText);
+                      |                     } break;
+                      | 
+                      |                 // Для дат (требует парсинга filterText в Date)
+                      |                 case "operator.dateEquals":
+                      |                 case "operator.dateBefore":
+                      |                 case "operator.dateAfter":
+                      |                     if (modelValue instanceof Date) {
+                      |                         try {
+                      |                             Locale currentLocale = LocalisationManager.getLocale();
+                      |                             DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, currentLocale == null ? Locale.getDefault() : currentLocale);
+                      |                             Date filterDate = df.parse(filterText); // Пытаемся распарсить введенную дату
+                      |                             Date modelDate = (Date) modelValue;
+                      |                             if (operatorKey.equals("operator.dateEquals")) return modelDate.equals(filterDate); // Сравнение дат может быть сложным из-за времени
+                      |                             if (operatorKey.equals("operator.dateBefore")) return modelDate.before(filterDate);
+                      |                             if (operatorKey.equals("operator.dateAfter")) return modelDate.after(filterDate);
+                      |                         } catch (ParseException e) { return false; /* Некорректный формат даты в фильтре */ }
+                      |                     } break;
+                      | 
+                      |                 // Для Boolean (уже обработано выше, но можно добавить здесь для полноты)
+                      |                 case "operator.isTrue":
+                      |                     return modelValue instanceof Boolean && (Boolean)modelValue;
+                      |                 case "operator.isFalse":
+                      |                     return modelValue instanceof Boolean && !(Boolean)modelValue;
+                      | 
+                      |                 default: return false; // Неизвестный оператор
+                      |             }
+                      |         } catch (NumberFormatException nfe) {
+                      |             return false; // Ошибка парсинга числа из filterText
                       |         }
-                      | 
-                      | 
-                      |         if (valueFromColumn == null) {
-                      |             return false;
-                      |         }
-                      | 
-                      |         // Используем Stream API, как требовалось
-                      |         return Stream.of(String.valueOf(valueFromColumn).toLowerCase())
-                      |                 .anyMatch(fieldValue -> fieldValue.contains(searchText));
+                      |         return false; // Если тип не совпал или оператор не обработан
                       |     }
                       | }
                       --- КОНЕЦ СОДЕРЖИМОГО (ColumnRowFilter.java) ---
@@ -2311,18 +2485,20 @@
                       --- КОНЕЦ СОДЕРЖИМОГО (FilterFieldInfo.java) ---
 
             📂 gui/
-                📄 HBTable.java (4569 bytes)
+                📄 HBTable.java (4667 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (HBTable.java) ---
                   | package gui;
                   | 
-                  | import classes.*;
-                  | import enums.*;
-                  | import managers.*;
-                  | import org.apache.ibatis.annotations.Delete;
+                  | import classes.HumanBeing;
+                  | import enums.Mood;
+                  | import enums.WeaponType;
+                  | import managers.CollectionManager;
+                  | import managers.LocalisationManager;
                   | 
-                  | import javax.swing.table.*;
-                  | import java.text.*;
-                  | import java.util.*;
+                  | import javax.swing.table.AbstractTableModel;
+                  | import java.util.ArrayList;
+                  | import java.util.Date;
+                  | import java.util.List;
                   | 
                   | public class HBTable extends AbstractTableModel {
                   | 
@@ -2449,233 +2625,73 @@
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (HBTable.java) ---
 
-                📄 LoginDialog.java (8172 bytes)
-                  --- СОДЕРЖИМОЕ ФАЙЛА (LoginDialog.java) ---
+                📄 LocalizedEnumComboBoxModel.java (2182 bytes)
+                  --- СОДЕРЖИМОЕ ФАЙЛА (LocalizedEnumComboBoxModel.java) ---
                   | package gui;
                   | 
-                  | import managers.*;
-                  | import run.Main;
+                  | import javax.swing.AbstractListModel;
+                  | import javax.swing.ComboBoxModel;
+                  | import java.util.ArrayList;
+                  | import java.util.Arrays;
+                  | import java.util.List;
                   | 
-                  | import javax.swing.*;
-                  | import java.awt.*;
-                  | import java.awt.event.*;
-                  | import java.beans.*;
+                  | public class LocalizedEnumComboBoxModel<E extends Enum<E>> extends AbstractListModel<E> implements ComboBoxModel<E> {
+                  |     private final List<E> enumValues;
+                  |     private E selectedItem;
+                  |     // keyPrefix и localizedNames больше не нужны здесь, они будут в рендерере
                   | 
-                  | public class LoginDialog extends JDialog implements PropertyChangeListener {
-                  | 
-                  |     private JTextField usernameField;
-                  |     private JPasswordField passwordField;
-                  |     private JButton loginButton;
-                  |     private JButton registerButton;
-                  |     private JComboBox<String> languageComboBox;
-                  |     private JLabel usernameLabel, passwordLabel, languageLabel;
-                  | 
-                  |     private DBManager dbManager;
-                  | 
-                  |     private boolean Succeeded = false;
-                  | 
-                  | 
-                  |     public LoginDialog(Frame parent, DBManager dbManager) {
-                  |         super(parent, true);
-                  |         this.dbManager = dbManager;
-                  | 
-                  |         LocalisationManager.addPropertyChangeListener(this);
-                  | 
-                  |         initComponents();
-                  |         updateTexts();
-                  |         pack();
-                  |         setResizable(false);
-                  |         setLocationRelativeTo(parent);
-                  | 
-                  |         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-                  |         addWindowListener(new WindowAdapter() {
-                  |             @Override
-                  |             public void windowClosing(WindowEvent e) {
-                  |                 System.exit(0);
-                  |             }
-                  |         });
-                  |     }
-                  | 
-                  |     private void initComponents() {
-                  |         setLayout(new GridBagLayout());
-                  |         GridBagConstraints cs = new GridBagConstraints();
-                  |         cs.fill = GridBagConstraints.HORIZONTAL;
-                  |         cs.insets = new Insets(5, 5, 5, 5); // Отступы
-                  | 
-                  |         usernameLabel = new JLabel();
-                  |         cs.gridx = 0; cs.gridy = 0; cs.gridwidth = 1;
-                  |         add(usernameLabel, cs);
-                  | 
-                  |         usernameField = new JTextField(20);
-                  |         cs.gridx = 1; cs.gridy = 0; cs.gridwidth = 2;
-                  |         add(usernameField, cs);
-                  | 
-                  |         passwordLabel = new JLabel();
-                  |         cs.gridx = 0; cs.gridy = 1; cs.gridwidth = 1;
-                  |         add(passwordLabel, cs);
-                  | 
-                  |         passwordField = new JPasswordField(20);
-                  |         cs.gridx = 1; cs.gridy = 1; cs.gridwidth = 2;
-                  |         add(passwordField, cs);
-                  | 
-                  |         languageLabel = new JLabel();
-                  |         cs.gridx = 0; cs.gridy = 2; cs.gridwidth = 1;
-                  |         add(languageLabel, cs);
-                  | 
-                  |         String[] languages = {
-                  |                 "mainWindow.menu.language.russian",
-                  |                 "mainWindow.menu.language.norwegian",
-                  |                 "mainWindow.menu.language.french",
-                  |                 "mainWindow.menu.language.spanish_sv"
-                  |         };
-                  |         // Отображаемые значения для JComboBox
-                  |         String[] displayLanguages = new String[languages.length];
-                  |         for (int i = 0; i < languages.length; i++) {
-                  |             displayLanguages[i] = LocalisationManager.getString(languages[i]);
-                  |         }
-                  | 
-                  |         languageComboBox = new JComboBox<>(displayLanguages);
-                  |         languageComboBox.addActionListener(e -> {
-                  |             int selectedIndex = languageComboBox.getSelectedIndex();
-                  |             switch (selectedIndex) {
-                  |                 case 0: LocalisationManager.setLocale(LocalisationManager.RU_LOCALE); break;
-                  |                 case 1: LocalisationManager.setLocale(LocalisationManager.NO_LOCALE); break;
-                  |                 case 2: LocalisationManager.setLocale(LocalisationManager.FR_LOCALE); break;
-                  |                 case 3: LocalisationManager.setLocale(LocalisationManager.EV_SV_LOCALE); break;
-                  |             }
-                  |         });
-                  |         cs.gridx = 1; cs.gridy = 2; cs.gridwidth = 2;
-                  |         add(languageComboBox, cs);
-                  | 
-                  | 
-                  |         loginButton = new JButton();
-                  |         loginButton.addActionListener(new ActionListener() {
-                  |             public void actionPerformed(ActionEvent e) {
-                  |                 performLogin();
-                  |             }
-                  |         });
-                  | 
-                  |         registerButton = new JButton();
-                  |         registerButton.addActionListener(new ActionListener() {
-                  |             public void actionPerformed(ActionEvent e) {
-                  |                 performRegister();
-                  |             }
-                  |         });
-                  | 
-                  |         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-                  |         buttonPanel.add(loginButton);
-                  |         buttonPanel.add(registerButton);
-                  | 
-                  |         cs.gridx = 0; cs.gridy = 3; cs.gridwidth = 3; cs.anchor = GridBagConstraints.CENTER;
-                  |         add(buttonPanel, cs);
-                  |     }
-                  | 
-                  |     private void performLogin() {
-                  |         String username = usernameField.getText().trim();
-                  |         String password = new String(passwordField.getPassword());
-                  | 
-                  |         if (username.isEmpty() || password.isEmpty()) {
-                  |             JOptionPane.showMessageDialog(this,
-                  |                     LocalisationManager.getString("login.message.fieldsCannotBeEmpty"),
-                  |                     LocalisationManager.getString("dialog.title.error"),
-                  |                     JOptionPane.ERROR_MESSAGE);
-                  |             return;
-                  |         }
-                  | 
-                  |         boolean success = dbManager.login(username, password);
-                  | 
-                  |         if (success) {
-                  |             Main.username = username;
-                  |             Main.login = true;
-                  |             Succeeded = true;
-                  |             JOptionPane.showMessageDialog(this, LocalisationManager.getString("login.message.success"));
-                  |             dispose();
-                  |         } else {
-                  |             JOptionPane.showMessageDialog(this,
-                  |                     LocalisationManager.getString("login.message.failed"),
-                  |                     LocalisationManager.getString("dialog.title.error"),
-                  |                     JOptionPane.ERROR_MESSAGE);
-                  |             passwordField.setText("");
-                  |         }
-                  |     }
-                  | 
-                  |     private void performRegister() {
-                  |         String username = usernameField.getText().trim();
-                  |         String password = new String(passwordField.getPassword());
-                  | 
-                  |         if (username.isEmpty() || password.isEmpty()) {
-                  |             JOptionPane.showMessageDialog(this,
-                  |                     LocalisationManager.getString("login.message.fieldsCannotBeEmpty"),
-                  |                     LocalisationManager.getString("dialog.title.error"),
-                  |                     JOptionPane.ERROR_MESSAGE);
-                  |             return;
-                  |         }
-                  |         dbManager.registerUser(username, password);
-                  | 
-                  |         if (Main.login) {
-                  |             Succeeded = true;
-                  |             dispose();
-                  |         } else {
-                  |             JOptionPane.showMessageDialog(this,
-                  |                     LocalisationManager.getString("login.message.registrationFailed") + (Main.username.equals(username) ? "" : " " + LocalisationManager.getString("login.message.userExists")),
-                  |                     LocalisationManager.getString("dialog.title.error"),
-                  |                     JOptionPane.ERROR_MESSAGE);
-                  |             passwordField.setText("");
-                  |         }
-                  |     }
-                  | 
-                  | 
-                  |     private void updateTexts() {
-                  |         setTitle(LocalisationManager.getString("login.title"));
-                  |         usernameLabel.setText(LocalisationManager.getString("login.label.username"));
-                  |         passwordLabel.setText(LocalisationManager.getString("login.label.password"));
-                  |         languageLabel.setText(LocalisationManager.getString("login.label.language"));
-                  |         loginButton.setText(LocalisationManager.getString("login.button.login"));
-                  |         registerButton.setText(LocalisationManager.getString("login.button.register"));
-                  | 
-                  |         if (languageComboBox != null) {
-                  |             String[] languages = {
-                  |                     "mainWindow.menu.language.russian", "mainWindow.menu.language.norwegian",
-                  |                     "mainWindow.menu.language.french", "mainWindow.menu.language.spanish_sv"
-                  |             };
-                  |             int selectedIndex = languageComboBox.getSelectedIndex();
-                  |             DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) languageComboBox.getModel();
-                  |             model.removeAllElements();
-                  |             for (String langKey : languages) {
-                  |                 model.addElement(LocalisationManager.getString(langKey));
-                  |             }
-                  |             if (selectedIndex >=0 && selectedIndex < model.getSize()) {
-                  |                 languageComboBox.setSelectedIndex(selectedIndex);
-                  |             }
+                  |     public LocalizedEnumComboBoxModel(E[] values) {
+                  |         this.enumValues = new ArrayList<>(Arrays.asList(values));
+                  |         if (!this.enumValues.isEmpty()) {
+                  |             this.selectedItem = this.enumValues.get(0);
                   |         }
                   |     }
                   | 
                   |     @Override
-                  |     public void propertyChange(PropertyChangeEvent evt) {
-                  |         if (LocalisationManager.LOCALE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
-                  |             SwingUtilities.invokeLater(this::updateTexts);
-                  |         }
-                  |     }
-                  | 
-                  |     public boolean isSucceeded() {
-                  |         return Succeeded;
+                  |     public int getSize() {
+                  |         return enumValues.size();
                   |     }
                   | 
                   |     @Override
-                  |     public void dispose() {
-                  |         LocalisationManager.removePropertyChangeListener(this);
-                  |         super.dispose();
+                  |     public E getElementAt(int index) {
+                  |         // Возвращаем сам объект Enum
+                  |         return enumValues.get(index);
                   |     }
+                  | 
+                  |     @Override
+                  |     public void setSelectedItem(Object anItem) {
+                  |         if (anItem == null) {
+                  |             this.selectedItem = null;
+                  |         } else if (enumValues.contains(anItem)) {
+                  |             this.selectedItem = (E) anItem;
+                  |         }
+                  |         // Если anItem - строка, то здесь сложнее, т.к. модель не знает о локализации
+                  |         // Установка выбранного элемента по строке должна обрабатываться извне или в контроллере,
+                  |         // который знает и Enum, и его локализованное представление.
+                  |         // Либо JComboBox сам попытается найти объект по его toString(), что нам не подходит.
+                  |         fireContentsChanged(this, -1, -1);
+                  |     }
+                  | 
+                  |     @Override
+                  |     public E getSelectedItem() {
+                  |         return selectedItem;
+                  |     }
+                  | 
+                  |     // Метод localeChanged() больше не нужен здесь, так как модель не зависит от локали напрямую.
+                  |     // Рендерер будет перерисовываться при необходимости.
                   | }
-                  --- КОНЕЦ СОДЕРЖИМОГО (LoginDialog.java) ---
+                  --- КОНЕЦ СОДЕРЖИМОГО (LocalizedEnumComboBoxModel.java) ---
 
-                📄 MainWindow.java (28207 bytes)
+                📄 MainWindow.java (35257 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (MainWindow.java) ---
                   | package gui;
                   | 
-                  | import enums.*;
+                  | import classes.HumanBeing;
+                  | import commands.*;
+                  | import enums.Mood;
+                  | import enums.WeaponType;
                   | import functions.filter.*;
-                  | import gui.filter.ColumnRowFilter;
+                  | import gui.dialogs.*;
                   | import gui.renderers.*;
                   | import managers.*;
                   | import run.*;
@@ -2688,12 +2704,8 @@
                   | import java.awt.event.*;
                   | import java.beans.*;
                   | import java.util.*;
-                  | import java.util.List;
-                  | import java.util.regex.PatternSyntaxException;
                   | 
                   | public class MainWindow extends JFrame implements PropertyChangeListener {
-                  | 
-                  |     private List<FilterFieldInfo> filterFieldsInfoList;
                   | 
                   |     private static final int DEFAULT_WIDTH = 1920;
                   |     private static final int DEFAULT_HEIGHT = 1080;
@@ -2703,15 +2715,18 @@
                   | 
                   |     private JMenu fileMenu;
                   |     private JMenu languageMenu;
+                  |     private JMenu commandsMenu;
                   | 
                   |     private JMenuItem exitItem;
                   |     private JMenuItem ruItem;
                   |     private JMenuItem noItem;
                   |     private JMenuItem frItem;
                   |     private JMenuItem esSvItem;
+                  |     private JMenuItem addItem;
                   | 
                   |     private JLabel currentUserLabel;
-                  |     private JLabel filterLabel;
+                  |     private JLabel filterByLabel;
+                  |     private JLabel collectionInfoLabel;
                   | 
                   |     private JPanel statusBar;
                   |     private JPanel tablePanel;
@@ -2724,21 +2739,33 @@
                   | 
                   |     private JTable objectTable;
                   | 
-                  |     private JTextField filterTextField;
-                  |     private JTextField nameFilterField;
-                  |     private JTextField idFilterField;
-                  |     private JTextField soundtrackFilterField;
+                  |     private JTextField filterValueTextField;
                   | 
                   |     private TableRowSorter<HBTable> sorter;
+                  | 
+                  |     private JComboBox<String> filterColumnComboBox;
+                  |     private JComboBox<String> filterOperatorComboBox;
+                  | 
+                  |     private String[] columnFilterDisplayNames;
+                  | 
+                  |     private String[] columnFilterKeys;
+                  | 
+                  |     private Map<Class<?>, String[]> operatorMap;
                   | 
                   | 
                   |     public MainWindow() {
                   |         LocalisationManager.addPropertyChangeListener(this);
-                  |         initComponents();
-                  |         updateTexts();
+                  |         hbTableModel = new HBTable();
+                  |         initComponents(); //initComponents теперь будет использовать hbTableModel для получения имен колонок
+                  |         updateTexts();    // Важно вызвать ПОСЛЕ initComponents, чтобы все UI элементы были созданы
                   |         setPreferredSize(PREFERRED_WINDOW_SIZE);
                   |         pack();
                   |         setLocationRelativeTo(null);
+                  |         SwingUtilities.invokeLater(() -> { // Установка разделителя
+                  |             if (mainSplitPane.getWidth() > 0 && (mainSplitPane.getDividerLocation() < 20 || mainSplitPane.getDividerLocation() > mainSplitPane.getWidth() - 20)) {
+                  |                 mainSplitPane.setDividerLocation(0.7); // Больше места для таблицы/фильтров
+                  |             }
+                  |         });
                   |     }
                   | 
                   |     private void initComponents() {
@@ -2750,101 +2777,84 @@
                   |             }
                   |         });
                   | 
-                  |         // 1. Создание меню
+                  |         // 1. СОЗДАНИЕ МЕНЮ
                   |         menuBar = new JMenuBar();
-                  |         // ... (код меню как у тебя) ...
+                  | 
+                  |         // Меню "Файл"
+                  |         fileMenu = new JMenu(); // Текст установится в updateTexts()
+                  |         exitItem = new JMenuItem(); // Текст установится в updateTexts()
+                  |         exitItem.addActionListener(e -> confirmAndExit());
+                  |         fileMenu.add(exitItem);
+                  |         menuBar.add(fileMenu);
+                  | 
+                  |         // Меню "Язык"
+                  |         languageMenu = new JMenu(); // Текст установится в updateTexts()
+                  |         ruItem = new JMenuItem(); // Текст установится в updateTexts()
+                  |         ruItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.RU_LOCALE));
+                  |         languageMenu.add(ruItem);
+                  |         noItem = new JMenuItem(); // Текст установится в updateTexts()
+                  |         noItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.NO_LOCALE));
+                  |         languageMenu.add(noItem);
+                  |         frItem = new JMenuItem(); // Текст установится в updateTexts()
+                  |         frItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.FR_LOCALE));
+                  |         languageMenu.add(frItem);
+                  |         esSvItem = new JMenuItem(); // Текст установится в updateTexts()
+                  |         esSvItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.EV_SV_LOCALE));
+                  |         languageMenu.add(esSvItem);
+                  |         menuBar.add(languageMenu);
+                  | 
+                  |         // Меню "Команды"
+                  |         commandsMenu = new JMenu(); // Текст установится в updateTexts()
+                  |         addItem = new JMenuItem(); // Текст установится в updateTexts() (было addItem, переименовал для ясности)
+                  |         addItem.addActionListener(e -> {
+                  |             handleAddCommand();
+                  |             Main.cm.startCM(false);
+                  |             hbTableModel.updateData(CollectionManager.collection);
+                  |             updateTexts();
+                  |         });
+                  |         commandsMenu.add(addItem);
+                  |         // Сюда будешь добавлять другие пункты меню для команд (clear, add_if_min и т.д.)
+                  |         menuBar.add(commandsMenu); // Добавляем commandsMenu в menuBar
+                  | 
                   |         setJMenuBar(menuBar);
                   | 
-                  |         // 2. Инициализация основных панелей
+                  | 
+                  |         // 2. ИНИЦИАЛИЗАЦИЯ ОСНОВНЫХ ПАНЕЛЕЙ
                   |         tablePanel = new JPanel(new BorderLayout()); // Главная панель для таблицы и фильтров над ней
-                  |         tablePanel.setBorder(BorderFactory.createTitledBorder(""));
+                  |         tablePanel.setBorder(BorderFactory.createTitledBorder("")); // Заголовок будет обновлен в updateTexts
                   | 
                   |         visualizationPanel = new JPanel(new BorderLayout());
                   |         visualizationPanel.setBorder(BorderFactory.createTitledBorder(""));
                   |         JLabel vizPlaceholder = new JLabel("Место для визуализации (JPanel/Canvas)", SwingConstants.CENTER);
                   |         visualizationPanel.add(vizPlaceholder, BorderLayout.CENTER);
                   | 
+                  |         // 3. СОЗДАНИЕ ПАНЕЛИ ФИЛЬТРОВ (ОДИН НАБОР: КОЛОНКА, ОПЕРАТОР, ЗНАЧЕНИЕ)
+                  |         filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
+                  |         filterByLabel = new JLabel(); // Текст "Фильтровать по:" установится в updateTexts
                   | 
-                  |         // --- Создание панели фильтра для НЕСКОЛЬКИХ полей ---
-                  |         filterPanel = new JPanel(new GridBagLayout()); // Используем GridBagLayout для этой панели
-                  |         GridBagConstraints gbc = new GridBagConstraints();
-                  |         gbc.insets = new Insets(2, 2, 2, 2);
-                  |         gbc.anchor = GridBagConstraints.WEST;
+                  |         // hbTableModel уже инициализирован в конструкторе MainWindow
+                  |         columnFilterKeys = hbTableModel.getColumnHeaderKeys();
+                  |         // columnFilterDisplayNames будет заполняться в updateTexts
+                  |         filterColumnComboBox = new JComboBox<>(); // Модель (локализованные имена колонок) заполнится в updateTexts
                   | 
-                  |         DocumentListener combinedFilterListener = new DocumentListener() {
-                  |             public void insertUpdate(DocumentEvent e) { applyCombinedFilter(); }
-                  |             public void removeUpdate(DocumentEvent e) { applyCombinedFilter(); }
-                  |             public void changedUpdate(DocumentEvent e) { applyCombinedFilter(); }
-                  |         };
+                  |         initializeOperatorMap(); // Метод для заполнения карты операторов
+                  |         filterOperatorComboBox = new JComboBox<>(); // Модель (локализованные операторы) заполнится в updateOperatorComboBox
                   | 
-                  |         // Метка и поле для фильтра по Имени
-                  |         // Убедись, что ключ "filter.label.name" есть в properties
-                  |         gbc.gridx = 0; gbc.gridy = 0; filterPanel.add(new JLabel(LocalisationManager.getString("filter.label.name")), gbc);
-                  |         gbc.gridx = 1; gbc.gridy = 0; nameFilterField = new JTextField(15); filterPanel.add(nameFilterField, gbc);
-                  |         nameFilterField.getDocument().addDocumentListener(combinedFilterListener);
+                  |         filterValueTextField = new JTextField(20); // Поле для ввода значения фильтра
                   | 
-                  |         // Метка и поле для фильтра по ID
-                  |         // Убедись, что ключ "filter.label.id" есть в properties
-                  |         gbc.gridx = 0; gbc.gridy = 1; filterPanel.add(new JLabel(LocalisationManager.getString("filter.label.id")), gbc);
-                  |         gbc.gridx = 1; gbc.gridy = 1; idFilterField = new JTextField(10); filterPanel.add(idFilterField, gbc);
-                  |         idFilterField.getDocument().addDocumentListener(combinedFilterListener);
+                  |         filterPanel.add(filterByLabel);
+                  |         filterPanel.add(filterColumnComboBox);
+                  |         filterPanel.add(new JLabel(": ")); // Разделитель для красоты
+                  |         filterPanel.add(filterOperatorComboBox);
+                  |         filterPanel.add(filterValueTextField);
                   | 
-                  |         // Метка и поле для фильтра по Саундтреку (если нужно)
-                  |         // Убедись, что ключ "filter.label.soundtrack" есть в properties
-                  |         // gbc.gridx = 0; gbc.gridy = 2; filterPanel.add(new JLabel(LocalisationManager.getString("filter.label.soundtrack")), gbc);
-                  |         // gbc.gridx = 1; gbc.gridy = 2; soundtrackFilterField = new JTextField(15); filterPanel.add(soundtrackFilterField, gbc);
-                  |         // soundtrackFilterField.getDocument().addDocumentListener(combinedFilterListener);
-                  | 
-                  |         // Добавляем панель фильтра ВВЕРХ таблицы
+                  |         // Добавляем панель фильтра в верхнюю часть tablePanel
                   |         tablePanel.add(filterPanel, BorderLayout.NORTH);
                   | 
-                  | 
-                  |         // 3. Создание и настройка таблицы
-                  |         hbTableModel = new HBTable();
-                  |         objectTable = new JTable(hbTableModel);
-                  | 
-                  |         String[] columnHeaderKeys = hbTableModel.getColumnHeaderKeys(); // Нужен такой метод в HBTable
-                  | 
-                  |         filterFieldsInfoList = new ArrayList<>();
-                  |         for (int i = 0; i < columnHeaderKeys.length; i++) {
-                  |             // Формируем ключ для метки фильтра, например, заменяя "table.column." на "filter.label."
-                  |             String filterLabelKey = columnHeaderKeys[i].replace("table.column.", "filter.label.");
-                  |             filterFieldsInfoList.add(new FilterFieldInfo(filterLabelKey, i));
-                  |         }
-                  | 
-                  |         /// //////////
-                  |         int gridY = 0;
-                  |         for (FilterFieldInfo fieldInfo : filterFieldsInfoList) {
-                  |             gbc.gridx = 0;
-                  |             gbc.gridy = gridY;
-                  |             filterPanel.add(new JLabel(LocalisationManager.getString(fieldInfo.getLabelKey())), gbc);
-                  | 
-                  |             gbc.gridx = 1;
-                  |             gbc.gridy = gridY;
-                  |             fieldInfo.textField = new JTextField(15); // Создаем JTextField и сохраняем в fieldInfo
-                  |             filterPanel.add(fieldInfo.textField, gbc);
-                  |             fieldInfo.textField.getDocument().addDocumentListener(combinedFilterListener);
-                  |             gridY++;
-                  |         }
-                  |         // Чтобы панель фильтров не растягивалась слишком сильно, если колонок много,
-                  |         // можно поместить filterPanel в JScrollPane
-                  |         JScrollPane filterScrollPane = new JScrollPane(filterPanel,
-                  |                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                  |                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-                  |         filterScrollPane.setBorder(null); // Убрать рамку у скролл-панели фильтров, если не нужна
-                  | 
-                  |         tablePanel.add(filterScrollPane, BorderLayout.NORTH); // Добавляем панель фильтра (со скроллом)
-                  | 
-                  |         // 3. Создание и настройка таблицы
-                  |         objectTable = new JTable(hbTableModel); // hbTableModel уже создан выше
-                  |         // ... (остальные настройки таблицы: sorter, рендереры, ширина, компараторы ...)
-                  |         // ... (этот код у тебя уже есть и корректен)
-                  | 
-                  |         JScrollPane tableScrollPane = new JScrollPane(objectTable);
-                  |         tablePanel.add(tableScrollPane, BorderLayout.CENTER);
-                  | 
-                  | 
+                  |         // 4. СОЗДАНИЕ И НАСТРОЙКА ТАБЛИЦЫ
+                  |         objectTable = new JTable(hbTableModel); // hbTableModel уже создан
                   |         objectTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+                  | 
                   |         this.sorter = new TableRowSorter<>(hbTableModel);
                   |         objectTable.setRowSorter(this.sorter);
                   | 
@@ -2859,206 +2869,97 @@
                   |         objectTable.setDefaultRenderer(WeaponType.class, new EnumRenderer("enum.weaponType."));
                   |         objectTable.setDefaultRenderer(Mood.class, new EnumRenderer("enum.mood."));
                   | 
+                  |         objectTable.addMouseListener(new MouseAdapter() {
+                  |             @Override
+                  |             public void mouseClicked(MouseEvent e) {
+                  |                 if (e.getClickCount() == 2) { // Двойной клик
+                  |                     int viewRow = objectTable.rowAtPoint(e.getPoint());
+                  |                     if (viewRow >= 0) {
+                  |                         int modelRow = objectTable.convertRowIndexToModel(viewRow);
+                  |                         HumanBeing selectedHuman = hbTableModel.getHumanBeingAt(modelRow);
+                  |                         if (selectedHuman != null) {
+                  |                             // Решаем, что открывать: ViewHumanDialog или сразу Edit (HumanBeingDialog)
+                  |                             // Пока откроем ViewHumanDialog, как планировали
+                  |                             ViewHumanDialog viewDialog = new ViewHumanDialog(MainWindow.this, selectedHuman);
+                  |                             viewDialog.setVisible(true);
+                  |                             // Логика после закрытия ViewHumanDialog (если он что-то изменил и вернул флаг)
+                  |                             // Например, если ViewHumanDialog сам вызвал редактирование и оно было успешным,
+                  |                             // то ViewHumanDialog может вернуть флаг, что данные надо обновить.
+                  |                             // Либо, если редактирование происходит через HumanBeingDialog, который вызывается из ViewHumanDialog,
+                  |                             // то обновление таблицы будет инициировано там.
+                  |                         }
+                  |                     }
+                  |                 }
+                  |             }
+                  |         });
+                  | 
                   |         // Центрирование заголовков
                   |         JTableHeader header = objectTable.getTableHeader();
-                  |         // ... (код центрирования заголовков) ...
+                  |         if (header.getDefaultRenderer() instanceof DefaultTableCellRenderer) {
+                  |             ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+                  |         } else {
+                  |             DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
+                  |             headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+                  |             TableColumnModel tempColumnModel = objectTable.getColumnModel();
+                  |             for (int i = 0; i < tempColumnModel.getColumnCount(); i++) {
+                  |                 tempColumnModel.getColumn(i).setHeaderRenderer(headerRenderer);
+                  |             }
+                  |         }
                   | 
-                  |         // Настройка кастомных компараторов (этот блок у тебя был корректным)
-                  |         // ... (код установки компараторов для sorter) ...
+                  |         // Настройка кастомных компараторов для сортировщика
+                  |         final int MOOD_COLUMN_INDEX = 10;
+                  |         final int WEAPON_TYPE_COLUMN_INDEX = 9;
+                  |         if (MOOD_COLUMN_INDEX >= 0 && MOOD_COLUMN_INDEX < this.sorter.getModel().getColumnCount()) {
+                  |             this.sorter.setComparator(MOOD_COLUMN_INDEX, Comparator.comparingInt(m -> (m == null) ? Integer.MIN_VALUE : ((Mood) m).getPointOfHappy()));
+                  |         }
+                  |         if (WEAPON_TYPE_COLUMN_INDEX >= 0 && WEAPON_TYPE_COLUMN_INDEX < this.sorter.getModel().getColumnCount()) {
+                  |             this.sorter.setComparator(WEAPON_TYPE_COLUMN_INDEX, Comparator.comparingInt(wt -> (wt == null) ? Integer.MIN_VALUE : ((WeaponType) wt).getDegreeOfCool()));
+                  |         }
                   | 
                   |         // Настройка ширины колонок
                   |         TableColumnModel columnModel = objectTable.getColumnModel();
+                  |         if (columnModel.getColumnCount() > 0) { columnModel.getColumn(0).setPreferredWidth(40);  /* ID */ }
+                  |         // ... (остальные настройки ширины) ...
+                  |         if (columnModel.getColumnCount() > 13) { columnModel.getColumn(13).setPreferredWidth(70); /* ownerId */ }
                   | 
-                  |         // 4. Создание разделителя (SplitPane)
+                  |         JScrollPane tableScrollPane = new JScrollPane(objectTable);
+                  |         tablePanel.add(tableScrollPane, BorderLayout.CENTER); // Таблица под панелью фильтра
+                  | 
+                  |         // 5. СОЗДАНИЕ РАЗДЕЛИТЕЛЯ (SPLITPANE)
                   |         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tablePanel, visualizationPanel);
-                  |         mainSplitPane.setResizeWeight(0.5);
+                  |         mainSplitPane.setResizeWeight(0.7);
                   |         mainSplitPane.setOneTouchExpandable(true);
                   |         mainSplitPane.setContinuousLayout(true);
                   | 
-                  |         // 5. Создание статус-бара
+                  |         // 6. СОЗДАНИЕ СТАТУС-БАРА
                   |         statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
                   |         currentUserLabel = new JLabel();
                   |         statusBar.add(currentUserLabel);
                   | 
-                  |         // 6. Компоновка основного окна
-                  |         setLayout(new BorderLayout());
-                  |         add(mainSplitPane, BorderLayout.CENTER);
-                  |         add(statusBar, BorderLayout.SOUTH);
-                  |     }
+                  |          collectionInfoLabel = new JLabel();
+                  |          statusBar.add(new JSeparator(SwingConstants.VERTICAL));
+                  |          statusBar.add(collectionInfoLabel);
                   | 
-                  | //    private void initComponents() {
-                  | //        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                  | //        addWindowListener(new WindowAdapter() {
-                  | //            @Override
-                  | //            public void windowClosing(WindowEvent e) {
-                  | //                confirmAndExit();
-                  | //            }
-                  | //        });
-                  | //
-                  | //        // 1. Создание меню
-                  | //        menuBar = new JMenuBar();
-                  | //
-                  | //        fileMenu = new JMenu();
-                  | //        exitItem = new JMenuItem();
-                  | //        exitItem.addActionListener(e -> confirmAndExit());
-                  | //        fileMenu.add(exitItem);
-                  | //        menuBar.add(fileMenu);
-                  | //
-                  | //        languageMenu = new JMenu();
-                  | //        ruItem = new JMenuItem();
-                  | //        ruItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.RU_LOCALE));
-                  | //        languageMenu.add(ruItem);
-                  | //        noItem = new JMenuItem();
-                  | //        noItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.NO_LOCALE));
-                  | //        languageMenu.add(noItem);
-                  | //        frItem = new JMenuItem();
-                  | //        frItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.FR_LOCALE));
-                  | //        languageMenu.add(frItem);
-                  | //        esSvItem = new JMenuItem();
-                  | //        esSvItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.EV_SV_LOCALE));
-                  | //        languageMenu.add(esSvItem);
-                  | //        menuBar.add(languageMenu);
-                  | //        setJMenuBar(menuBar); // Устанавливаем меню один раз
-                  | //
-                  | //        // 2. Инициализация основных панелей
-                  | //        tablePanel = new JPanel(new BorderLayout());
-                  | //        tablePanel.setBorder(BorderFactory.createTitledBorder("")); // Заголовок будет установлен в updateTexts
-                  | //
-                  | //        // --- Создание панели фильтра ---
-                  | //        filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                  | //        filterLabel = new JLabel(); // Текст установится в updateTexts
-                  | //        filterTextField = new JTextField(30); // Поле для ввода текста фильтра
-                  | //        filterPanel.add(filterLabel);
-                  | //        filterPanel.add(filterTextField);
-                  | //        tablePanel.add(filterPanel, BorderLayout.NORTH); // Добавляем панель фильтра ВВЕРХ таблицы
-                  | //
-                  | //        visualizationPanel = new JPanel(new BorderLayout());
-                  | //        visualizationPanel.setBorder(BorderFactory.createTitledBorder("")); // Заголовок будет установлен в updateTexts
-                  | //        JLabel vizPlaceholder = new JLabel("Место для визуализации (JPanel/Canvas)", SwingConstants.CENTER);
-                  | //        visualizationPanel.add(vizPlaceholder, BorderLayout.CENTER);
-                  | //
-                  | //
-                  | //        // 3. Создание и настройка таблицы
-                  | //        hbTableModel = new HBTable();
-                  | //        objectTable = new JTable(hbTableModel);
-                  | //
-                  | //        // --- НАСТРОЙКИ ТАБЛИЦЫ ---
-                  | //        objectTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-                  | //
-                  | //        // Инициализируем и устанавливаем сортировщик/фильтровщик
-                  | //        this.sorter = new TableRowSorter<>(hbTableModel); // Присваиваем полю класса
-                  | //        objectTable.setRowSorter(this.sorter);
-                  | //
-                  | //        // Применяем рендерер для центрирования ячеек
-                  | //        CenterRender centerRenderer = new CenterRender();
-                  | //        objectTable.setDefaultRenderer(Object.class, centerRenderer);
-                  | //        objectTable.setDefaultRenderer(String.class, centerRenderer);
-                  | //        objectTable.setDefaultRenderer(Integer.class, centerRenderer);
-                  | //        objectTable.setDefaultRenderer(Long.class, centerRenderer);
-                  | //        objectTable.setDefaultRenderer(Boolean.class, centerRenderer);
-                  | //        objectTable.setDefaultRenderer(Date.class, new DateRenderer()); // Убедись, что DateRenderer есть
-                  | //        objectTable.setDefaultRenderer(WeaponType.class, new EnumRenderer("enum.weaponType.")); // Убедись, что EnumRenderer есть
-                  | //        objectTable.setDefaultRenderer(Mood.class, new EnumRenderer("enum.mood."));
-                  | //
-                  | //        // Центрирование заголовков столбцов
-                  | //        JTableHeader header = objectTable.getTableHeader();
-                  | //        if (header.getDefaultRenderer() instanceof DefaultTableCellRenderer) {
-                  | //            ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
-                  | //        } else {
-                  | //            DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
-                  | //            headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-                  | //            for (int i = 0; i < objectTable.getColumnModel().getColumnCount(); i++) {
-                  | //                if (i < objectTable.getColumnModel().getColumnCount()) {
-                  | //                    objectTable.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
-                  | //                }
-                  | //            }
-                  | //        }
-                  | //
-                  | //        // Настройка кастомных компараторов для сортировщика
-                  | //        final int MOOD_COLUMN_INDEX = 10; // Проверь индексы согласно твоей HBTable.columnKeys
-                  | //        final int WEAPON_TYPE_COLUMN_INDEX = 9;
-                  | //
-                  | //        if (MOOD_COLUMN_INDEX < this.sorter.getModel().getColumnCount()) { // Проверка на выход за пределы
-                  | //            this.sorter.setComparator(MOOD_COLUMN_INDEX, new Comparator<Mood>() {
-                  | //                @Override
-                  | //                public int compare(Mood m1, Mood m2) {
-                  | //                    if (m1 == null && m2 == null) return 0;
-                  | //                    if (m1 == null) return -1;
-                  | //                    if (m2 == null) return 1;
-                  | //                    return Integer.compare(m1.getPointOfHappy(), m2.getPointOfHappy());
-                  | //                }
-                  | //            });
-                  | //        }
-                  | //
-                  | //        if (WEAPON_TYPE_COLUMN_INDEX < this.sorter.getModel().getColumnCount()) { // Проверка на выход за пределы
-                  | //            this.sorter.setComparator(WEAPON_TYPE_COLUMN_INDEX, new Comparator<WeaponType>() {
-                  | //                @Override
-                  | //                public int compare(WeaponType wt1, WeaponType wt2) {
-                  | //                    if (wt1 == null && wt2 == null) return 0;
-                  | //                    if (wt1 == null) return -1;
-                  | //                    if (wt2 == null) return 1;
-                  | //                    return Integer.compare(wt1.getDegreeOfCool(), wt2.getDegreeOfCool());
-                  | //                }
-                  | //            });
-                  | //        }
-                  | //
-                  | //        DocumentListener filterListener = new DocumentListener() {
-                  | //            public void insertUpdate(DocumentEvent e) { applyCombinedFilter(); }
-                  | //            public void removeUpdate(DocumentEvent e) { applyCombinedFilter(); }
-                  | //            public void changedUpdate(DocumentEvent e) { applyCombinedFilter(); }
-                  | //        };
-                  | //
-                  | //
-                  | //        filterPanel = new JPanel(new GridBagLayout()); // Или другой менеджер для нескольких полей
-                  | //        GridBagConstraints gbc = new GridBagConstraints();
-                  | //        gbc.insets = new Insets(2,2,2,2);
-                  | //        gbc.anchor = GridBagConstraints.WEST;
-                  | //
-                  | //        gbc.gridx = 0; gbc.gridy = 0; filterPanel.add(new JLabel(LocalisationManager.getString("filter.label.name")), gbc);
-                  | //        gbc.gridx = 1; gbc.gridy = 0; nameFilterField = new JTextField(15); filterPanel.add(nameFilterField, gbc);
-                  | //        nameFilterField.getDocument().addDocumentListener(filterListener); // Общий слушатель
-                  | //
-                  | //
-                  | //        gbc.gridx = 0; gbc.gridy = 1; filterPanel.add(new JLabel(LocalisationManager.getString("filter.label.id")), gbc);
-                  | //        gbc.gridx = 1; gbc.gridy = 1; idFilterField = new JTextField(10); filterPanel.add(idFilterField, gbc);
-                  | //        idFilterField.getDocument().addDocumentListener(filterListener);
-                  | //
-                  | //
-                  | //        // Настройка ширины колонок
-                  | //        TableColumnModel columnModel = objectTable.getColumnModel();
-                  | //        if (columnModel.getColumnCount() > 0) columnModel.getColumn(0).setPreferredWidth(50);
-                  | //        if (columnModel.getColumnCount() > 1) columnModel.getColumn(1).setPreferredWidth(200);
-                  | //        if (columnModel.getColumnCount() > 2) columnModel.getColumn(2).setPreferredWidth(80);
-                  | //        if (columnModel.getColumnCount() > 3) columnModel.getColumn(3).setPreferredWidth(80);
-                  | //        if (columnModel.getColumnCount() > 9) columnModel.getColumn(9).setPreferredWidth(120);
-                  | //
-                  | //
-                  | //        JScrollPane tableScrollPane = new JScrollPane(objectTable);
-                  | //        tablePanel.add(tableScrollPane, BorderLayout.CENTER); // Таблица под панелью фильтра
-                  | //
-                  | //        // Слушатель для текстового поля фильтра
-                  | //        filterTextField.getDocument().addDocumentListener(new DocumentListener() {
-                  | //            public void insertUpdate(DocumentEvent e) { applyFilter(); }
-                  | //            public void removeUpdate(DocumentEvent e) { applyFilter(); }
-                  | //            public void changedUpdate(DocumentEvent e) { applyFilter(); }
-                  | //        });
-                  | //
-                  | //        // 4. Создание разделителя (SplitPane)
-                  | //        mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tablePanel, visualizationPanel);
-                  | //        mainSplitPane.setResizeWeight(0.5);
-                  | //        mainSplitPane.setOneTouchExpandable(true);
-                  | //        mainSplitPane.setContinuousLayout(true);
-                  | //
-                  | //        // 5. Создание статус-бара
-                  | //        statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                  | //        currentUserLabel = new JLabel();
-                  | //        statusBar.add(currentUserLabel);
-                  | //
-                  | //        // 6. Компоновка основного окна
-                  | //        setLayout(new BorderLayout());
-                  | //        add(mainSplitPane, BorderLayout.CENTER);
-                  | //        add(statusBar, BorderLayout.SOUTH);
-                  | //    }
+                  | 
+                  |         // 7. КОМПОНОВКА ОСНОВНОГО ОКНА (JFrame)
+                  |         Container contentPane = getContentPane();
+                  |         contentPane.setLayout(new BorderLayout());
+                  |         contentPane.add(mainSplitPane, BorderLayout.CENTER);
+                  |         contentPane.add(statusBar, BorderLayout.SOUTH);
+                  | 
+                  |         // 8. ПРИВЯЗКА СЛУШАТЕЛЕЙ К ЭЛЕМЕНТАМ ФИЛЬТРА
+                  |         DocumentListener singleFilterListener = new DocumentListener() {
+                  |             public void insertUpdate(DocumentEvent e) { applySingleColumnFilter(); }
+                  |             public void removeUpdate(DocumentEvent e) { applySingleColumnFilter(); }
+                  |             public void changedUpdate(DocumentEvent e) { applySingleColumnFilter(); }
+                  |         };
+                  |         filterValueTextField.getDocument().addDocumentListener(singleFilterListener);
+                  |         filterOperatorComboBox.addActionListener(e -> applySingleColumnFilter());
+                  |         filterColumnComboBox.addActionListener(e -> {
+                  |             updateOperatorComboBox();
+                  |             applySingleColumnFilter();
+                  |         });
+                  |     }
                   | 
                   |     private void confirmAndExit() {
                   |             String dialogTitle = LocalisationManager.getString("dialog.title.confirmation");
@@ -3137,6 +3038,62 @@
                   |             hbTableModel.localeChanged();
                   |         }
                   | 
+                  |         if (filterByLabel != null) {
+                  |             filterByLabel.setText(LocalisationManager.getString("table.filter.labelBy")); // Новый ключ "Фильтровать по:"
+                  |         }
+                  |         if (filterColumnComboBox != null) { // Обновляем названия колонок
+                  |             int previouslySelectedIndex = filterColumnComboBox.getSelectedIndex();
+                  |             DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) filterColumnComboBox.getModel();
+                  |             model.removeAllElements();
+                  |             columnFilterDisplayNames = new String[columnFilterKeys.length];
+                  |             for (int i = 0; i < columnFilterKeys.length; i++) {
+                  |                 columnFilterDisplayNames[i] = LocalisationManager.getString(columnFilterKeys[i]);
+                  |                 model.addElement(columnFilterDisplayNames[i]);
+                  |             }
+                  |             if (previouslySelectedIndex >= 0 && previouslySelectedIndex < model.getSize()) {
+                  |                 filterColumnComboBox.setSelectedIndex(previouslySelectedIndex);
+                  |             } else if (model.getSize() > 0) filterColumnComboBox.setSelectedIndex(0);
+                  |         }
+                  |         if (filterOperatorComboBox != null) { // Обновляем операторы
+                  |             updateOperatorComboBox(); // Этот метод сам обновит тексты операторов
+                  |         }
+                  | 
+                  |         // Обновление заголовка панели фильтров (если он есть у JScrollPane)
+                  |         if (filterPanel != null && filterPanel.getParent() instanceof JViewport && filterPanel.getParent().getParent() instanceof JScrollPane) {
+                  |             JScrollPane filterScrollPane = (JScrollPane) filterPanel.getParent().getParent();
+                  |             if (filterScrollPane.getBorder() instanceof TitledBorder) {
+                  |                 ((TitledBorder) filterScrollPane.getBorder()).setTitle(LocalisationManager.getString("table.filter.label"));
+                  |                 filterScrollPane.repaint();
+                  |             }
+                  |         }
+                  |         if (commandsMenu != null) {
+                  |             commandsMenu.setText(LocalisationManager.getString("mainWindow.menu.commands"));
+                  |         }
+                  |         if (addItem != null) {
+                  |             addItem.setText(LocalisationManager.getString("command.add"));
+                  |         }
+                  |         if (collectionInfoLabel != null) {
+                  |             String type = "N/A";
+                  |             String creationTime = "N/A";
+                  |             int size = 0;
+                  | 
+                  |             if (CollectionManager.collection != null) { // Проверяем, что коллекция не null
+                  |                 type = CollectionManager.collection.getClass().getSimpleName();
+                  |                 size = CollectionManager.collection.size();
+                  |             }
+                  |             if (Main.cm != null && Main.cm.getTimeOfCreation() != null) { // Проверяем cm и время создания
+                  |                 creationTime = Main.cm.getTimeOfCreation();
+                  |             }
+                  | 
+                  |             // Ключ для формата строки в .properties файлах
+                  |             // Например: info.collectionDetailsFormat=Тип: %s, Создана: %s, Элементов: %d
+                  |             String formatKey = "info.collectionDetailsFormat";
+                  |             String infoText = String.format(LocalisationManager.getString(formatKey), type, creationTime, size);
+                  |             collectionInfoLabel.setText(infoText);
+                  |         }
+                  | 
+                  |         updateStatusBarInfo();
+                  | 
                   |         if (menuBar != null) {
                   |             menuBar.revalidate();
                   |             menuBar.repaint();
@@ -3163,70 +3120,207 @@
                   |     }
                   | 
                   | 
-                  |     private void applyFilter() {
-                  |         String text = filterTextField.getText();
-                  |         if (sorter == null) return; // Проверка, что сортировщик инициализирован
+                  |     private void initializeOperatorMap() {
+                  |         operatorMap = new HashMap<>();
+                  |         // Ключи для локализации операторов
+                  |         operatorMap.put(String.class, new String[]{"operator.contains", "operator.equals", "operator.notEquals", "operator.startsWith", "operator.endsWith"});
+                  |         operatorMap.put(Integer.class, new String[]{"operator.equalsNum", "operator.notEqualsNum", "operator.greaterThan", "operator.lessThan", "operator.greaterOrEquals", "operator.lessOrEquals"});
+                  |         operatorMap.put(Long.class, new String[]{"operator.equalsNum", "operator.notEqualsNum", "operator.greaterThan", "operator.lessThan", "operator.greaterOrEquals", "operator.lessOrEquals"});
+                  |         operatorMap.put(Date.class, new String[]{"operator.dateEquals", "operator.dateBefore", "operator.dateAfter"}); // Даты сложнее, пока простые
+                  |         operatorMap.put(Boolean.class, new String[]{"operator.isTrue", "operator.isFalse"});
+                  |         // Для Enum можно "operator.equalsEnum"
+                  |         operatorMap.put(Mood.class, new String[]{"operator.equalsEnum"});
+                  |         operatorMap.put(WeaponType.class, new String[]{"operator.equalsEnum"});
+                  |     }
                   | 
-                  |         if (text.trim().isEmpty()) {
-                  |             sorter.setRowFilter(null);
-                  |         } else {
-                  |             try {
-                  |                 sorter.setRowFilter(new ColumnRowFilter(text, 1, hbTableModel));
-                  |             } catch (Exception e) {
-                  |                 e.printStackTrace();
-                  |                 sorter.setRowFilter(null); // Сбрасываем фильтр при ошибке
+                  |     private void updateOperatorComboBox() {
+                  |         if (filterColumnComboBox == null || hbTableModel == null || operatorMap == null || filterOperatorComboBox == null) return;
+                  | 
+                  |         int selectedColumnIndex = filterColumnComboBox.getSelectedIndex();
+                  |         if (selectedColumnIndex < 0) return;
+                  | 
+                  |         Class<?> columnClass = hbTableModel.getColumnClass(selectedColumnIndex);
+                  |         String[] operatorKeys = operatorMap.get(columnClass);
+                  | 
+                  |         if (operatorKeys == null) { // Если для типа нет операторов, используем стандартные для String
+                  |             operatorKeys = operatorMap.get(String.class);
+                  |         }
+                  | 
+                  |         DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) filterOperatorComboBox.getModel();
+                  |         model.removeAllElements();
+                  |         if (operatorKeys != null) {
+                  |             for (String key : operatorKeys) {
+                  |                 model.addElement(LocalisationManager.getString(key));
                   |             }
+                  |         }
+                  |         if (model.getSize() > 0) {
+                  |             filterOperatorComboBox.setSelectedIndex(0);
                   |         }
                   |     }
                   | 
-                  |     private void applyCombinedFilter() {
-                  |         if (sorter == null || hbTableModel == null) { // Добавим проверку на hbTableModel
-                  |             System.err.println("Soter или TableModel не инициализирован в applyCombinedFilter");
+                  |     private void applySingleColumnFilter() {
+                  |         if (sorter == null || hbTableModel == null || filterColumnComboBox == null || filterOperatorComboBox == null || filterValueTextField == null) {
                   |             return;
                   |         }
                   | 
-                  | //        List<ColumnRowFilter> filters = new ArrayList<>();
-                  |         List<RowFilter<? super HBTable, ? super Integer>> filters = new ArrayList<>();
+                  |         String filterText = filterValueTextField.getText();
+                  |         int selectedColumnIndex = filterColumnComboBox.getSelectedIndex();
+                  |         String selectedOperatorKey = null; // Ключ выбранного оператора
                   | 
-                  |         String nameText = nameFilterField.getText();
-                  |         if (nameText != null && !nameText.trim().isEmpty()) {
-                  |             filters.add(new ColumnRowFilter(nameText, 1, hbTableModel));
+                  |         if (filterOperatorComboBox.getSelectedItem() != null) {
+                  |             // Нам нужно найти оригинальный ключ оператора, а не его локализованное представление
+                  |             // Для этого при заполнении filterOperatorComboBox нужно хранить и ключи, и отображаемые значения,
+                  |             // либо искать ключ по отображаемому значению (что менее надежно из-за возможной не уникальности переводов).
+                  | 
+                  |             // Простой вариант: найти ключ по индексу в массиве ключей для данного типа колонки
+                  |             Class<?> columnClass = hbTableModel.getColumnClass(selectedColumnIndex);
+                  |             String[] currentOperatorKeys = operatorMap.get(columnClass);
+                  |             if (currentOperatorKeys == null) currentOperatorKeys = operatorMap.get(String.class); // Fallback
+                  | 
+                  |             if (currentOperatorKeys != null && filterOperatorComboBox.getSelectedIndex() < currentOperatorKeys.length && filterOperatorComboBox.getSelectedIndex() >=0) {
+                  |                 selectedOperatorKey = currentOperatorKeys[filterOperatorComboBox.getSelectedIndex()];
+                  |             }
                   |         }
                   | 
-                  |         // Фильтр по Названию саундтрека (индекс колонки 8)
-                  |         String soundtrackText = soundtrackFilterField.getText();
-                  |         if (soundtrackText != null && !soundtrackText.trim().isEmpty()) {
-                  |             filters.add(new ColumnRowFilter(soundtrackText, 8, hbTableModel));
+                  | 
+                  |         if (selectedColumnIndex < 0 || selectedOperatorKey == null) {
+                  |             sorter.setRowFilter(null);
+                  |             return;
                   |         }
                   | 
-                  |         // Фильтр по ID (индекс колонки 0)
-                  |         String idText = idFilterField.getText();
-                  |         if (idText != null && !idText.trim().isEmpty()) {
-                  |             // Для ID можно сделать более строгий фильтр, если нужно точное совпадение или "начинается с"
-                  |             // Сейчас ColumnSpecificRowFilter будет искать ID как подстроку.
-                  |             // Если нужно точное числовое совпадение, логику в ColumnSpecificRowFilter для ID нужно будет менять
-                  |             // или использовать стандартный RowFilter.numberFilter.
-                  |             filters.add(new ColumnRowFilter(idText, 0, hbTableModel));
+                  |         // Для Boolean операторов значение в filterValueTextField может не требоваться
+                  |         boolean valueNeeded = true;
+                  |         if (hbTableModel.getColumnClass(selectedColumnIndex) == Boolean.class &&
+                  |                 (selectedOperatorKey.equals("operator.isTrue") || selectedOperatorKey.equals("operator.isFalse"))) {
+                  |             valueNeeded = false;
                   |         }
                   | 
-                  |         // Добавь сюда обработку других полей фильтрации аналогичным образом
                   | 
-                  |         if (filters.isEmpty()) {
-                  |             sorter.setRowFilter(null); // Если все поля фильтров пустые, сбрасываем фильтр
+                  |         if (valueNeeded && filterText.trim().isEmpty()) {
+                  |             // Если оператор требует значения, а оно пустое, то не фильтруем (или фильтруем как-то по-особому)
+                  |             // Для операторов типа "is null", "is not null" это было бы валидно.
+                  |             // Пока считаем, что если значение нужно и оно пустое - фильтр не применяем
+                  |             sorter.setRowFilter(null);
+                  |             return;
+                  |         }
+                  | 
+                  |         try {
+                  |             sorter.setRowFilter(new ColumnRowFilter(filterText, selectedColumnIndex, selectedOperatorKey, hbTableModel));
+                  |         } catch (Exception e) {
+                  |             System.err.println("Ошибка при применении фильтра: " + e.getMessage());
+                  |             e.printStackTrace();
+                  |             sorter.setRowFilter(null);
+                  |         }
+                  |     }
+                  | 
+                  |     private void openEditDialog(HumanBeing humanToEdit) {
+                  |         // Проверка владения объектом
+                  |         // Предполагаем, что Main.db.findUserIDbyUsername(Main.username) возвращает ID текущего пользователя
+                  |         // и Main.username уже установлен.
+                  |         int currentUserId = Main.db.findUserIDbyUsername(Main.username); // Это может быть затратно, лучше получить ID один раз после логина
+                  |         // и хранить в Main.currentUserId или передавать в MainWindow
+                  | 
+                  |         if (humanToEdit.getOwnerId() == currentUserId) {
+                  |             HumanBeingDialog dialog = new HumanBeingDialog(this, humanToEdit); // 'this' - родительское окно
+                  |             dialog.setVisible(true);
+                  | 
+                  |             if (dialog.isSaved()) {
+                  |                 HumanBeing updatedHuman = dialog.getHumanBeing();
+                  |                 if (updatedHuman != null) {
+                  |                     // Логика обновления объекта в БД
+                  |                     boolean success = Main.db.updateID(humanToEdit.getId(), updatedHuman, Main.username);
+                  |                     if (success) {
+                  |                         // Обновляем локальную коллекцию и таблицу
+                  |                         Main.cm.startCM(); // Перезагружаем всю коллекцию (или можно реализовать обновление конкретного элемента)
+                  |                         hbTableModel.updateData(CollectionManager.collection);
+                  |                         // TODO: Обновить визуализацию, если она есть
+                  |                         updateStatusBarInfo(); // Обновляем информацию в статус-баре (если есть)
+                  | 
+                  |                         JOptionPane.showMessageDialog(this,
+                  |                                 LocalisationManager.getString("dialog.message.objectUpdated"),
+                  |                                 LocalisationManager.getString("dialog.title.info"), // Используем общий ключ для информации
+                  |                                 JOptionPane.INFORMATION_MESSAGE);
+                  |                     } else {
+                  |                         JOptionPane.showMessageDialog(this,
+                  |                                 LocalisationManager.getString("command.error.updateFailed"),
+                  |                                 LocalisationManager.getString("dialog.title.error"),
+                  |                                 JOptionPane.ERROR_MESSAGE);
+                  |                     }
+                  |                 }
+                  |             }
                   |         } else {
-                  |             try {
-                  |                 // Комбинируем все активные фильтры с условием "И" (AND)
-                  |                 // Каждая строка должна удовлетворять ВСЕМ примененным фильтрам
-                  |                 RowFilter<HBTable, Integer> compoundRowFilter = RowFilter.andFilter(filters);
-                  |                 sorter.setRowFilter(compoundRowFilter);
-                  |             } catch (PatternSyntaxException pse) {
-                  |                 // Это исключение актуально для RowFilter.regexFilter, для нашего RowFilter маловероятно
-                  |                 System.err.println("Ошибка синтаксиса в фильтре (маловероятно для ColumnSpecificRowFilter): " + pse.getMessage());
-                  |                 sorter.setRowFilter(null); // Сброс фильтра при ошибке
-                  |             } catch (Exception e) {
-                  |                 System.err.println("Непредвиденная ошибка при применении комбинированного фильтра: " + e.getMessage());
-                  |                 e.printStackTrace();
-                  |                 sorter.setRowFilter(null); // Сброс фильтра
+                  |             // Пользователь не владеет объектом
+                  |             JOptionPane.showMessageDialog(this,
+                  |                     LocalisationManager.getString("dialog.addEdit.validation.notYourObject"),
+                  |                     LocalisationManager.getString("dialog.title.error"),
+                  |                     JOptionPane.ERROR_MESSAGE);
+                  |         }
+                  |     }
+                  | 
+                  |     // Метод для обновления информации в статус-баре (если вынесено отдельно)
+                  |     public void updateStatusBarInfo() {
+                  |         if (currentUserLabel != null) {
+                  |             String usernameText = (Main.username != null && !Main.username.isEmpty()) ? Main.username : "N/A";
+                  |             currentUserLabel.setText(LocalisationManager.getString("mainWindow.label.currentUser") + " " + usernameText);
+                  |         }
+                  |         // Добавь сюда обновление метки с количеством элементов, если она есть
+                  |         // if (collectionInfoLabel != null) { ... }
+                  |         if (hbTableModel != null) { // Для обновления количества элементов в статусной строке, если она есть
+                  |             // Это вызовет updateTexts, который обновит и collectionInfoLabel
+                  |             // Либо можно напрямую обновлять collectionInfoLabel
+                  |         }
+                  |         // Если у тебя есть отдельный JLabel для информации о коллекции, обнови его здесь
+                  |         // Например, если у тебя есть collectionInfoLabel:
+                  |         // if (collectionInfoLabel != null && Main.cm != null && CollectionManager.collection != null) {
+                  |         //     String type = CollectionManager.collection.getClass().getSimpleName();
+                  |         //     String creationTime = Main.cm.getTimeOfCreation() != null ? Main.cm.getTimeOfCreation() : "N/A";
+                  |         //     int size = CollectionManager.collection.size();
+                  |         //     String formatKey = "statusBar.collectionInfoFormat";
+                  |         //     String infoText = String.format(LocalisationManager.getString(formatKey), type, creationTime, size);
+                  |         //     collectionInfoLabel.setText(infoText);
+                  |         // }
+                  |     }
+                  | 
+                  |     private void handleAddCommand() {
+                  |         HumanBeingDialog dialog = new HumanBeingDialog(this, null); // null для нового объекта
+                  |         dialog.setVisible(true);
+                  | 
+                  |         if (dialog.isSaved()) {
+                  |             HumanBeing newHuman = dialog.getHumanBeing();
+                  |             if (newHuman != null) {
+                  |                 // Используем сеттер в команде
+                  |                 AddElementCommand.setObjectFromGUI(newHuman);
+                  |                 try {
+                  |                     Command addCmd = Main.inv.commands.get("add");
+                  |                     if (addCmd != null) {
+                  |                         // Вызываем execute. Command.execute вызовет bodyOfDBCommand.
+                  |                         // Если bodyOfDBCommand вернет true, Command.execute обновит CollectionManager.collection
+                  |                         addCmd.execute(""); // Аргумент пуст для команды add из GUI
+                  | 
+                  |                         // После выполнения команды, CollectionManager.collection должен быть обновлен внутри Command.execute
+                  |                         // Нам нужно только обновить модель таблицы и статус-бар
+                  |                         hbTableModel.updateData(CollectionManager.collection);
+                  |                         updateStatusBarInfo(); // Предполагаем, что этот метод обновляет инфо о коллекции
+                  |                         // TODO: Обновить визуализацию, когда она будет
+                  | 
+                  |                         JOptionPane.showMessageDialog(this,
+                  |                                 LocalisationManager.getString("dialog.message.objectAdded"),
+                  |                                 LocalisationManager.getString("dialog.title.info"),
+                  |                                 JOptionPane.INFORMATION_MESSAGE);
+                  |                     } else {
+                  |                         System.err.println("Команда 'add' не найдена в Invoker.");
+                  |                         JOptionPane.showMessageDialog(this,
+                  |                                 "Ошибка: Команда 'add' не найдена.",
+                  |                                 LocalisationManager.getString("dialog.title.error"),
+                  |                                 JOptionPane.ERROR_MESSAGE);
+                  |                     }
+                  |                 } catch (Exception ex) { // Ловим более общие исключения от команды
+                  |                     JOptionPane.showMessageDialog(this,
+                  |                             LocalisationManager.getString("command.error.addFailed") + "\n" + ex.getMessage(),
+                  |                             LocalisationManager.getString("dialog.title.error"),
+                  |                             JOptionPane.ERROR_MESSAGE);
+                  |                     ex.printStackTrace();
+                  |                 }
                   |             }
                   |         }
                   |     }
@@ -3235,13 +3329,855 @@
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (MainWindow.java) ---
 
+                📂 dialogs/
+                    📄 HumanBeingDialog.java (17223 bytes)
+                      --- СОДЕРЖИМОЕ ФАЙЛА (HumanBeingDialog.java) ---
+                      | package gui.dialogs;
+                      | 
+                      | import classes.*;
+                      | import enums.*;
+                      | import gui.LocalizedEnumComboBoxModel;
+                      | import gui.renderers.LocalizedEnumRenderer;
+                      | import managers.*;
+                      | 
+                      | import javax.swing.*;
+                      | import java.awt.*;
+                      | import java.beans.*;
+                      | import java.util.*;
+                      | 
+                      | public class HumanBeingDialog extends JDialog implements PropertyChangeListener {
+                      | 
+                      |     // Поля для ввода данных
+                      |     private JTextField nameField;
+                      |     private JTextField coordXField;
+                      |     private JTextField coordYField;
+                      |     private JCheckBox realHeroCheckBox;
+                      |     private JCheckBox hasToothpickCheckBox;
+                      |     private JTextField impactSpeedField;
+                      |     private JTextField soundtrackNameField;
+                      |     private JComboBox<WeaponType> weaponTypeComboBox;
+                      |     private JComboBox<Mood> moodComboBox;
+                      |     private JTextField carNameField;
+                      |     private JCheckBox carCoolCheckBox;
+                      | 
+                      |     // Метки для полей
+                      |     private JLabel nameLabel, coordXLabel, coordYLabel, realHeroLabel, hasToothpickLabel,
+                      |             impactSpeedLabel, soundtrackNameLabel, weaponTypeLabel, moodLabel,
+                      |             carNameLabel, carCoolLabel;
+                      | 
+                      |     // Кнопки
+                      |     private JButton saveButton;
+                      |     private JButton cancelButton;
+                      | 
+                      |     private HumanBeing humanBeing; // Редактируемый или новый объект
+                      |     private boolean saved = false;   // Флаг, успешно ли сохранен диалог
+                      | 
+                      |     // Локализованные представления для Enum в JComboBox
+                      |     private LocalizedEnumComboBoxModel<WeaponType> weaponTypeModel;
+                      |     private LocalizedEnumComboBoxModel<Mood> moodModel;
+                      | 
+                      | 
+                      |     /**
+                      |      * Конструктор для диалога.
+                      |      * @param parent Родительское окно.
+                      |      * @param humanBeingToEdit Объект для редактирования (null если создается новый).
+                      |      */
+                      |     public HumanBeingDialog(Frame parent, HumanBeing humanBeingToEdit) {
+                      |         super(parent, true); // Модальный диалог
+                      | 
+                      |         this.humanBeing = (humanBeingToEdit == null) ? new HumanBeing() : humanBeingToEdit;
+                      |         // Если редактируем, то this.humanBeing будет ссылкой на объект из коллекции.
+                      |         // Чтобы избежать изменения оригинала до нажатия "Сохранить", лучше работать с копией.
+                      |         // Но для простоты пока оставим так, при сохранении будем создавать новый объект или обновлять поля.
+                      |         // Правильнее: this.humanBeing = (humanBeingToEdit == null) ? new HumanBeing() : createEditableCopy(humanBeingToEdit);
+                      | 
+                      |         LocalisationManager.addPropertyChangeListener(this);
+                      | 
+                      |         initComponents();
+                      |         if (humanBeingToEdit != null) {
+                      |             fillFields(humanBeingToEdit); // Заполняем поля, если редактируем
+                      |         }
+                      |         updateTexts(); // Устанавливаем локализованные тексты
+                      |         pack();
+                      |         setResizable(false);
+                      |         setLocationRelativeTo(parent);
+                      |     }
+                      | 
+                      |     private void initComponents() {
+                      |         // Используем GridBagLayout для гибкого расположения
+                      |         setLayout(new GridBagLayout());
+                      |         GridBagConstraints gbc = new GridBagConstraints();
+                      |         gbc.insets = new Insets(5, 5, 5, 5);
+                      |         gbc.anchor = GridBagConstraints.WEST;
+                      | 
+                      |         int gridY = 0;
+                      | 
+                      |         // Name
+                      |         nameLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(nameLabel, gbc);
+                      |         nameField = new JTextField(25);
+                      |         gbc.gridx = 1; gbc.gridy = gridY; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.HORIZONTAL; add(nameField, gbc);
+                      |         gbc.gridwidth = 1; gbc.fill = GridBagConstraints.NONE; // Сброс
+                      |         gridY++;
+                      | 
+                      |         // Coordinate X
+                      |         coordXLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(coordXLabel, gbc);
+                      |         coordXField = new JTextField(10);
+                      |         gbc.gridx = 1; gbc.gridy = gridY; add(coordXField, gbc);
+                      |         gridY++;
+                      | 
+                      |         // Coordinate Y
+                      |         coordYLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(coordYLabel, gbc);
+                      |         coordYField = new JTextField(10);
+                      |         gbc.gridx = 1; gbc.gridy = gridY; add(coordYField, gbc);
+                      |         gridY++;
+                      | 
+                      |         // Real Hero
+                      |         realHeroLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(realHeroLabel, gbc);
+                      |         realHeroCheckBox = new JCheckBox();
+                      |         gbc.gridx = 1; gbc.gridy = gridY; add(realHeroCheckBox, gbc);
+                      |         gridY++;
+                      | 
+                      |         // Has Toothpick
+                      |         hasToothpickLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(hasToothpickLabel, gbc);
+                      |         hasToothpickCheckBox = new JCheckBox();
+                      |         gbc.gridx = 1; gbc.gridy = gridY; add(hasToothpickCheckBox, gbc);
+                      |         gridY++;
+                      | 
+                      |         // Impact Speed
+                      |         impactSpeedLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(impactSpeedLabel, gbc);
+                      |         impactSpeedField = new JTextField(10);
+                      |         gbc.gridx = 1; gbc.gridy = gridY; add(impactSpeedField, gbc);
+                      |         gridY++;
+                      | 
+                      |         // Soundtrack Name
+                      |         soundtrackNameLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(soundtrackNameLabel, gbc);
+                      |         soundtrackNameField = new JTextField(25);
+                      |         gbc.gridx = 1; gbc.gridy = gridY; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.HORIZONTAL; add(soundtrackNameField, gbc);
+                      |         gbc.gridwidth = 1; gbc.fill = GridBagConstraints.NONE;
+                      |         gridY++;
+                      | 
+                      |         weaponTypeLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(weaponTypeLabel, gbc);
+                      |         // Модель теперь ComboBoxModel<WeaponType>
+                      |         LocalizedEnumComboBoxModel<WeaponType> weaponTypeModel = new LocalizedEnumComboBoxModel<>(WeaponType.values());
+                      |         weaponTypeComboBox = new JComboBox<>(weaponTypeModel);
+                      |         // Устанавливаем рендерер для отображения локализованных имен
+                      |         weaponTypeComboBox.setRenderer(new LocalizedEnumRenderer<>("enum.weaponType."));
+                      |         gbc.gridx = 1; gbc.gridy = gridY; gbc.fill = GridBagConstraints.HORIZONTAL; add(weaponTypeComboBox, gbc);
+                      |         gbc.fill = GridBagConstraints.NONE;
+                      |         gridY++;
+                      | 
+                      |         // Mood
+                      |         moodLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(moodLabel, gbc);
+                      |         LocalizedEnumComboBoxModel<Mood> moodModel = new LocalizedEnumComboBoxModel<>(Mood.values());
+                      |         moodComboBox = new JComboBox<>(moodModel);
+                      |         moodComboBox.setRenderer(new LocalizedEnumRenderer<>("enum.mood."));
+                      |         gbc.gridx = 1; gbc.gridy = gridY; gbc.fill = GridBagConstraints.HORIZONTAL; add(moodComboBox, gbc);
+                      |         gbc.fill = GridBagConstraints.NONE;
+                      |         gridY++;
+                      | 
+                      |         // Car Name
+                      |         carNameLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(carNameLabel, gbc);
+                      |         carNameField = new JTextField(25);
+                      |         gbc.gridx = 1; gbc.gridy = gridY; gbc.gridwidth = 2; gbc.fill = GridBagConstraints.HORIZONTAL; add(carNameField, gbc);
+                      |         gbc.gridwidth = 1; gbc.fill = GridBagConstraints.NONE;
+                      |         gridY++;
+                      | 
+                      |         // Car Cool
+                      |         carCoolLabel = new JLabel();
+                      |         gbc.gridx = 0; gbc.gridy = gridY; add(carCoolLabel, gbc);
+                      |         carCoolCheckBox = new JCheckBox();
+                      |         gbc.gridx = 1; gbc.gridy = gridY; add(carCoolCheckBox, gbc);
+                      |         gridY++;
+                      | 
+                      |         // Панель для кнопок
+                      |         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                      |         saveButton = new JButton();
+                      |         cancelButton = new JButton();
+                      |         buttonPanel.add(saveButton);
+                      |         buttonPanel.add(cancelButton);
+                      | 
+                      |         gbc.gridx = 0; gbc.gridy = gridY; gbc.gridwidth = 3; gbc.anchor = GridBagConstraints.EAST;
+                      |         add(buttonPanel, gbc);
+                      | 
+                      |         // Обработчики кнопок
+                      |         saveButton.addActionListener(e -> onSave());
+                      |         cancelButton.addActionListener(e -> onCancel());
+                      |     }
+                      | 
+                      |     // Заполнение полей данными из объекта (при редактировании)
+                      |     private void fillFields(HumanBeing hb) {
+                      |         nameField.setText(hb.getName());
+                      |         if (hb.getCoordinates() != null) {
+                      |             coordXField.setText(String.valueOf(hb.getCoordinates().getX()));
+                      |             coordYField.setText(String.valueOf(hb.getCoordinates().getY()));
+                      |         }
+                      |         realHeroCheckBox.setSelected(hb.isRealHero());
+                      |         hasToothpickCheckBox.setSelected(hb.isHasToothpick());
+                      |         if (hb.getImpactSpeed() != null) {
+                      |             impactSpeedField.setText(String.valueOf(hb.getImpactSpeed()));
+                      |         }
+                      |         soundtrackNameField.setText(hb.getSoundtrackName());
+                      |         weaponTypeComboBox.setSelectedItem(hb.getWeaponType()); // Модель сама найдет нужный объект
+                      |         moodComboBox.setSelectedItem(hb.getMood());             // Модель сама найдет нужный объект
+                      |         if (hb.getCar() != null) {
+                      |             carNameField.setText(hb.getCar().getName());
+                      |             carCoolCheckBox.setSelected(hb.getCar().isCool());
+                      |         }
+                      |     }
+                      | 
+                      |     // Обновление текстов меток и кнопок при смене локали
+                      |     private void updateTexts() {
+                      |         setTitle( (humanBeing != null && humanBeing.getId() > 0) ? // Проверка на новый объект (id обычно >0 для существующих)
+                      |                 LocalisationManager.getString("dialog.addEdit.title.edit") :
+                      |                 LocalisationManager.getString("dialog.addEdit.title.add") );
+                      | 
+                      |         nameLabel.setText(LocalisationManager.getString("dialog.addEdit.label.name"));
+                      |         coordXLabel.setText(LocalisationManager.getString("dialog.addEdit.label.coordinateX"));
+                      |         coordYLabel.setText(LocalisationManager.getString("dialog.addEdit.label.coordinateY"));
+                      |         realHeroLabel.setText(LocalisationManager.getString("dialog.addEdit.label.realHero")); // Ключ для JCheckBox
+                      |         hasToothpickLabel.setText(LocalisationManager.getString("dialog.addEdit.label.hasToothpick")); // Ключ для JCheckBox
+                      |         impactSpeedLabel.setText(LocalisationManager.getString("dialog.addEdit.label.impactSpeed"));
+                      |         soundtrackNameLabel.setText(LocalisationManager.getString("dialog.addEdit.label.soundtrackName"));
+                      |         weaponTypeLabel.setText(LocalisationManager.getString("dialog.addEdit.label.weaponType"));
+                      |         moodLabel.setText(LocalisationManager.getString("dialog.addEdit.label.mood"));
+                      |         carNameLabel.setText(LocalisationManager.getString("dialog.addEdit.label.carName"));
+                      |         carCoolLabel.setText(LocalisationManager.getString("dialog.addEdit.label.carCool")); // Ключ для JCheckBox
+                      | 
+                      |         saveButton.setText(LocalisationManager.getString("dialog.addEdit.button.save"));
+                      |         cancelButton.setText(LocalisationManager.getString("dialog.addEdit.button.cancel"));
+                      | 
+                      |         // Обновляем модели JComboBox, чтобы они перерисовали свои элементы с новой локалью
+                      |         if (weaponTypeComboBox != null) weaponTypeComboBox.repaint();
+                      |         if (moodComboBox != null) moodComboBox.repaint();
+                      |     }
+                      | 
+                      | 
+                      |     private void onSave() {
+                      |         if (!validateInput()) {
+                      |             return;
+                      |         }
+                      | 
+                      |         // Создаем новый объект или обновляем существующий
+                      |         // Здесь мы обновляем поля переданного объекта humanBeing.
+                      |         // Если это новый объект, он уже был создан как new HumanBeing().
+                      |         // Если это редактирование, мы меняем поля копии или оригинала (в зависимости от реализации).
+                      |         // Для простоты сейчас будем считать, что мы можем модифицировать humanBeing.
+                      | 
+                      |         humanBeing.setName(nameField.getText().trim());
+                      |         try {
+                      |             long x = Long.parseLong(coordXField.getText().trim());
+                      |             long y = Long.parseLong(coordYField.getText().trim());
+                      |             humanBeing.setCoordinates(new Coordinates(x, y));
+                      |         } catch (NumberFormatException e) { /* Валидация должна была это поймать */ }
+                      | 
+                      |         humanBeing.setRealHero(realHeroCheckBox.isSelected());
+                      |         humanBeing.setHasToothpick(hasToothpickCheckBox.isSelected());
+                      | 
+                      |         String impactSpeedStr = impactSpeedField.getText().trim();
+                      |         humanBeing.setImpactSpeed(impactSpeedStr.isEmpty() ? null : Long.parseLong(impactSpeedStr));
+                      | 
+                      |         humanBeing.setSoundtrackName(soundtrackNameField.getText().trim());
+                      |         humanBeing.setWeaponType((WeaponType) weaponTypeComboBox.getSelectedItem());
+                      |         humanBeing.setMood((Mood) moodComboBox.getSelectedItem());
+                      | 
+                      |         humanBeing.setCar(new Car(carNameField.getText().trim(), carCoolCheckBox.isSelected()));
+                      | 
+                      |         // Если это был новый объект, ему еще нужно присвоить ID (обычно это делает БД)
+                      |         // и creationDate (обычно при создании объекта или в БД)
+                      |         if (humanBeing.getCreationDate() == null) { // Если новый объект
+                      |             humanBeing.setCreationDate(new Date()); // Устанавливаем текущую дату
+                      |         }
+                      | 
+                      | 
+                      |         saved = true;
+                      |         dispose();
+                      |     }
+                      | 
+                      |     private void onCancel() {
+                      |         saved = false;
+                      |         dispose();
+                      |     }
+                      | 
+                      |     private boolean validateInput() {
+                      |         // Имя не должно быть пустым
+                      |         if (nameField.getText().trim().isEmpty()) {
+                      |             showValidationError("dialog.addEdit.validation.nameEmpty");
+                      |             return false;
+                      |         }
+                      |         // Координаты X и Y должны быть числами (long)
+                      |         try {
+                      |             Long.parseLong(coordXField.getText().trim());
+                      |         } catch (NumberFormatException e) {
+                      |             showValidationError("dialog.addEdit.validation.coordinateXInvalid");
+                      |             return false;
+                      |         }
+                      |         try {
+                      |             Long.parseLong(coordYField.getText().trim());
+                      |         } catch (NumberFormatException e) {
+                      |             showValidationError("dialog.addEdit.validation.coordinateYInvalid");
+                      |             return false;
+                      |         }
+                      |         // ImpactSpeed: если не пусто, должно быть числом (Long)
+                      |         String impactSpeedStr = impactSpeedField.getText().trim();
+                      |         if (!impactSpeedStr.isEmpty()) {
+                      |             try {
+                      |                 Long.parseLong(impactSpeedStr);
+                      |             } catch (NumberFormatException e) {
+                      |                 showValidationError("dialog.addEdit.validation.impactSpeedInvalid");
+                      |                 return false;
+                      |             }
+                      |         }
+                      |         // Название саундтрека не должно быть пустым
+                      |         if (soundtrackNameField.getText().trim().isEmpty()) {
+                      |             showValidationError("dialog.addEdit.validation.soundtrackEmpty");
+                      |             return false;
+                      |         }
+                      |         // Имя машины не должно быть пустым
+                      |         if (carNameField.getText().trim().isEmpty()) {
+                      |             showValidationError("dialog.addEdit.validation.carNameEmpty");
+                      |             return false;
+                      |         }
+                      |         // WeaponType и Mood выбираются из ComboBox, обычно не требуют спец. валидации, если только не "null" опция
+                      |         if (weaponTypeComboBox.getSelectedItem() == null) {
+                      |             // Показать ошибку, если тип оружия обязателен
+                      |             showValidationError("dialog.addEdit.validation.weaponTypeRequired"); // Пример ключа
+                      |             return false;
+                      |         }
+                      |         if (moodComboBox.getSelectedItem() == null) {
+                      |             // Показать ошибку, если настроение обязательно
+                      |             showValidationError("dialog.addEdit.validation.moodRequired"); // Пример ключа
+                      |             return false;
+                      |         }
+                      | 
+                      | 
+                      |         return true;
+                      |     }
+                      | 
+                      |     private void showValidationError(String messageKey) {
+                      |         JOptionPane.showMessageDialog(this,
+                      |                 LocalisationManager.getString(messageKey),
+                      |                 LocalisationManager.getString("dialog.title.error"),
+                      |                 JOptionPane.ERROR_MESSAGE);
+                      |     }
+                      | 
+                      |     public HumanBeing getHumanBeing() {
+                      |         return saved ? humanBeing : null;
+                      |     }
+                      | 
+                      |     public boolean isSaved() {
+                      |         return saved;
+                      |     }
+                      | 
+                      |     @Override
+                      |     public void propertyChange(PropertyChangeEvent evt) {
+                      |         if (LocalisationManager.LOCALE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
+                      |             SwingUtilities.invokeLater(this::updateTexts);
+                      |         }
+                      |     }
+                      | 
+                      |     @Override
+                      |     public void dispose() {
+                      |         LocalisationManager.removePropertyChangeListener(this);
+                      |         super.dispose();
+                      |     }
+                      | }
+                      --- КОНЕЦ СОДЕРЖИМОГО (HumanBeingDialog.java) ---
+
+                    📄 LoginDialog.java (8410 bytes)
+                      --- СОДЕРЖИМОЕ ФАЙЛА (LoginDialog.java) ---
+                      | package gui.dialogs;
+                      | 
+                      | import managers.DBManager;
+                      | import managers.LocalisationManager;
+                      | import run.Main;
+                      | 
+                      | import javax.swing.*;
+                      | import java.awt.*;
+                      | import java.awt.event.ActionEvent;
+                      | import java.awt.event.ActionListener;
+                      | import java.awt.event.WindowAdapter;
+                      | import java.awt.event.WindowEvent;
+                      | import java.beans.PropertyChangeEvent;
+                      | import java.beans.PropertyChangeListener;
+                      | 
+                      | public class LoginDialog extends JDialog implements PropertyChangeListener {
+                      | 
+                      |     private JTextField usernameField;
+                      |     private JPasswordField passwordField;
+                      |     private JButton loginButton;
+                      |     private JButton registerButton;
+                      |     private JComboBox<String> languageComboBox;
+                      |     private JLabel usernameLabel, passwordLabel, languageLabel;
+                      | 
+                      |     private DBManager dbManager;
+                      | 
+                      |     private boolean Succeeded = false;
+                      | 
+                      | 
+                      |     public LoginDialog(Frame parent, DBManager dbManager) {
+                      |         super(parent, true);
+                      |         this.dbManager = dbManager;
+                      | 
+                      |         LocalisationManager.addPropertyChangeListener(this);
+                      | 
+                      |         initComponents();
+                      |         updateTexts();
+                      |         pack();
+                      |         setResizable(false);
+                      |         setLocationRelativeTo(parent);
+                      | 
+                      |         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+                      |         addWindowListener(new WindowAdapter() {
+                      |             @Override
+                      |             public void windowClosing(WindowEvent e) {
+                      |                 System.exit(0);
+                      |             }
+                      |         });
+                      |     }
+                      | 
+                      |     private void initComponents() {
+                      |         setLayout(new GridBagLayout());
+                      |         GridBagConstraints cs = new GridBagConstraints();
+                      |         cs.fill = GridBagConstraints.HORIZONTAL;
+                      |         cs.insets = new Insets(5, 5, 5, 5); // Отступы
+                      | 
+                      |         usernameLabel = new JLabel();
+                      |         cs.gridx = 0; cs.gridy = 0; cs.gridwidth = 1;
+                      |         add(usernameLabel, cs);
+                      | 
+                      |         usernameField = new JTextField(20);
+                      |         cs.gridx = 1; cs.gridy = 0; cs.gridwidth = 2;
+                      |         add(usernameField, cs);
+                      | 
+                      |         passwordLabel = new JLabel();
+                      |         cs.gridx = 0; cs.gridy = 1; cs.gridwidth = 1;
+                      |         add(passwordLabel, cs);
+                      | 
+                      |         passwordField = new JPasswordField(20);
+                      |         cs.gridx = 1; cs.gridy = 1; cs.gridwidth = 2;
+                      |         add(passwordField, cs);
+                      | 
+                      |         languageLabel = new JLabel();
+                      |         cs.gridx = 0; cs.gridy = 2; cs.gridwidth = 1;
+                      |         add(languageLabel, cs);
+                      | 
+                      |         String[] languages = {
+                      |                 "mainWindow.menu.language.russian",
+                      |                 "mainWindow.menu.language.norwegian",
+                      |                 "mainWindow.menu.language.french",
+                      |                 "mainWindow.menu.language.spanish_sv"
+                      |         };
+                      |         // Отображаемые значения для JComboBox
+                      |         String[] displayLanguages = new String[languages.length];
+                      |         for (int i = 0; i < languages.length; i++) {
+                      |             displayLanguages[i] = LocalisationManager.getString(languages[i]);
+                      |         }
+                      | 
+                      |         languageComboBox = new JComboBox<>(displayLanguages);
+                      |         languageComboBox.addActionListener(e -> {
+                      |             int selectedIndex = languageComboBox.getSelectedIndex();
+                      |             switch (selectedIndex) {
+                      |                 case 0: LocalisationManager.setLocale(LocalisationManager.RU_LOCALE); break;
+                      |                 case 1: LocalisationManager.setLocale(LocalisationManager.NO_LOCALE); break;
+                      |                 case 2: LocalisationManager.setLocale(LocalisationManager.FR_LOCALE); break;
+                      |                 case 3: LocalisationManager.setLocale(LocalisationManager.EV_SV_LOCALE); break;
+                      |             }
+                      |         });
+                      |         cs.gridx = 1; cs.gridy = 2; cs.gridwidth = 2;
+                      |         add(languageComboBox, cs);
+                      | 
+                      | 
+                      |         loginButton = new JButton();
+                      |         loginButton.addActionListener(new ActionListener() {
+                      |             public void actionPerformed(ActionEvent e) {
+                      |                 performLogin();
+                      |             }
+                      |         });
+                      | 
+                      |         registerButton = new JButton();
+                      |         registerButton.addActionListener(new ActionListener() {
+                      |             public void actionPerformed(ActionEvent e) {
+                      |                 performRegister();
+                      |             }
+                      |         });
+                      | 
+                      |         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+                      |         buttonPanel.add(loginButton);
+                      |         buttonPanel.add(registerButton);
+                      | 
+                      |         cs.gridx = 0; cs.gridy = 3; cs.gridwidth = 3; cs.anchor = GridBagConstraints.CENTER;
+                      |         add(buttonPanel, cs);
+                      |     }
+                      | 
+                      |     private void performLogin() {
+                      |         String username = usernameField.getText().trim();
+                      |         String password = new String(passwordField.getPassword());
+                      | 
+                      |         if (username.isEmpty() || password.isEmpty()) {
+                      |             JOptionPane.showMessageDialog(this,
+                      |                     LocalisationManager.getString("login.message.fieldsCannotBeEmpty"),
+                      |                     LocalisationManager.getString("dialog.title.error"),
+                      |                     JOptionPane.ERROR_MESSAGE);
+                      |             return;
+                      |         }
+                      | 
+                      |         boolean success = dbManager.login(username, password);
+                      | 
+                      |         if (success) {
+                      |             Main.username = username;
+                      |             Main.login = true;
+                      |             Succeeded = true;
+                      |             JOptionPane.showMessageDialog(this, LocalisationManager.getString("login.message.success"));
+                      |             dispose();
+                      |         } else {
+                      |             JOptionPane.showMessageDialog(this,
+                      |                     LocalisationManager.getString("login.message.failed"),
+                      |                     LocalisationManager.getString("dialog.title.error"),
+                      |                     JOptionPane.ERROR_MESSAGE);
+                      |             passwordField.setText("");
+                      |         }
+                      |     }
+                      | 
+                      |     private void performRegister() {
+                      |         String username = usernameField.getText().trim();
+                      |         String password = new String(passwordField.getPassword());
+                      | 
+                      |         if (username.isEmpty() || password.isEmpty()) {
+                      |             JOptionPane.showMessageDialog(this,
+                      |                     LocalisationManager.getString("login.message.fieldsCannotBeEmpty"),
+                      |                     LocalisationManager.getString("dialog.title.error"),
+                      |                     JOptionPane.ERROR_MESSAGE);
+                      |             return;
+                      |         }
+                      |         dbManager.registerUser(username, password);
+                      | 
+                      |         if (Main.login) {
+                      |             Succeeded = true;
+                      |             dispose();
+                      |         } else {
+                      |             JOptionPane.showMessageDialog(this,
+                      |                     LocalisationManager.getString("login.message.registrationFailed") + (Main.username.equals(username) ? "" : " " + LocalisationManager.getString("login.message.userExists")),
+                      |                     LocalisationManager.getString("dialog.title.error"),
+                      |                     JOptionPane.ERROR_MESSAGE);
+                      |             passwordField.setText("");
+                      |         }
+                      |     }
+                      | 
+                      | 
+                      |     private void updateTexts() {
+                      |         setTitle(LocalisationManager.getString("login.title"));
+                      |         usernameLabel.setText(LocalisationManager.getString("login.label.username"));
+                      |         passwordLabel.setText(LocalisationManager.getString("login.label.password"));
+                      |         languageLabel.setText(LocalisationManager.getString("login.label.language"));
+                      |         loginButton.setText(LocalisationManager.getString("login.button.login"));
+                      |         registerButton.setText(LocalisationManager.getString("login.button.register"));
+                      | 
+                      |         if (languageComboBox != null) {
+                      |             String[] languages = {
+                      |                     "mainWindow.menu.language.russian", "mainWindow.menu.language.norwegian",
+                      |                     "mainWindow.menu.language.french", "mainWindow.menu.language.spanish_sv"
+                      |             };
+                      |             int selectedIndex = languageComboBox.getSelectedIndex();
+                      |             DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) languageComboBox.getModel();
+                      |             model.removeAllElements();
+                      |             for (String langKey : languages) {
+                      |                 model.addElement(LocalisationManager.getString(langKey));
+                      |             }
+                      |             if (selectedIndex >=0 && selectedIndex < model.getSize()) {
+                      |                 languageComboBox.setSelectedIndex(selectedIndex);
+                      |             }
+                      |         }
+                      |     }
+                      | 
+                      |     @Override
+                      |     public void propertyChange(PropertyChangeEvent evt) {
+                      |         if (LocalisationManager.LOCALE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
+                      |             SwingUtilities.invokeLater(this::updateTexts);
+                      |         }
+                      |     }
+                      | 
+                      |     public boolean isSucceeded() {
+                      |         return Succeeded;
+                      |     }
+                      | 
+                      |     @Override
+                      |     public void dispose() {
+                      |         LocalisationManager.removePropertyChangeListener(this);
+                      |         super.dispose();
+                      |     }
+                      | }
+                      --- КОНЕЦ СОДЕРЖИМОГО (LoginDialog.java) ---
+
+                    📄 ViewHumanDialog.java (15139 bytes)
+                      --- СОДЕРЖИМОЕ ФАЙЛА (ViewHumanDialog.java) ---
+                      | package gui.dialogs;
+                      | 
+                      | import classes.*;
+                      | import gui.*;
+                      | import managers.*;
+                      | import run.*;
+                      | 
+                      | import javax.swing.*;
+                      | import java.awt.*;
+                      | import java.text.*;
+                      | import java.util.*;
+                      | 
+                      | public class ViewHumanDialog extends JDialog {
+                      | 
+                      |     // Метки для отображения данных
+                      |     private JLabel idValLabel, nameValLabel, coordXValLabel, coordYValLabel, creationDateValLabel,
+                      |             realHeroValLabel, hasToothpickValLabel, impactSpeedValLabel, soundtrackNameValLabel,
+                      |             weaponTypeValLabel, moodValLabel, carNameValLabel, carCoolValLabel, ownerIdValLabel;
+                      | 
+                      |     // Метки для названий полей (будут локализованы)
+                      |     private JLabel idLabel, nameLabel, coordXLabelText, coordYLabelText, creationDateLabelText,
+                      |             realHeroLabelText, hasToothpickLabelText, impactSpeedLabelText, soundtrackNameLabelText,
+                      |             weaponTypeLabelText, moodLabelText, carNameLabelText, carCoolLabelText, ownerIdLabelText;
+                      | 
+                      | 
+                      |     private JButton closeButton, editButton, deleteButton;
+                      | 
+                      |     private Frame ownerFrame;
+                      | 
+                      |     private HumanBeing humanBeingToView;
+                      |     private DateFormat dateFormat;
+                      | 
+                      |     public ViewHumanDialog(Frame parent, HumanBeing humanBeing) {
+                      |         super(parent, LocalisationManager.getString("visualization.objectInfo.title"), false); // Немодальный
+                      |         this.ownerFrame = parent; // Сохраняем MainWindow
+                      |         this.humanBeingToView = humanBeing;
+                      |         // ... (LocalisationManager.addPropertyChangeListener(this); - если нужно обновление открытого диалога)
+                      |         initComponents();
+                      |         populateFields();
+                      |         updateTexts();
+                      |         pack();
+                      |         setMinimumSize(new Dimension(400, (int)getPreferredSize().getHeight()));
+                      |         setLocationRelativeTo(parent);
+                      |         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+                      |     }
+                      | 
+                      |     private void initComponents() {
+                      |         setLayout(new GridBagLayout());
+                      |         GridBagConstraints gbc = new GridBagConstraints();
+                      |         gbc.insets = new Insets(5, 10, 5, 10);
+                      |         gbc.anchor = GridBagConstraints.WEST;
+                      | 
+                      |         int gridY = 0;
+                      | 
+                      |         // Инициализация всех меток-названий
+                      |         idLabel = new JLabel(); coordXLabelText = new JLabel(); nameLabel = new JLabel();
+                      |         coordYLabelText = new JLabel(); creationDateLabelText = new JLabel(); realHeroLabelText = new JLabel();
+                      |         hasToothpickLabelText = new JLabel(); impactSpeedLabelText = new JLabel(); soundtrackNameLabelText = new JLabel();
+                      |         weaponTypeLabelText = new JLabel(); moodLabelText = new JLabel(); carNameLabelText = new JLabel();
+                      |         carCoolLabelText = new JLabel(); ownerIdLabelText = new JLabel();
+                      | 
+                      |         // Инициализация всех меток-значений
+                      |         idValLabel = new JLabel(); nameValLabel = new JLabel(); coordXValLabel = new JLabel();
+                      |         coordYValLabel = new JLabel(); creationDateValLabel = new JLabel(); realHeroValLabel = new JLabel();
+                      |         hasToothpickValLabel = new JLabel(); impactSpeedValLabel = new JLabel(); soundtrackNameValLabel = new JLabel();
+                      |         weaponTypeValLabel = new JLabel(); moodValLabel = new JLabel(); carNameValLabel = new JLabel();
+                      |         carCoolValLabel = new JLabel(); ownerIdValLabel = new JLabel();
+                      | 
+                      |         // Добавляем пары метка-значение
+                      |         addField(idLabel, idValLabel, gridY++, gbc);
+                      |         addField(nameLabel, nameValLabel, gridY++, gbc);
+                      |         addField(coordXLabelText, coordXValLabel, gridY++, gbc);
+                      |         addField(coordYLabelText, coordYValLabel, gridY++, gbc);
+                      |         addField(creationDateLabelText, creationDateValLabel, gridY++, gbc);
+                      |         addField(realHeroLabelText, realHeroValLabel, gridY++, gbc);
+                      |         addField(hasToothpickLabelText, hasToothpickValLabel, gridY++, gbc);
+                      |         addField(impactSpeedLabelText, impactSpeedValLabel, gridY++, gbc);
+                      |         addField(soundtrackNameLabelText, soundtrackNameValLabel, gridY++, gbc);
+                      |         addField(weaponTypeLabelText, weaponTypeValLabel, gridY++, gbc);
+                      |         addField(moodLabelText, moodValLabel, gridY++, gbc);
+                      |         addField(carNameLabelText, carNameValLabel, gridY++, gbc);
+                      |         addField(carCoolLabelText, carCoolValLabel, gridY++, gbc);
+                      |         addField(ownerIdLabelText, ownerIdValLabel, gridY++, gbc);
+                      | 
+                      | 
+                      |         // Кнопки
+                      |         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+                      |         closeButton = new JButton(); // Текст из LocalisationManager
+                      |          editButton = new JButton();
+                      |          deleteButton = new JButton();
+                      | 
+                      |         closeButton.addActionListener(e -> dispose());
+                      |          buttonPanel.add(editButton);
+                      |          buttonPanel.add(deleteButton);
+                      |         buttonPanel.add(closeButton);
+                      | 
+                      |         gbc.gridx = 0; gbc.gridy = gridY; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER; gbc.fill = GridBagConstraints.HORIZONTAL;
+                      |         add(buttonPanel, gbc);
+                      |     }
+                      | 
+                      |     private void addField(JLabel labelComponent, JLabel valueComponent, int gridY, GridBagConstraints gbc) {
+                      |         gbc.gridx = 0; gbc.gridy = gridY; gbc.weightx = 0.3; gbc.fill = GridBagConstraints.NONE;
+                      |         add(labelComponent, gbc);
+                      |         gbc.gridx = 1; gbc.gridy = gridY; gbc.weightx = 0.7; gbc.fill = GridBagConstraints.HORIZONTAL;
+                      |         add(valueComponent, gbc);
+                      |     }
+                      | 
+                      | 
+                      |     private void populateFields() {
+                      |         if (humanBeingToView == null) return;
+                      | 
+                      |         Locale currentLocale = LocalisationManager.getLocale();
+                      |         if (currentLocale == null) currentLocale = new Locale("ru", "RU");
+                      |         dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, currentLocale);
+                      | 
+                      |         idValLabel.setText(String.valueOf(humanBeingToView.getId()));
+                      |         nameValLabel.setText(humanBeingToView.getName());
+                      |         if (humanBeingToView.getCoordinates() != null) {
+                      |             coordXValLabel.setText(String.valueOf(humanBeingToView.getCoordinates().getX()));
+                      |             coordYValLabel.setText(String.valueOf(humanBeingToView.getCoordinates().getY()));
+                      |         } else {
+                      |             coordXValLabel.setText("N/A"); coordYValLabel.setText("N/A");
+                      |         }
+                      |         creationDateValLabel.setText(humanBeingToView.getCreationDate() != null ? dateFormat.format(humanBeingToView.getCreationDate()) : "N/A");
+                      | 
+                      |         String yes = LocalisationManager.getString("button.yes"); // Предполагаем, что есть такие ключи
+                      |         String no = LocalisationManager.getString("button.no");
+                      |         realHeroValLabel.setText(humanBeingToView.isRealHero() ? yes : no);
+                      |         hasToothpickValLabel.setText(humanBeingToView.isHasToothpick() ? yes : no);
+                      | 
+                      |         impactSpeedValLabel.setText(humanBeingToView.getImpactSpeed() != null ? String.valueOf(humanBeingToView.getImpactSpeed()) : "N/A");
+                      |         soundtrackNameValLabel.setText(humanBeingToView.getSoundtrackName());
+                      | 
+                      |         weaponTypeValLabel.setText(humanBeingToView.getWeaponType() != null ? LocalisationManager.getString("enum.weaponType." + humanBeingToView.getWeaponType().name().toUpperCase()) : "N/A");
+                      |         moodValLabel.setText(humanBeingToView.getMood() != null ? LocalisationManager.getString("enum.mood." + humanBeingToView.getMood().name().toUpperCase()) : "N/A");
+                      | 
+                      |         if (humanBeingToView.getCar() != null) {
+                      |             carNameValLabel.setText(humanBeingToView.getCar().getName());
+                      |             carCoolValLabel.setText(humanBeingToView.getCar().isCool() ? yes : no);
+                      |         } else {
+                      |             carNameValLabel.setText("N/A"); carCoolValLabel.setText("N/A");
+                      |         }
+                      |         ownerIdValLabel.setText(String.valueOf(humanBeingToView.getOwnerId()));
+                      |     }
+                      | 
+                      |     private void updateTexts() {
+                      |         setTitle(LocalisationManager.getString("visualization.objectInfo.title")); // Общий заголовок для просмотра
+                      | 
+                      |         idLabel.setText(LocalisationManager.getString("visualization.objectInfo.field.id"));
+                      |         nameLabel.setText(LocalisationManager.getString("visualization.objectInfo.field.name"));
+                      |         coordXLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.coordinateX"));
+                      |         coordYLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.coordinateY"));
+                      |         creationDateLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.creationDate"));
+                      |         realHeroLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.realHero"));
+                      |         hasToothpickLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.hasToothpick"));
+                      |         impactSpeedLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.impactSpeed"));
+                      |         soundtrackNameLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.soundtrackName"));
+                      |         weaponTypeLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.weaponType"));
+                      |         moodLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.mood"));
+                      |         carNameLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.carName"));
+                      |         carCoolLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.carCool"));
+                      |         ownerIdLabelText.setText(LocalisationManager.getString("visualization.objectInfo.field.ownerId"));
+                      | 
+                      |         closeButton.setText(LocalisationManager.getString("button.close"));
+                      |          if(editButton != null) editButton.setText(LocalisationManager.getString("table.button.edit"));
+                      |          if(deleteButton != null) deleteButton.setText(LocalisationManager.getString("table.button.delete"));
+                      | 
+                      |         // Если данные уже загружены, обновить их отображение с новой локалью
+                      |         populateFields();
+                      |     }
+                      | 
+                      |     private void onEdit() {
+                      |         // Проверка прав
+                      |         int currentUserId = Main.db.findUserIDbyUsername(Main.username);
+                      |         if (humanBeingToView.getOwnerId() == currentUserId) {
+                      |             dispose(); // Закрываем текущий ViewHumanDialog
+                      | 
+                      |             // Открываем HumanBeingDialog для редактирования
+                      |             HumanBeingDialog editDialog = new HumanBeingDialog(ownerFrame, humanBeingToView);
+                      |             editDialog.setVisible(true);
+                      | 
+                      |             if (editDialog.isSaved()) {
+                      |                 HumanBeing updatedHuman = editDialog.getHumanBeing();
+                      |                 // Логика обновления в БД уже есть в MainWindow.openEditDialog,
+                      |                 // но т.к. мы вызываем из ViewHumanDialog, нужно ее здесь продублировать или вынести в общий метод.
+                      |                 // Проще всего, если MainWindow сам обновит свою таблицу после того, как узнает, что объект изменился.
+                      |                 // Для этого MainWindow может передать какой-то коллбэк или ViewHumanDialog может кинуть событие.
+                      | 
+                      |                 // Пока просто обновляем через Main и просим MainWindow обновить таблицу
+                      |                 boolean success = Main.db.updateID(humanBeingToView.getId(), updatedHuman, Main.username);
+                      |                 if (success) {
+                      |                     Main.cm.startCM(); // Обновляем коллекцию
+                      |                     if (ownerFrame instanceof MainWindow) { // Обновляем таблицу в главном окне
+                      |                         ((MainWindow) ownerFrame).getHbTableModel().updateData(CollectionManager.collection);
+                      |                         ((MainWindow) ownerFrame).updateStatusBarInfo(); // Обновляем статус бар
+                      |                     }
+                      |                     JOptionPane.showMessageDialog(ownerFrame, LocalisationManager.getString("dialog.message.objectUpdated"), LocalisationManager.getString("dialog.title.info"), JOptionPane.INFORMATION_MESSAGE);
+                      |                 } else {
+                      |                     JOptionPane.showMessageDialog(ownerFrame, LocalisationManager.getString("command.error.updateFailed"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
+                      |                 }
+                      |             }
+                      |         } else {
+                      |             JOptionPane.showMessageDialog(this, LocalisationManager.getString("dialog.addEdit.validation.notYourObject"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
+                      |         }
+                      |     }
+                      | 
+                      |     private void onDelete() {
+                      |         // Проверка прав
+                      |         int currentUserId = Main.db.findUserIDbyUsername(Main.username);
+                      |         if (humanBeingToView.getOwnerId() == currentUserId) {
+                      |             int response = JOptionPane.showConfirmDialog(this,
+                      |                     LocalisationManager.getString("dialog.message.confirmDelete"),
+                      |                     LocalisationManager.getString("command.remove"), // Или dialog.title.confirmation
+                      |                     JOptionPane.YES_NO_OPTION,
+                      |                     JOptionPane.WARNING_MESSAGE);
+                      | 
+                      |             if (response == JOptionPane.YES_OPTION) {
+                      |                 boolean success = Main.db.removeByID(Main.username, humanBeingToView.getId());
+                      |                 if (success) {
+                      |                     Main.cm.startCM(); // Обновляем коллекцию
+                      |                     if (ownerFrame instanceof MainWindow) { // Обновляем таблицу в главном окне
+                      |                         ((MainWindow) ownerFrame).getHbTableModel().updateData(CollectionManager.collection);
+                      |                         ((MainWindow) ownerFrame).updateStatusBarInfo();
+                      |                     }
+                      |                     JOptionPane.showMessageDialog(ownerFrame, LocalisationManager.getString("dialog.message.objectDeleted"), LocalisationManager.getString("dialog.title.info"), JOptionPane.INFORMATION_MESSAGE);
+                      |                     dispose(); // Закрываем ViewHumanDialog после удаления
+                      |                 } else {
+                      |                     JOptionPane.showMessageDialog(this, LocalisationManager.getString("command.error.removeFailed"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
+                      |                 }
+                      |             }
+                      |         } else {
+                      |             JOptionPane.showMessageDialog(this, LocalisationManager.getString("dialog.message.notYourObjectToDelete"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
+                      |         }
+                      |     }
+                      | 
+                      |     // Если диалог должен обновляться при смене языка, пока он открыт
+                      |     // @Override
+                      |     // public void propertyChange(PropertyChangeEvent evt) {
+                      |     //     if (LocalisationManager.LOCALE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
+                      |     //         SwingUtilities.invokeLater(this::updateTexts);
+                      |     //     }
+                      |     // }
+                      |     //
+                      |     // @Override
+                      |     // public void dispose() {
+                      |     //     LocalisationManager.removePropertyChangeListener(this);
+                      |     //     super.dispose();
+                      |     // }
+                      | }
+                      --- КОНЕЦ СОДЕРЖИМОГО (ViewHumanDialog.java) ---
+
                 📂 renderers/
-                    📄 CenterRender.java (539 bytes)
+                    📄 CenterRender.java (562 bytes)
                       --- СОДЕРЖИМОЕ ФАЙЛА (CenterRender.java) ---
                       | package gui.renderers;
                       | 
                       | import javax.swing.*;
-                      | import javax.swing.table.*;
+                      | import javax.swing.table.DefaultTableCellRenderer;
                       | import java.awt.*;
                       | 
                       | public class CenterRender extends DefaultTableCellRenderer {
@@ -3257,16 +4193,17 @@
                       | }
                       --- КОНЕЦ СОДЕРЖИМОГО (CenterRender.java) ---
 
-                    📄 DateRenderer.java (917 bytes)
+                    📄 DateRenderer.java (978 bytes)
                       --- СОДЕРЖИМОЕ ФАЙЛА (DateRenderer.java) ---
                       | package gui.renderers;
                       | 
                       | import managers.LocalisationManager;
                       | 
                       | import javax.swing.*;
-                      | import javax.swing.table.*;
-                      | import java.text.*;
-                      | import java.util.*;
+                      | import javax.swing.table.DefaultTableCellRenderer;
+                      | import java.text.DateFormat;
+                      | import java.util.Date;
+                      | import java.util.Locale;
                       | 
                       | public class DateRenderer extends DefaultTableCellRenderer {
                       |     private DateFormat dateFormat;
@@ -3293,14 +4230,14 @@
                       | }
                       --- КОНЕЦ СОДЕРЖИМОГО (DateRenderer.java) ---
 
-                    📄 EnumRenderer.java (815 bytes)
+                    📄 EnumRenderer.java (856 bytes)
                       --- СОДЕРЖИМОЕ ФАЙЛА (EnumRenderer.java) ---
                       | package gui.renderers;
                       | 
-                      | import managers.*;
+                      | import managers.LocalisationManager;
                       | 
                       | import javax.swing.*;
-                      | import javax.swing.table.*;
+                      | import javax.swing.table.DefaultTableCellRenderer;
                       | 
                       | public class EnumRenderer extends DefaultTableCellRenderer {
                       |     private String enumKeyPrefix; // e.g., "enum.mood." or "enum.weaponType."
@@ -3322,6 +4259,41 @@
                       |     }
                       | }
                       --- КОНЕЦ СОДЕРЖИМОГО (EnumRenderer.java) ---
+
+                    📄 LocalizedEnumRenderer.java (1193 bytes)
+                      --- СОДЕРЖИМОЕ ФАЙЛА (LocalizedEnumRenderer.java) ---
+                      | package gui.renderers;
+                      | 
+                      | import managers.LocalisationManager;
+                      | import javax.swing.*;
+                      | import java.awt.*;
+                      | 
+                      | public class LocalizedEnumRenderer<E extends Enum<E>> extends DefaultListCellRenderer {
+                      |     private String keyPrefix;
+                      | 
+                      |     public LocalizedEnumRenderer(String keyPrefix) {
+                      |         this.keyPrefix = keyPrefix;
+                      |         setHorizontalAlignment(JLabel.LEFT); // или CENTER, как тебе нужно
+                      |     }
+                      | 
+                      |     @Override
+                      |     public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                      |                                                   boolean isSelected, boolean cellHasFocus) {
+                      |         // Вызываем super, чтобы получить стандартное поведение для выделения и т.д.
+                      |         super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                      | 
+                      |         if (value instanceof Enum) {
+                      |             E enumValue = (E) value;
+                      |             setText(LocalisationManager.getString(keyPrefix + enumValue.name().toUpperCase()));
+                      |         } else if (value != null) {
+                      |             setText(value.toString());
+                      |         } else {
+                      |             setText("");
+                      |         }
+                      |         return this;
+                      |     }
+                      | }
+                      --- КОНЕЦ СОДЕРЖИМОГО (LocalizedEnumRenderer.java) ---
 
             📂 interfaces/
                 📄 Commander.java (861 bytes)
@@ -3359,7 +4331,7 @@
                   --- КОНЕЦ СОДЕРЖИМОГО (Commander.java) ---
 
             📂 managers/
-                📄 CollectionManager.java (8565 bytes)
+                📄 CollectionManager.java (8655 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (CollectionManager.java) ---
                   | package managers;
                   | 
@@ -3401,6 +4373,9 @@
                   |     public void startCM () {
                   |         initialazed = LocalDateTime.now();
                   |         timeOfCreation = LocalDateTime.now().format(formatter);
+                  |         collection = db.getCollection();
+                  |     }
+                  |     public void startCM(boolean flag) {
                   |         collection = db.getCollection();
                   |     }
                   | 
@@ -4461,12 +5436,15 @@
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (DBManager.java) ---
 
-                📄 LocalisationManager.java (3484 bytes)
+                📄 LocalisationManager.java (3630 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (LocalisationManager.java) ---
                   | package managers;
                   | 
-                  | import java.beans.*;
-                  | import java.util.*;
+                  | import java.beans.PropertyChangeListener;
+                  | import java.beans.PropertyChangeSupport;
+                  | import java.util.Locale;
+                  | import java.util.MissingResourceException;
+                  | import java.util.ResourceBundle;
                   | 
                   | public class LocalisationManager {
                   |     private static Locale locale;
@@ -4602,17 +5580,19 @@
                   --- КОНЕЦ СОДЕРЖИМОГО (LoginManager.java) ---
 
             📂 run/
-                📄 Main.java (4171 bytes)
+                📄 Main.java (4272 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (Main.java) ---
                   | package run;
                   | 
-                  | import functions.*;
-                  | import managers.*;
-                  | import utils.*;
-                  | import gui.*;
+                  | import functions.Invoker;
+                  | import gui.dialogs.LoginDialog;
+                  | import gui.MainWindow;
+                  | import managers.CollectionManager;
+                  | import managers.DBManager;
+                  | import utils.JSCh;
                   | 
                   | import javax.swing.*;
-                  | import java.util.*;
+                  | import java.util.Scanner;
                   | 
                   | /**
                   |  * @author Dimasavr
@@ -5301,7 +6281,7 @@
                   --- КОНЕЦ СОДЕРЖИМОГО (ScriptFileReader.java) ---
 
         📂 resources/
-            📄 messages_es.properties (7502 bytes)
+            📄 messages_es.properties (8641 bytes)
               --- СОДЕРЖИМОЕ ФАЙЛА (messages_es.properties) ---
               | login.title=Autenticación
               | login.label.username=Nombre de usuario:
@@ -5370,6 +6350,40 @@
               | table.filter.label=Filtro:
               | table.button.edit=Editar
               | table.button.delete=Eliminar
+              | filter.label.name=Nombre
+              | filter.label.id=ID
+              | filter.label.coordinateX=Coordenada X
+              | filter.label.coordinateY=Coordenada Y
+              | filter.label.creationDate=Fecha de creación
+              | filter.label.realHero=Héroe real
+              | filter.label.hasToothpick=Tiene palillo
+              | filter.label.impactSpeed=Velocidad de impacto
+              | filter.label.soundtrackName=Nombre de la banda sonora
+              | filter.label.weaponType=Tipo de arma
+              | filter.label.mood=Ánimo
+              | filter.label.carName=Nombre del carro
+              | filter.label.carCool=Carro genial
+              | filter.label.ownerId=ID del propietario
+              | 
+              | operator.equalsNum=Igual a
+              | operator.notEqualsNum=No es igual a
+              | operator.greaterThan=Mayor que
+              | operator.lessThan=Menor que
+              | operator.greaterOrEquals=Mayor o igual que
+              | operator.lessOrEquals=Menor o igual que
+              | table.filter.labelBy=Filtrar por
+              | 
+              | operator.isTrue=Es verdadero
+              | operator.isFalse=Es falso
+              | operator.contains=Contiene
+              | operator.equals=Igual a
+              | operator.notEquals=No es igual a
+              | operator.startsWith=Comienza con
+              | operator.endsWith=Termina con
+              | operator.dateEquals=Fecha igual a
+              | operator.dateBefore=Fecha anterior a
+              | operator.dateAfter=Fecha posterior a
+              | operator.equalsEnum=Igual a (de la lista)
               | 
               | # --- Диалог добавления/редактирования объекта ---
               | dialog.addEdit.title.add=Agregar objeto SerHumano
@@ -5473,7 +6487,7 @@
               | help.text=Esta aplicación permite gestionar una colección de objetos SerHumano...
               --- КОНЕЦ СОДЕРЖИМОГО (messages_es.properties) ---
 
-            📄 messages_fr.properties (7638 bytes)
+            📄 messages_fr.properties (8785 bytes)
               --- СОДЕРЖИМОЕ ФАЙЛА (messages_fr.properties) ---
               | login.label.username=Nom d'utilisateur :
               | login.label.password=Mot de passe :
@@ -5542,6 +6556,40 @@
               | table.filter.label=Filtre :
               | table.button.edit=Modifier
               | table.button.delete=Supprimer
+              | filter.label.name=Nom
+              | filter.label.id=ID
+              | filter.label.coordinateX=Coordonnée X
+              | filter.label.coordinateY=Coordonnée Y
+              | filter.label.creationDate=Date de création
+              | filter.label.realHero=Vrai héros
+              | filter.label.hasToothpick=A un cure-dent
+              | filter.label.impactSpeed=Vitesse d'impact
+              | filter.label.soundtrackName=Nom de la bande sonore
+              | filter.label.weaponType=Type d'arme
+              | filter.label.mood=Humeur
+              | filter.label.carName=Nom de la voiture
+              | filter.label.carCool=Voiture cool
+              | filter.label.ownerId=ID du propriétaire
+              | 
+              | operator.equalsNum=Égal à
+              | operator.notEqualsNum=Différent de
+              | operator.greaterThan=Supérieur à
+              | operator.lessThan=Inférieur à
+              | operator.greaterOrEquals=Supérieur ou égal à
+              | operator.lessOrEquals=Inférieur ou égal à
+              | table.filter.labelBy=Filtrer par
+              | 
+              | operator.isTrue=Est vrai
+              | operator.isFalse=Est faux
+              | operator.contains=Contient
+              | operator.equals=Égal à
+              | operator.notEquals=Différent de
+              | operator.startsWith=Commence par
+              | operator.endsWith=Se termine par
+              | operator.dateEquals=Date égale à
+              | operator.dateBefore=Date avant le
+              | operator.dateAfter=Date après le
+              | operator.equalsEnum=Égal à (de la liste)
               | 
               | # --- Диалог добавления/редактирования объекта ---
               | dialog.addEdit.title.add=Ajout d'un objet Humain
@@ -5644,7 +6692,7 @@
               | help.text=Cette application permet de gérer une collection d'objets Humain...
               --- КОНЕЦ СОДЕРЖИМОГО (messages_fr.properties) ---
 
-            📄 messages_no.properties (7015 bytes)
+            📄 messages_no.properties (8076 bytes)
               --- СОДЕРЖИМОЕ ФАЙЛА (messages_no.properties) ---
               | login.title=Innlogging
               | login.label.username=Brukernavn:
@@ -5713,6 +6761,40 @@
               | table.filter.label=Filter:
               | table.button.edit=Rediger
               | table.button.delete=Slett
+              | filter.label.name=Navn
+              | filter.label.id=ID
+              | filter.label.coordinateX=X-koordinat
+              | filter.label.coordinateY=Y-koordinat
+              | filter.label.creationDate=Opprettelsesdato
+              | filter.label.realHero=Ekte helt
+              | filter.label.hasToothpick=Har tannpirker
+              | filter.label.impactSpeed=Slaghastighet
+              | filter.label.soundtrackName=Lydspornavn
+              | filter.label.weaponType=Våpentype
+              | filter.label.mood=Humør
+              | filter.label.carName=Bilnavn
+              | filter.label.carCool=Kul bil
+              | filter.label.ownerId=Eier-ID
+              | 
+              | operator.equalsNum=Er lik
+              | operator.notEqualsNum=Ikke lik
+              | operator.greaterThan=Større enn
+              | operator.lessThan=Mindre enn
+              | operator.greaterOrEquals=Større enn eller lik
+              | operator.lessOrEquals=Mindre enn eller lik
+              | table.filter.labelBy=Filtrer etter
+              | 
+              | operator.isTrue=Er sann
+              | operator.isFalse=Er usann
+              | operator.contains=Inneholder
+              | operator.equals=Er lik
+              | operator.notEquals=Ikke lik
+              | operator.startsWith=Starter med
+              | operator.endsWith=Slutter med
+              | operator.dateEquals=Dato er lik
+              | operator.dateBefore=Dato før
+              | operator.dateAfter=Dato etter
+              | operator.equalsEnum=Er lik (fra liste)
               | 
               | # --- Диалог добавления/редактирования объекта ---
               | dialog.addEdit.title.add=Legg til HumanBeing-objekt
@@ -5816,7 +6898,7 @@
               | help.text=Denne applikasjonen lar deg administrere en samling av HumanBeing-objekter...
               --- КОНЕЦ СОДЕРЖИМОГО (messages_no.properties) ---
 
-            📄 messages_ru.properties (9775 bytes)
+            📄 messages_ru.properties (11254 bytes)
               --- СОДЕРЖИМОЕ ФАЙЛА (messages_ru.properties) ---
               | login.title=Авторизация
               | login.label.username=Имя пользователя:
@@ -5885,6 +6967,40 @@
               | table.filter.label=Фильтр:
               | table.button.edit=Редактировать
               | table.button.delete=Удалить
+              | filter.label.name=Имя
+              | filter.label.id=ID
+              | filter.label.coordinateX=Координата X
+              | filter.label.coordinateY=Координата Y
+              | filter.label.creationDate=Дата создания
+              | filter.label.realHero=Настоящий герой
+              | filter.label.hasToothpick=Есть зубочистка
+              | filter.label.impactSpeed=Скорость удара
+              | filter.label.soundtrackName=Название саундтрека
+              | filter.label.weaponType=Тип оружия
+              | filter.label.mood=Настроение
+              | filter.label.carName=Название машины
+              | filter.label.carCool=Крутая машина
+              | filter.label.ownerId=ID владельца
+              | 
+              | operator.equalsNum=Равно
+              | operator.notEqualsNum=Не равно
+              | operator.greaterThan=Больше чем
+              | operator.lessThan=Меньше чем
+              | operator.greaterOrEquals=Больше или равно
+              | operator.lessOrEquals=Меньше или равно
+              | table.filter.labelBy=Фильтровать по
+              | 
+              | operator.isTrue=Истина
+              | operator.isFalse=Ложь
+              | operator.contains=Содержит
+              | operator.equals=Равно
+              | operator.notEquals=Не равно
+              | operator.startsWith=Начинается с
+              | operator.endsWith=Заканчивается на
+              | operator.dateEquals=Дата равна
+              | operator.dateBefore=Дата до
+              | operator.dateAfter=Дата после
+              | operator.equalsEnum=Равно (из списка)
               | 
               | # --- Диалог добавления/редактирования объекта ---
               | dialog.addEdit.title.add=Добавление объекта HumanBeing
@@ -5981,6 +7097,7 @@
               | command.error.invalidArgumentFormat=Неверный формат аргумента.
               | 
               | # --- Информация о коллекции (для команды info) ---
+              | info.collectionDetailsFormat=Тип: %s, Создана: %s, Элементов: %d
               | info.collectionType=Тип коллекции:
               | info.creationDate=Дата инициализации:
               | info.numberOfElements=Количество элементов:

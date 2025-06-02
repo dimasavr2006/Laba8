@@ -1,8 +1,8 @@
 package run;
 
 import functions.Invoker;
-import gui.LoginDialog;
 import gui.MainWindow;
+import gui.dialogs.LoginDialog;
 import managers.CollectionManager;
 import managers.DBManager;
 import utils.JSCh;

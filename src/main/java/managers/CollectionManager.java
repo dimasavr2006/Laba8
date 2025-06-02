@@ -40,6 +40,9 @@ public class CollectionManager{
         timeOfCreation = LocalDateTime.now().format(formatter);
         collection = db.getCollection();
     }
+    public void startCM(boolean flag) {
+        collection = db.getCollection();
+    }
 
     /**
      * Выводит в консоль информацию о коллекции

@@ -66,19 +66,6 @@ public abstract class Command {
         } else {
             throw new IncorrectArgsNumber(numberOfArgs);
         }
-
-            /*
-            if (argument.trim().isEmpty() && numberOfArgs != 0) {
-            throw new IncorrectArgsNumber(numberOfArgs);
-        } else if (!argument.trim().isEmpty() && numberOfArgs == 0) {
-            throw new IncorrectArgsNumber(numberOfArgs);
-        } else if (!argument.trim().isEmpty() && numberOfArgs == 1) {
-            bodyOfCommand(argument);
-        } else if (argument.trim().isEmpty() && numberOfArgs == 2) {
-            throw new IncorrectArgsNumber(numberOfArgs);
-        } else if (!argument.trim().isEmpty() && numberOfArgs == 3) {}
-        bodyOfCommand(argument);
-             */
     }
     public void bodyOfCommand(String argument) throws AccessException, AccessDeniedException {}
 

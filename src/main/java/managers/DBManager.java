@@ -136,15 +136,20 @@ public class DBManager {
     public void registerUser(String username, String password) {
         try {
             conn.setAutoCommit(false);
-
-            boolean flag = false;
-            for (User user : getUsers().values()) {
-                if (username.equals(user.getLogin())) {
-                    flag = true;
-                    System.out.println("Такой пользователь уже существует");
+            boolean userExists = false;
+            try (PreparedStatement psCheck = conn.prepareStatement("SELECT 1 FROM users WHERE login = ?")) {
+                psCheck.setString(1, username);
+                try (ResultSet rsCheck = psCheck.executeQuery()) {
+                    if (rsCheck.next()) {
+                        userExists = true;
+                    }
                 }
             }
-            if (!flag) {
+
+            if (userExists) {
+                System.out.println("Такой пользователь уже существует: " + username);
+                Main.login = false;
+            } else {
                 PreparedStatement ps = conn.prepareStatement("INSERT INTO users (login, password) VALUES (?, ?)");
                 ps.setString(1, username);
                 ps.setString(2, hashSmth(password));
@@ -153,18 +158,17 @@ public class DBManager {
                 if (rows > 0) {
                     conn.commit();
                     System.out.println("Пользователь " + username + " успешно зарегистрирован.");
+                    Main.login = true;
+                    Main.username = username;
+                } else {
+                    conn.rollback();
+                    Main.login = false;
                 }
-                Main.login = true;
-                Main.toBreak = false;
-
-//            PreparedStatement ps = conn.prepareStatement("INSERT INTO users (login, password) VALUES (?, ?)");
-//            ps.setString(1, username);
-//            ps.setString(2, hashSmth(password));
-//            ps.executeQuery();
             }
-
         } catch (SQLException e) {
+            try { conn.rollback(); } catch (SQLException ignored) {}
             e.printStackTrace();
+            Main.login = false;
         } finally {
             try {
                 conn.setAutoCommit(true);
