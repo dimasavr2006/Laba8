@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.Locale;
 
 public class DateRenderer extends DefaultTableCellRenderer {
-    private DateFormat dateFormat;
 
     public DateRenderer() {
         super();
@@ -17,12 +16,12 @@ public class DateRenderer extends DefaultTableCellRenderer {
     }
 
     @Override
-    protected void setValue(Object value) {
+    protected void setValue(Object value) { // Этот метод вызывается для каждой ячейки перед отрисовкой
         Locale currentLocale = LocalisationManager.getLocale();
         if (currentLocale == null) {
             currentLocale = new Locale("ru", "RU"); // Fallback
         }
-        dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, currentLocale);
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, currentLocale);
 
         if (value instanceof Date) {
             setText(dateFormat.format((Date) value));

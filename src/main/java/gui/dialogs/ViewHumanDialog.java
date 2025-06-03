@@ -114,9 +114,10 @@ public class ViewHumanDialog extends JDialog {
 
         Locale currentLocale = LocalisationManager.getLocale();
         if (currentLocale == null) currentLocale = new Locale("ru", "RU");
-        dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, currentLocale);
+        dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, currentLocale);
 
         idValLabel.setText(String.valueOf(humanBeingToView.getId()));
+        nameValLabel.setText(humanBeingToView.getName());
         nameValLabel.setText(humanBeingToView.getName());
         if (humanBeingToView.getCoordinates() != null) {
             coordXValLabel.setText(String.valueOf(humanBeingToView.getCoordinates().getX()));
@@ -237,7 +238,7 @@ public class ViewHumanDialog extends JDialog {
                         Main.cm.startCM(false);
                         mw.getHbTableModel().updateData(CollectionManager.collection);
                         mw.updateStatusBarInfo();
-                        // TODO: Обновить визуализацию
+                        mw.updateVisualization();
                     }
                     JOptionPane.showMessageDialog(ownerFrame, LocalisationManager.getString("dialog.message.objectDeleted"), LocalisationManager.getString("dialog.title.info"), JOptionPane.INFORMATION_MESSAGE);
                     dispose();

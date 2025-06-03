@@ -1,5 +1,5 @@
 Структура проекта: C:\Users\dimas\IdeaProjects\Laba8\src
-Сгенерировано: 2025-06-02 19:30:17
+Сгенерировано: 2025-06-03 11:11:17
 ================================================================================
 
 📂 src/
@@ -2273,7 +2273,7 @@
                       --- КОНЕЦ СОДЕРЖИМОГО (SoundtrackNameComparator.java) ---
 
                 📂 filter/
-                    📄 ColumnRowFilter.java (9765 bytes)
+                    📄 ColumnRowFilter.java (9668 bytes)
                       --- СОДЕРЖИМОЕ ФАЙЛА (ColumnRowFilter.java) ---
                       | //package gui.filter; // Твой пакет
                       | //
@@ -2335,14 +2335,13 @@
                       | 
                       | import classes.HumanBeing;
                       | import gui.HBTable;
-                      | import managers.LocalisationManager; // Для локализации boolean, если нужно
+                      | import managers.LocalisationManager;
                       | 
-                      | import javax.swing.RowFilter;
+                      | import javax.swing.*;
                       | import java.text.DateFormat;
                       | import java.text.ParseException;
                       | import java.util.Date;
                       | import java.util.Locale;
-                      | import java.util.Objects;
                       | import java.util.stream.Stream;
                       | 
                       | public class ColumnRowFilter extends RowFilter<HBTable, Integer> {
@@ -2625,12 +2624,11 @@
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (HBTable.java) ---
 
-                📄 LocalizedEnumComboBoxModel.java (2182 bytes)
+                📄 LocalizedEnumComboBoxModel.java (2131 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (LocalizedEnumComboBoxModel.java) ---
                   | package gui;
                   | 
-                  | import javax.swing.AbstractListModel;
-                  | import javax.swing.ComboBoxModel;
+                  | import javax.swing.*;
                   | import java.util.ArrayList;
                   | import java.util.Arrays;
                   | import java.util.List;
@@ -2682,27 +2680,40 @@
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (LocalizedEnumComboBoxModel.java) ---
 
-                📄 MainWindow.java (35257 bytes)
+                📄 MainWindow.java (36461 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (MainWindow.java) ---
                   | package gui;
                   | 
                   | import classes.HumanBeing;
-                  | import commands.*;
+                  | import commands.AddElementCommand;
+                  | import commands.Command;
                   | import enums.Mood;
                   | import enums.WeaponType;
-                  | import functions.filter.*;
-                  | import gui.dialogs.*;
-                  | import gui.renderers.*;
-                  | import managers.*;
-                  | import run.*;
+                  | import functions.filter.ColumnRowFilter;
+                  | import gui.dialogs.HumanBeingDialog;
+                  | import gui.dialogs.ViewHumanDialog;
+                  | import gui.renderers.CenterRender;
+                  | import gui.renderers.DateRenderer;
+                  | import gui.renderers.EnumRenderer;
+                  | import managers.CollectionManager;
+                  | import managers.LocalisationManager;
+                  | import run.Main;
                   | 
                   | import javax.swing.*;
-                  | import javax.swing.border.*;
-                  | import javax.swing.event.*;
-                  | import javax.swing.table.*;
+                  | import javax.swing.border.TitledBorder;
+                  | import javax.swing.event.DocumentEvent;
+                  | import javax.swing.event.DocumentListener;
+                  | import javax.swing.table.DefaultTableCellRenderer;
+                  | import javax.swing.table.JTableHeader;
+                  | import javax.swing.table.TableColumnModel;
+                  | import javax.swing.table.TableRowSorter;
                   | import java.awt.*;
-                  | import java.awt.event.*;
-                  | import java.beans.*;
+                  | import java.awt.event.MouseAdapter;
+                  | import java.awt.event.MouseEvent;
+                  | import java.awt.event.WindowAdapter;
+                  | import java.awt.event.WindowEvent;
+                  | import java.beans.PropertyChangeEvent;
+                  | import java.beans.PropertyChangeListener;
                   | import java.util.*;
                   | 
                   | public class MainWindow extends JFrame implements PropertyChangeListener {
@@ -2723,6 +2734,8 @@
                   |     private JMenuItem frItem;
                   |     private JMenuItem esSvItem;
                   |     private JMenuItem addItem;
+                  |     private JMenuItem clearItem;
+                  |     private JMenuItem addIfMinItem;
                   | 
                   |     private JLabel currentUserLabel;
                   |     private JLabel filterByLabel;
@@ -2730,7 +2743,7 @@
                   | 
                   |     private JPanel statusBar;
                   |     private JPanel tablePanel;
-                  |     private JPanel visualizationPanel;
+                  |     private VisualizationPanel visualizationPanel;
                   |     private JPanel filterPanel;
                   | 
                   |     private JSplitPane mainSplitPane;
@@ -2788,24 +2801,25 @@
                   |         menuBar.add(fileMenu);
                   | 
                   |         // Меню "Язык"
-                  |         languageMenu = new JMenu(); // Текст установится в updateTexts()
-                  |         ruItem = new JMenuItem(); // Текст установится в updateTexts()
+                  |         languageMenu = new JMenu();
+                  |         ruItem = new JMenuItem();
                   |         ruItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.RU_LOCALE));
                   |         languageMenu.add(ruItem);
-                  |         noItem = new JMenuItem(); // Текст установится в updateTexts()
+                  |         noItem = new JMenuItem();
                   |         noItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.NO_LOCALE));
                   |         languageMenu.add(noItem);
-                  |         frItem = new JMenuItem(); // Текст установится в updateTexts()
+                  |         frItem = new JMenuItem();
                   |         frItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.FR_LOCALE));
                   |         languageMenu.add(frItem);
-                  |         esSvItem = new JMenuItem(); // Текст установится в updateTexts()
+                  |         esSvItem = new JMenuItem();
                   |         esSvItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.EV_SV_LOCALE));
                   |         languageMenu.add(esSvItem);
                   |         menuBar.add(languageMenu);
                   | 
                   |         // Меню "Команды"
-                  |         commandsMenu = new JMenu(); // Текст установится в updateTexts()
-                  |         addItem = new JMenuItem(); // Текст установится в updateTexts() (было addItem, переименовал для ясности)
+                  |         commandsMenu = new JMenu();
+                  |         commandsMenu = new JMenu();
+                  |         addItem = new JMenuItem();
                   |         addItem.addActionListener(e -> {
                   |             handleAddCommand();
                   |             Main.cm.startCM(false);
@@ -2813,8 +2827,26 @@
                   |             updateTexts();
                   |         });
                   |         commandsMenu.add(addItem);
-                  |         // Сюда будешь добавлять другие пункты меню для команд (clear, add_if_min и т.д.)
-                  |         menuBar.add(commandsMenu); // Добавляем commandsMenu в menuBar
+                  |         menuBar.add(commandsMenu);
+                  |         clearItem = new JMenuItem();
+                  |         clearItem.addActionListener(e -> {
+                  |             handleClearCommand();
+                  |             Main.cm.startCM(false);
+                  |             hbTableModel.updateData(CollectionManager.collection);
+                  |             updateTexts();
+                  |             updateVisualization();
+                  |             updateStatusBarInfo();
+                  |         });
+                  |         commandsMenu.add(clearItem);
+                  |         addIfMinItem = new JMenuItem();
+                  |         addIfMinItem.addActionListener(e -> {
+                  |             handleAddIfMinCommand();
+                  |             Main.cm.startCM(false);
+                  |             hbTableModel.updateData(CollectionManager.collection);
+                  |             updateTexts();
+                  |             updateStatusBarInfo();
+                  |         });
+                  |         commandsMenu.add(addIfMinItem);
                   | 
                   |         setJMenuBar(menuBar);
                   | 
@@ -2823,10 +2855,11 @@
                   |         tablePanel = new JPanel(new BorderLayout()); // Главная панель для таблицы и фильтров над ней
                   |         tablePanel.setBorder(BorderFactory.createTitledBorder("")); // Заголовок будет обновлен в updateTexts
                   | 
-                  |         visualizationPanel = new JPanel(new BorderLayout());
-                  |         visualizationPanel.setBorder(BorderFactory.createTitledBorder(""));
-                  |         JLabel vizPlaceholder = new JLabel("Место для визуализации (JPanel/Canvas)", SwingConstants.CENTER);
-                  |         visualizationPanel.add(vizPlaceholder, BorderLayout.CENTER);
+                  |         visualizationPanel = new VisualizationPanel();
+                  |         visualizationPanel.setBorder(BorderFactory.createTitledBorder("")); // Заголовок из updateTexts
+                  | 
+                  |         // В создании JSplitPane используем visualizationPanelComponent
+                  |         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tablePanel, visualizationPanel);
                   | 
                   |         // 3. СОЗДАНИЕ ПАНЕЛИ ФИЛЬТРОВ (ОДИН НАБОР: КОЛОНКА, ОПЕРАТОР, ЗНАЧЕНИЕ)
                   |         filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -2844,15 +2877,14 @@
                   | 
                   |         filterPanel.add(filterByLabel);
                   |         filterPanel.add(filterColumnComboBox);
-                  |         filterPanel.add(new JLabel(": ")); // Разделитель для красоты
+                  |         filterPanel.add(new JLabel(": "));
                   |         filterPanel.add(filterOperatorComboBox);
                   |         filterPanel.add(filterValueTextField);
                   | 
-                  |         // Добавляем панель фильтра в верхнюю часть tablePanel
                   |         tablePanel.add(filterPanel, BorderLayout.NORTH);
                   | 
                   |         // 4. СОЗДАНИЕ И НАСТРОЙКА ТАБЛИЦЫ
-                  |         objectTable = new JTable(hbTableModel); // hbTableModel уже создан
+                  |         objectTable = new JTable(hbTableModel);
                   |         objectTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
                   | 
                   |         this.sorter = new TableRowSorter<>(hbTableModel);
@@ -2878,15 +2910,10 @@
                   |                         int modelRow = objectTable.convertRowIndexToModel(viewRow);
                   |                         HumanBeing selectedHuman = hbTableModel.getHumanBeingAt(modelRow);
                   |                         if (selectedHuman != null) {
-                  |                             // Решаем, что открывать: ViewHumanDialog или сразу Edit (HumanBeingDialog)
-                  |                             // Пока откроем ViewHumanDialog, как планировали
                   |                             ViewHumanDialog viewDialog = new ViewHumanDialog(MainWindow.this, selectedHuman);
-                  |                             viewDialog.setVisible(true);
-                  |                             // Логика после закрытия ViewHumanDialog (если он что-то изменил и вернул флаг)
-                  |                             // Например, если ViewHumanDialog сам вызвал редактирование и оно было успешным,
-                  |                             // то ViewHumanDialog может вернуть флаг, что данные надо обновить.
-                  |                             // Либо, если редактирование происходит через HumanBeingDialog, который вызывается из ViewHumanDialog,
-                  |                             // то обновление таблицы будет инициировано там.
+                  |                             viewDialog.setVisible(true); // Диалог теперь не строго модальный, но setVisible блокирует до закрытия, если он модальный
+                  |                             updateVisualization();
+                  |                             updateStatusBarInfo();
                   |                         }
                   |                     }
                   |                 }
@@ -2959,6 +2986,9 @@
                   |             updateOperatorComboBox();
                   |             applySingleColumnFilter();
                   |         });
+                  | 
+                  | 
+                  |         updateVisualization();
                   |     }
                   | 
                   |     private void confirmAndExit() {
@@ -3072,6 +3102,12 @@
                   |         if (addItem != null) {
                   |             addItem.setText(LocalisationManager.getString("command.add"));
                   |         }
+                  |         if (clearItem != null) {
+                  |             clearItem.setText(LocalisationManager.getString("command.clear"));
+                  |         }
+                  |         if (addIfMinItem != null) {
+                  |             addIfMinItem.setText(LocalisationManager.getString("command.addIfMin"));
+                  |         }
                   |         if (collectionInfoLabel != null) {
                   |             String type = "N/A";
                   |             String creationTime = "N/A";
@@ -3085,8 +3121,6 @@
                   |                 creationTime = Main.cm.getTimeOfCreation();
                   |             }
                   | 
-                  |             // Ключ для формата строки в .properties файлах
-                  |             // Например: info.collectionDetailsFormat=Тип: %s, Создана: %s, Элементов: %d
                   |             String formatKey = "info.collectionDetailsFormat";
                   |             String infoText = String.format(LocalisationManager.getString(formatKey), type, creationTime, size);
                   |             collectionInfoLabel.setText(infoText);
@@ -3213,51 +3247,6 @@
                   |         }
                   |     }
                   | 
-                  |     private void openEditDialog(HumanBeing humanToEdit) {
-                  |         // Проверка владения объектом
-                  |         // Предполагаем, что Main.db.findUserIDbyUsername(Main.username) возвращает ID текущего пользователя
-                  |         // и Main.username уже установлен.
-                  |         int currentUserId = Main.db.findUserIDbyUsername(Main.username); // Это может быть затратно, лучше получить ID один раз после логина
-                  |         // и хранить в Main.currentUserId или передавать в MainWindow
-                  | 
-                  |         if (humanToEdit.getOwnerId() == currentUserId) {
-                  |             HumanBeingDialog dialog = new HumanBeingDialog(this, humanToEdit); // 'this' - родительское окно
-                  |             dialog.setVisible(true);
-                  | 
-                  |             if (dialog.isSaved()) {
-                  |                 HumanBeing updatedHuman = dialog.getHumanBeing();
-                  |                 if (updatedHuman != null) {
-                  |                     // Логика обновления объекта в БД
-                  |                     boolean success = Main.db.updateID(humanToEdit.getId(), updatedHuman, Main.username);
-                  |                     if (success) {
-                  |                         // Обновляем локальную коллекцию и таблицу
-                  |                         Main.cm.startCM(); // Перезагружаем всю коллекцию (или можно реализовать обновление конкретного элемента)
-                  |                         hbTableModel.updateData(CollectionManager.collection);
-                  |                         // TODO: Обновить визуализацию, если она есть
-                  |                         updateStatusBarInfo(); // Обновляем информацию в статус-баре (если есть)
-                  | 
-                  |                         JOptionPane.showMessageDialog(this,
-                  |                                 LocalisationManager.getString("dialog.message.objectUpdated"),
-                  |                                 LocalisationManager.getString("dialog.title.info"), // Используем общий ключ для информации
-                  |                                 JOptionPane.INFORMATION_MESSAGE);
-                  |                     } else {
-                  |                         JOptionPane.showMessageDialog(this,
-                  |                                 LocalisationManager.getString("command.error.updateFailed"),
-                  |                                 LocalisationManager.getString("dialog.title.error"),
-                  |                                 JOptionPane.ERROR_MESSAGE);
-                  |                     }
-                  |                 }
-                  |             }
-                  |         } else {
-                  |             // Пользователь не владеет объектом
-                  |             JOptionPane.showMessageDialog(this,
-                  |                     LocalisationManager.getString("dialog.addEdit.validation.notYourObject"),
-                  |                     LocalisationManager.getString("dialog.title.error"),
-                  |                     JOptionPane.ERROR_MESSAGE);
-                  |         }
-                  |     }
-                  | 
-                  |     // Метод для обновления информации в статус-баре (если вынесено отдельно)
                   |     public void updateStatusBarInfo() {
                   |         if (currentUserLabel != null) {
                   |             String usernameText = (Main.username != null && !Main.username.isEmpty()) ? Main.username : "N/A";
@@ -3269,16 +3258,21 @@
                   |             // Это вызовет updateTexts, который обновит и collectionInfoLabel
                   |             // Либо можно напрямую обновлять collectionInfoLabel
                   |         }
-                  |         // Если у тебя есть отдельный JLabel для информации о коллекции, обнови его здесь
-                  |         // Например, если у тебя есть collectionInfoLabel:
-                  |         // if (collectionInfoLabel != null && Main.cm != null && CollectionManager.collection != null) {
-                  |         //     String type = CollectionManager.collection.getClass().getSimpleName();
-                  |         //     String creationTime = Main.cm.getTimeOfCreation() != null ? Main.cm.getTimeOfCreation() : "N/A";
-                  |         //     int size = CollectionManager.collection.size();
-                  |         //     String formatKey = "statusBar.collectionInfoFormat";
-                  |         //     String infoText = String.format(LocalisationManager.getString(formatKey), type, creationTime, size);
-                  |         //     collectionInfoLabel.setText(infoText);
-                  |         // }
+                  |         String type = "N/A";
+                  |         String creationTime = "N/A";
+                  |         int size = 0;
+                  | 
+                  |         if (CollectionManager.collection != null) { // Проверяем, что коллекция не null
+                  |             type = CollectionManager.collection.getClass().getSimpleName();
+                  |             size = CollectionManager.collection.size();
+                  |         }
+                  |         if (Main.cm != null && Main.cm.getTimeOfCreation() != null) { // Проверяем cm и время создания
+                  |             creationTime = Main.cm.getTimeOfCreation();
+                  |         }
+                  | 
+                  |         String formatKey = "info.collectionDetailsFormat";
+                  |         String infoText = String.format(LocalisationManager.getString(formatKey), type, creationTime, size);
+                  |         collectionInfoLabel.setText(infoText);
                   |     }
                   | 
                   |     private void handleAddCommand() {
@@ -3293,15 +3287,11 @@
                   |                 try {
                   |                     Command addCmd = Main.inv.commands.get("add");
                   |                     if (addCmd != null) {
-                  |                         // Вызываем execute. Command.execute вызовет bodyOfDBCommand.
-                  |                         // Если bodyOfDBCommand вернет true, Command.execute обновит CollectionManager.collection
-                  |                         addCmd.execute(""); // Аргумент пуст для команды add из GUI
+                  |                         addCmd.execute("");
                   | 
-                  |                         // После выполнения команды, CollectionManager.collection должен быть обновлен внутри Command.execute
-                  |                         // Нам нужно только обновить модель таблицы и статус-бар
                   |                         hbTableModel.updateData(CollectionManager.collection);
-                  |                         updateStatusBarInfo(); // Предполагаем, что этот метод обновляет инфо о коллекции
-                  |                         // TODO: Обновить визуализацию, когда она будет
+                  |                         updateStatusBarInfo();
+                  |                         updateVisualization();
                   | 
                   |                         JOptionPane.showMessageDialog(this,
                   |                                 LocalisationManager.getString("dialog.message.objectAdded"),
@@ -3325,25 +3315,650 @@
                   |         }
                   |     }
                   | 
+                  |     private void handleClearCommand() {
+                  |         String dialogTitle = LocalisationManager.getString("command.clear");
+                  |         String dialogMessage = LocalisationManager.getString("dialog.message.confirmClear");
+                  |         String yesButtonText = LocalisationManager.getString("button.yes");
+                  |         String noButtonText = LocalisationManager.getString("button.no");
                   | 
+                  |         // Fallback
+                  |         if (dialogTitle.startsWith("?")) dialogTitle = "Clear Collection";
+                  |         if (dialogMessage.startsWith("?")) dialogMessage = "Are you sure you want to clear all your items from the collection?";
+                  |         if (yesButtonText.startsWith("?")) yesButtonText = "Yes";
+                  |         if (noButtonText.startsWith("?")) noButtonText = "No";
+                  | 
+                  |         Object[] options = {yesButtonText, noButtonText};
+                  |         int response = JOptionPane.showOptionDialog(this,
+                  |                 dialogMessage,
+                  |                 dialogTitle,
+                  |                 JOptionPane.YES_NO_OPTION,
+                  |                 JOptionPane.WARNING_MESSAGE,
+                  |                 null, options, options[0]);
+                  | 
+                  |         if (response == 0) { // Yes
+                  |             try {
+                  |                 // Вызываем существующую команду ClearCommand через Invoker
+                  |                 Command clearCmd = Main.inv.commands.get("clear");
+                  |                 if (clearCmd != null) {
+                  |                     Command.setUsernameAgain();
+                  |                     Boolean success = clearCmd.bodyOfDBCommand(Main.username);
+                  | 
+                  |                     if (success != null && success) {
+                  |                         hbTableModel.updateData(CollectionManager.collection);
+                  |                         updateStatusBarInfo();
+                  |                         updateVisualization();
+                  | 
+                  |                         JOptionPane.showMessageDialog(this,
+                  |                                 LocalisationManager.getString("dialog.message.collectionCleared"),
+                  |                                 dialogTitle,
+                  |                                 JOptionPane.INFORMATION_MESSAGE);
+                  |                     } else {
+                  |                         JOptionPane.showMessageDialog(this,
+                  |                                 LocalisationManager.getString("command.error.clearFailed"),
+                  |                                 LocalisationManager.getString("dialog.title.error"),
+                  |                                 JOptionPane.ERROR_MESSAGE);
+                  |                     }
+                  |                 }
+                  |             } catch (Exception ex) {
+                  |                 JOptionPane.showMessageDialog(this,
+                  |                         LocalisationManager.getString("command.error.general") + "\n" + ex.getMessage(),
+                  |                         LocalisationManager.getString("dialog.title.error"),
+                  |                         JOptionPane.ERROR_MESSAGE);
+                  |                 ex.printStackTrace();
+                  |             }
+                  |         }
+                  |     }
+                  | 
+                  |     private void handleAddIfMinCommand() {
+                  |         HumanBeingDialog dialog = new HumanBeingDialog(this, null);
+                  |         dialog.setVisible(true);
+                  | 
+                  |         if (dialog.isSaved()) {
+                  |             HumanBeing newHuman = dialog.getHumanBeing();
+                  |             if (newHuman != null) {
+                  |                 HumanBeing minElement = Main.cm.findMin();
+                  | 
+                  |                 boolean canAdd = false;
+                  |                 if (minElement == null) {
+                  |                     canAdd = true;
+                  |                 } else {
+                  |                     if (newHuman.compareTo(minElement) < 0) {
+                  |                         canAdd = true;
+                  |                     }
+                  |                 }
+                  | 
+                  |                 if (canAdd) {
+                  |                     boolean dbSuccess = Main.db.add(newHuman, Main.username);
+                  |                     if (dbSuccess) {
+                  |                         Main.cm.startCM(false);
+                  |                         hbTableModel.updateData(CollectionManager.collection);
+                  |                         updateStatusBarInfo();
+                  |                         updateVisualization();
+                  | 
+                  |                         JOptionPane.showMessageDialog(this,
+                  |                                 LocalisationManager.getString("dialog.message.objectAdded") + " (" + LocalisationManager.getString("text.asMin") + ")", // text.asMin=как минимальный
+                  |                                 LocalisationManager.getString("command.addIfMin"),
+                  |                                 JOptionPane.INFORMATION_MESSAGE);
+                  |                     } else {
+                  |                         JOptionPane.showMessageDialog(this,
+                  |                                 LocalisationManager.getString("command.error.addFailed"),
+                  |                                 LocalisationManager.getString("dialog.title.error"),
+                  |                                 JOptionPane.ERROR_MESSAGE);
+                  |                     }
+                  |                 } else {
+                  |                     JOptionPane.showMessageDialog(this,
+                  |                             LocalisationManager.getString("message.addIfMin.notAddedNotMin"), // Новый ключ
+                  |                             LocalisationManager.getString("dialog.title.info"),
+                  |                             JOptionPane.INFORMATION_MESSAGE);
+                  |                 }
+                  |             }
+                  |         }
+                  |     }
+                  | 
+                  |     public void updateVisualization() {
+                  |         if (visualizationPanel != null && CollectionManager.collection != null) {
+                  |             visualizationPanel.setHumanBeings(new ArrayList<>(CollectionManager.collection));
+                  |         }
+                  |     }
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (MainWindow.java) ---
 
+                📄 VisualizationPanel.java (25378 bytes)
+                  --- СОДЕРЖИМОЕ ФАЙЛА (VisualizationPanel.java) ---
+                  | //package gui;
+                  | //
+                  | //import classes.Coordinates;
+                  | //import classes.HumanBeing;
+                  | //import gui.dialogs.ViewHumanDialog;
+                  | //import run.Main;
+                  | //
+                  | //import javax.swing.*;
+                  | //import java.awt.*;
+                  | //import java.awt.event.ActionEvent;
+                  | //import java.awt.event.ActionListener;
+                  | //import java.awt.event.MouseAdapter;
+                  | //import java.awt.event.MouseEvent;
+                  | //import java.awt.geom.Ellipse2D;
+                  | //import java.util.ArrayList;
+                  | //import java.util.HashMap;
+                  | //import java.util.List;
+                  | //import java.util.Map;
+                  | //import java.util.Random;
+                  | //
+                  | //public class VisualizationPanel extends JPanel {
+                  | //
+                  | //    private List<HumanBeing> humanBeingsToDraw;
+                  | //    private Map<Integer, Color> userColorMap;
+                  | //    private Random randomColorGenerator;
+                  | //    private Color myUserColor = Color.BLUE;
+                  | //    private int currentUserId = -1;
+                  | //
+                  | //    private Map<Integer, Integer> objectAnimationRadius;
+                  | //    private Timer animationTimer;
+                  | //    private static final int ANIMATION_STEPS = 20;
+                  | //    private static final int ANIMATION_DELAY = 25;
+                  | //
+                  | //    private double minX, maxX, minY, maxY;
+                  | //    private boolean boundsCalculated = false;
+                  | //
+                  | //    private static final int OBJECT_DIAMETER = 20; // Диаметр круга
+                  | //
+                  | //    private static final int PADDING = 30;
+                  | //
+                  | //    private List<Shape> drawnObjectShapes;
+                  | //    private List<HumanBeing> drawnObjectsList;
+                  | //
+                  | //
+                  | //    public VisualizationPanel() {
+                  | //        this.humanBeingsToDraw = new ArrayList<>();
+                  | //        this.userColorMap = new HashMap<>();
+                  | //        this.randomColorGenerator = new Random();
+                  | //        setBackground(Color.WHITE);
+                  | //
+                  | //        if (Main.username != null && !Main.username.isEmpty()) {
+                  | //            this.currentUserId = Main.db.findUserIDbyUsername(Main.username);
+                  | //        }
+                  | //        this.objectAnimationRadius = new HashMap<>();
+                  | //
+                  | //        animationTimer = new Timer(ANIMATION_DELAY, new ActionListener() {
+                  | //            @Override
+                  | //            public void actionPerformed(ActionEvent e) {
+                  | //                boolean needsRepaint = false;
+                  | //                for (HumanBeing human : humanBeingsToDraw) { // Итерируемся по текущим объектам
+                  | //                    int id = human.getId();
+                  | //                    int currentRadius = objectAnimationRadius.getOrDefault(id, 0);
+                  | //                    if (currentRadius < OBJECT_DIAMETER) {
+                  | //                        currentRadius += OBJECT_DIAMETER / ANIMATION_STEPS; // Увеличиваем радиус
+                  | //                        if (currentRadius > OBJECT_DIAMETER) {
+                  | //                            currentRadius = OBJECT_DIAMETER;
+                  | //                        }
+                  | //                        objectAnimationRadius.put(id, currentRadius);
+                  | //                        needsRepaint = true;
+                  | //                    }
+                  | //                }
+                  | //                if (needsRepaint) {
+                  | //                    repaint();
+                  | //                }
+                  | //            }
+                  | //        });
+                  | //        animationTimer.start();
+                  | //        addMouseListener(new MouseAdapter() {
+                  | //            @Override
+                  | //            public void mouseClicked(MouseEvent e) {
+                  | //                if (e.getButton() == MouseEvent.BUTTON1) { // Реагируем только на левую кнопку мыши
+                  | //                    Point clickPoint = e.getPoint();
+                  | //                    // Итерируемся по нарисованным объектам в обратном порядке,
+                  | //                    // чтобы сначала проверять те, что "сверху"
+                  | //                    for (int i = drawnObjectShapes.size() - 1; i >= 0; i--) {
+                  | //                        Shape shape = drawnObjectShapes.get(i);
+                  | //                        if (shape.contains(clickPoint)) {
+                  | //                            HumanBeing clickedHuman = drawnObjectsList.get(i);
+                  | //                            System.out.println("Клик на объекте ID: " + clickedHuman.getId()); // Отладка
+                  | //                            // Открываем ViewHumanDialog
+                  | //                            // Получаем родительское окно MainWindow
+                  | //                            Frame mainWindow = (Frame) SwingUtilities.getWindowAncestor(VisualizationPanel.this);
+                  | //                            if (mainWindow != null) {
+                  | //                                ViewHumanDialog viewDialog = new ViewHumanDialog(mainWindow, clickedHuman);
+                  | //                                viewDialog.setVisible(true);
+                  | //
+                  | //                            }
+                  | //                            break; // Объект найден, выходим из цикла
+                  | //                        }
+                  | //                    }
+                  | //                }
+                  | //            }
+                  | //        });
+                  | //    }
+                  | //
+                  | //    public void setHumanBeings(List<HumanBeing> humanBeings) {
+                  | //        if (humanBeings != null) {
+                  | //            this.humanBeingsToDraw = new ArrayList<>(humanBeings);
+                  | //        } else {
+                  | //            this.humanBeingsToDraw = new ArrayList<>();
+                  | //        }
+                  | //        for (HumanBeing newHuman : this.humanBeingsToDraw) {
+                  | //            objectAnimationRadius.putIfAbsent(newHuman.getId(), 0);
+                  | //        }
+                  | //        calculateBounds();
+                  | //        repaint();
+                  | //    }
+                  | //
+                  | //    private void calculateBounds() {
+                  | //        if (humanBeingsToDraw.isEmpty()) {
+                  | //            boundsCalculated = false;
+                  | //            return;
+                  | //        }
+                  | //
+                  | //        minX = Double.MAX_VALUE; maxX = Double.MIN_VALUE;
+                  | //        minY = Double.MAX_VALUE; maxY = Double.MIN_VALUE;
+                  | //
+                  | //        for (HumanBeing human : humanBeingsToDraw) {
+                  | //            if (human.getCoordinates() != null) {
+                  | //                minX = Math.min(minX, human.getCoordinates().getX());
+                  | //                maxX = Math.max(maxX, human.getCoordinates().getX());
+                  | //                minY = Math.min(minY, human.getCoordinates().getY());
+                  | //                maxY = Math.max(maxY, human.getCoordinates().getY());
+                  | //            }
+                  | //        }
+                  | //
+                  | //        if (minX == maxX) {
+                  | //            minX -= 1;
+                  | //            maxX += 1;
+                  | //        }
+                  | //        if (minY == maxY) {
+                  | //            minY -= 1;
+                  | //            maxY += 1;
+                  | //        }
+                  | //        boundsCalculated = true;
+                  | //    }
+                  | //
+                  | //    private Color getColorForUser(int ownerId) {
+                  | //        if (ownerId == currentUserId) {
+                  | //            return myUserColor;
+                  | //        }
+                  | //        return userColorMap.computeIfAbsent(ownerId, k -> new Color(
+                  | //                randomColorGenerator.nextInt(200) + 25, // 25-225, чтобы не слишком темные/светлые
+                  | //                randomColorGenerator.nextInt(200) + 25,
+                  | //                randomColorGenerator.nextInt(200) + 25));
+                  | //    }
+                  | //
+                  | //    @Override
+                  | //    protected void paintComponent(Graphics g) {
+                  | //        super.paintComponent(g);
+                  | //        Graphics2D g2d = (Graphics2D) g.create();
+                  | //        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                  | //
+                  | //        if (humanBeingsToDraw.isEmpty() || !boundsCalculated) {
+                  | //            String noDataMessage = "Нет данных для визуализации";
+                  | //            FontMetrics fm = g2d.getFontMetrics();
+                  | //            int stringWidth = fm.stringWidth(noDataMessage);
+                  | //            int stringAscent = fm.getAscent();
+                  | //            int x = (getWidth() - stringWidth) / 2;
+                  | //            int y = (getHeight() + stringAscent) / 2 - fm.getDescent();
+                  | //            g2d.drawString(noDataMessage, x, y);
+                  | //            g2d.dispose();
+                  | //            return;
+                  | //        }
+                  | //
+                  | //        int drawableWidth = getWidth() - 2 * PADDING;
+                  | //        int drawableHeight = getHeight() - 2 * PADDING;
+                  | //
+                  | //        if (drawableWidth <= 0 || drawableHeight <= 0) {
+                  | //            g2d.dispose();
+                  | //            return;
+                  | //        }
+                  | //
+                  | //        double scaleX = drawableWidth / (maxX - minX);
+                  | //        double scaleY = drawableHeight / (maxY - minY);
+                  | //
+                  | //        for (HumanBeing human : humanBeingsToDraw) {
+                  | //            if (human.getCoordinates() == null) continue;
+                  | //
+                  | //            Coordinates coords = human.getCoordinates();
+                  | //
+                  | //            int screenX = PADDING + (int) ((coords.getX() - minX) * scaleX);
+                  | //            int screenY = PADDING + (int) ((coords.getY() - minY) * scaleY);
+                  | //
+                  | //
+                  | //            Color objectColor = getColorForUser(human.getOwnerId());
+                  | //            g2d.setColor(objectColor);
+                  | //
+                  | //            g2d.fillOval(screenX - OBJECT_DIAMETER / 2, screenY - OBJECT_DIAMETER / 2, OBJECT_DIAMETER, OBJECT_DIAMETER);
+                  | //
+                  | //            g2d.setColor(Color.BLACK);
+                  | //            g2d.drawOval(screenX - OBJECT_DIAMETER / 2, screenY - OBJECT_DIAMETER / 2, OBJECT_DIAMETER, OBJECT_DIAMETER);
+                  | //
+                  | //             g2d.setColor(Color.DARK_GRAY);
+                  | //             g2d.drawString(String.valueOf(human.getId()), screenX + OBJECT_DIAMETER / 2 + 2, screenY + OBJECT_DIAMETER / 4);
+                  | //
+                  | //            int animatedDiameter = objectAnimationRadius.getOrDefault(human.getId(), OBJECT_DIAMETER);
+                  | //
+                  | //            g2d.setColor(getColorForUser(human.getOwnerId()));
+                  | //            g2d.fillOval(screenX - animatedDiameter / 2, screenY - animatedDiameter / 2, animatedDiameter, animatedDiameter);
+                  | //
+                  | //            g2d.setColor(Color.BLACK);
+                  | //            g2d.drawOval(screenX - animatedDiameter / 2, screenY - animatedDiameter / 2, animatedDiameter, animatedDiameter);
+                  | //
+                  | //        }
+                  | //        g2d.dispose();
+                  | //    }
+                  | //}
+                  | 
+                  | package gui;
+                  | 
+                  | import classes.Coordinates;
+                  | import classes.HumanBeing;
+                  | import gui.MainWindow; // Для приведения типа ownerFrame, если понадобится для обновления
+                  | import gui.dialogs.ViewHumanDialog;
+                  | import managers.CollectionManager; // Для получения коллекции
+                  | import managers.LocalisationManager;
+                  | import run.Main; // Для доступа к username и db
+                  | 
+                  | import javax.swing.*;
+                  | import java.awt.*;
+                  | import java.awt.event.ActionEvent;
+                  | import java.awt.event.ActionListener;
+                  | import java.awt.event.MouseAdapter;
+                  | import java.awt.event.MouseEvent;
+                  | import java.awt.geom.Ellipse2D;
+                  | import java.util.ArrayList;
+                  | import java.util.HashMap;
+                  | import java.util.List;
+                  | import java.util.Map;
+                  | import java.util.Random;
+                  | 
+                  | public class VisualizationPanel extends JPanel {
+                  | 
+                  |     private List<HumanBeing> humanBeingsToDraw;
+                  |     private Map<Integer, Color> userColorMap; // Для цвета пользователя
+                  |     private Random randomColorGenerator;
+                  |     private Color myUserColor = Color.BLUE; // Цвет объектов текущего пользователя
+                  |     private int currentUserId = -1;
+                  | 
+                  |     // Для масштабирования и правильного отображения координат
+                  |     private double dataMinX, dataMaxX, dataMinY, dataMaxY; // Границы данных
+                  |     private boolean boundsHaveBeenCalculated = false;
+                  | 
+                  |     // Параметры объектов и анимации
+                  |     private static final int TARGET_OBJECT_DIAMETER = 20; // Целевой диаметр объекта
+                  |     private static final int PADDING = 30; // Отступы от краев панели
+                  |     private static final int ANIMATION_TOTAL_STEPS = 20; // Количество шагов для анимации "вырастания"
+                  |     private static final int ANIMATION_FRAME_DELAY = 25; // мс между кадрами анимации (~40 FPS)
+                  | 
+                  |     // Хранение экранных представлений объектов для кликов
+                  |     private List<Shape> drawnObjectScreenShapes;
+                  |     private List<HumanBeing> drawnObjectsReferences;
+                  | 
+                  |     // Для анимации "вырастания"
+                  |     private Timer animationTimer;
+                  |     private Map<Integer, AnimationState> objectAnimationStates; // ID объекта -> его состояние анимации
+                  | 
+                  |     // Внутренний класс для состояния анимации
+                  |     private static class AnimationState {
+                  |         int currentDiameter;
+                  |         boolean isAppearing; // true, если объект сейчас в процессе "появления"
+                  | 
+                  |         AnimationState() {
+                  |             this.currentDiameter = 0; // Начинаем с нулевого размера
+                  |             this.isAppearing = true;
+                  |         }
+                  |     }
+                  | 
+                  |     public VisualizationPanel() {
+                  |         this.humanBeingsToDraw = new ArrayList<>();
+                  |         this.userColorMap = new HashMap<>();
+                  |         this.randomColorGenerator = new Random();
+                  |         this.drawnObjectScreenShapes = new ArrayList<>();
+                  |         this.drawnObjectsReferences = new ArrayList<>();
+                  |         this.objectAnimationStates = new HashMap<>();
+                  | 
+                  |         setBackground(Color.LIGHT_GRAY); // Немного другой фон для наглядности
+                  | 
+                  |         // Получаем ID текущего пользователя (если он уже известен)
+                  |         if (Main.username != null && !Main.username.isEmpty() && Main.db != null) {
+                  |             this.currentUserId = Main.db.findUserIDbyUsername(Main.username);
+                  |         }
+                  | 
+                  |         // Таймер для анимации
+                  |         animationTimer = new Timer(ANIMATION_FRAME_DELAY, new ActionListener() {
+                  |             @Override
+                  |             public void actionPerformed(ActionEvent e) {
+                  |                 boolean needsRepaint = false;
+                  |                 // Важно: итерироваться по ключам objectAnimationStates, чтобы избежать ConcurrentModificationException,
+                  |                 // если мы будем удалять из него элементы внутри цикла. Но лучше удалять после.
+                  |                 // Или использовать копию ключей.
+                  |                 List<Integer> idsToAnimate = new ArrayList<>(objectAnimationStates.keySet());
+                  | 
+                  |                 for (Integer humanId : idsToAnimate) {
+                  |                     AnimationState state = objectAnimationStates.get(humanId);
+                  |                     if (state != null && state.isAppearing && state.currentDiameter < TARGET_OBJECT_DIAMETER) {
+                  |                         state.currentDiameter += Math.max(1, TARGET_OBJECT_DIAMETER / ANIMATION_TOTAL_STEPS);
+                  |                         if (state.currentDiameter >= TARGET_OBJECT_DIAMETER) {
+                  |                             state.currentDiameter = TARGET_OBJECT_DIAMETER;
+                  |                             state.isAppearing = false; // Анимация завершена
+                  |                         }
+                  |                         // objectAnimationStates.put(humanId, state); // Map обновится по ссылке, но для ясности можно
+                  |                         needsRepaint = true;
+                  |                     }
+                  |                 }
+                  | 
+                  |                 if (needsRepaint) {
+                  |                     repaint();
+                  |                 }
+                  |                 // Если все анимации завершены, таймер можно остановить, но для простоты пока оставим его работать.
+                  |             }
+                  |         });
+                  |         animationTimer.start();
+                  | 
+                  |         // Обработчик кликов мыши
+                  |         addMouseListener(new MouseAdapter() {
+                  |             @Override
+                  |             public void mouseClicked(MouseEvent e) {
+                  |                 if (e.getButton() == MouseEvent.BUTTON1) { // Левая кнопка мыши
+                  |                     Point clickPoint = e.getPoint();
+                  |                     // Итерируемся в обратном порядке, чтобы сначала проверять объекты "сверху"
+                  |                     for (int i = drawnObjectScreenShapes.size() - 1; i >= 0; i--) {
+                  |                         Shape shape = drawnObjectScreenShapes.get(i);
+                  |                         if (shape != null && shape.contains(clickPoint)) {
+                  |                             HumanBeing clickedHuman = drawnObjectsReferences.get(i);
+                  |                             // Открываем диалог просмотра для этого объекта
+                  |                             Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(VisualizationPanel.this);
+                  |                             ViewHumanDialog viewDialog = new ViewHumanDialog(parentFrame, clickedHuman);
+                  |                             viewDialog.setVisible(true);
+                  | 
+                  |                             // Если ViewHumanDialog изменил данные (например, удалил или отредактировал),
+                  |                             // то MainWindow должен будет обновить всю информацию.
+                  |                             // ViewHumanDialog теперь сам вызывает обновление MainWindow.
+                  |                             break; // Объект найден и обработан
+                  |                         }
+                  |                     }
+                  |                 }
+                  |             }
+                  |         });
+                  |     }
+                  | 
+                  |     public void setHumanBeings(List<HumanBeing> humanBeings) {
+                  |         if (humanBeings != null) {
+                  |             this.humanBeingsToDraw = new ArrayList<>(humanBeings);
+                  |         } else {
+                  |             this.humanBeingsToDraw = new ArrayList<>();
+                  |         }
+                  | 
+                  |         // Создаем новую карту состояний анимации на основе текущего списка объектов
+                  |         Map<Integer, AnimationState> nextAnimationStates = new HashMap<>();
+                  |         for (HumanBeing human : this.humanBeingsToDraw) {
+                  |             AnimationState existingState = this.objectAnimationStates.get(human.getId());
+                  |             if (existingState != null) {
+                  |                 // Если объект уже был, переносим его состояние анимации
+                  |                 // Если он уже появился, его currentDiameter должен быть TARGET_OBJECT_DIAMETER
+                  |                 if (!existingState.isAppearing) {
+                  |                     existingState.currentDiameter = TARGET_OBJECT_DIAMETER;
+                  |                 }
+                  |                 nextAnimationStates.put(human.getId(), existingState);
+                  |             } else {
+                  |                 // Это новый объект, создаем для него новое состояние анимации (начнется с 0)
+                  |                 nextAnimationStates.put(human.getId(), new AnimationState());
+                  |             }
+                  |         }
+                  |         this.objectAnimationStates = nextAnimationStates; // Заменяем старую карту новой
+                  | 
+                  |         calculateDataBounds();
+                  |         if (!animationTimer.isRunning() && !this.humanBeingsToDraw.isEmpty()) {
+                  |             // Запускаем таймер, если он был остановлен и есть что анимировать
+                  |             // animationTimer.start(); // Обычно он и так работает
+                  |         }
+                  |         repaint();
+                  |     }
+                  | 
+                  |     private void calculateDataBounds() {
+                  |         if (humanBeingsToDraw.isEmpty()) {
+                  |             boundsHaveBeenCalculated = false;
+                  |             return;
+                  |         }
+                  | 
+                  |         dataMinX = Double.MAX_VALUE; dataMaxX = Double.MIN_VALUE;
+                  |         dataMinY = Double.MAX_VALUE; dataMaxY = Double.MIN_VALUE;
+                  | 
+                  |         for (HumanBeing human : humanBeingsToDraw) {
+                  |             if (human.getCoordinates() != null) {
+                  |                 dataMinX = Math.min(dataMinX, human.getCoordinates().getX());
+                  |                 dataMaxX = Math.max(dataMaxX, human.getCoordinates().getX());
+                  |                 dataMinY = Math.min(dataMinY, human.getCoordinates().getY());
+                  |                 dataMaxY = Math.max(dataMaxY, human.getCoordinates().getY());
+                  |             }
+                  |         }
+                  | 
+                  |         // Если все объекты в одной точке или нет объектов с координатами
+                  |         if (dataMinX == Double.MAX_VALUE || dataMinX == dataMaxX) {
+                  |             dataMinX = (dataMinX == Double.MAX_VALUE) ? -5 : dataMinX - 5; // Добавляем диапазон
+                  |             dataMaxX = dataMinX + 10;
+                  |         }
+                  |         if (dataMinY == Double.MAX_VALUE || dataMinY == dataMaxY) {
+                  |             dataMinY = (dataMinY == Double.MAX_VALUE) ? -5 : dataMinY - 5; // Добавляем диапазон
+                  |             dataMaxY = dataMinY + 10;
+                  |         }
+                  |         boundsHaveBeenCalculated = true;
+                  |     }
+                  | 
+                  |     private Color getColorForUser(int ownerId) {
+                  |         if (ownerId == currentUserId && currentUserId != -1) { // Проверяем, что currentUserId инициализирован
+                  |             return myUserColor;
+                  |         }
+                  |         return userColorMap.computeIfAbsent(ownerId, k -> new Color(
+                  |                 randomColorGenerator.nextInt(180) + 50, // от 50 до 229 для более различимых цветов
+                  |                 randomColorGenerator.nextInt(180) + 50,
+                  |                 randomColorGenerator.nextInt(180) + 50));
+                  |     }
+                  | 
+                  |     @Override
+                  |     protected void paintComponent(Graphics g) {
+                  |         super.paintComponent(g);
+                  |         Graphics2D g2d = (Graphics2D) g.create(); // Работаем с копией Graphics для безопасности
+                  |         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                  |         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                  | 
+                  |         // Очищаем списки перед каждой перерисовкой (важно!)
+                  |         drawnObjectScreenShapes.clear();
+                  |         drawnObjectsReferences.clear();
+                  | 
+                  |         if (humanBeingsToDraw.isEmpty() || !boundsHaveBeenCalculated) {
+                  |             String message = LocalisationManager.getString("visualization.noData"); // "Нет данных для визуализации"
+                  |             FontMetrics fm = g2d.getFontMetrics();
+                  |             int stringWidth = fm.stringWidth(message);
+                  |             g2d.drawString(message, (getWidth() - stringWidth) / 2, getHeight() / 2);
+                  |             g2d.dispose();
+                  |             return;
+                  |         }
+                  | 
+                  |         int panelWidth = getWidth();
+                  |         int panelHeight = getHeight();
+                  |         int drawableWidth = panelWidth - 2 * PADDING;
+                  |         int drawableHeight = panelHeight - 2 * PADDING;
+                  | 
+                  |         if (drawableWidth <= 0 || drawableHeight <= 0) { // Панель слишком мала
+                  |             g2d.dispose();
+                  |             return;
+                  |         }
+                  | 
+                  |         double dataRangeX = dataMaxX - dataMinX;
+                  |         double dataRangeY = dataMaxY - dataMinY;
+                  |         // Избегаем деления на ноль, если все объекты в одной точке (уже обработано в calculateDataBounds)
+                  | 
+                  |         double scaleX = (dataRangeX == 0) ? 1 : drawableWidth / dataRangeX;
+                  |         double scaleY = (dataRangeY == 0) ? 1 : drawableHeight / dataRangeY;
+                  | 
+                  |         // Чтобы сохранить пропорции, можно выбрать минимальный масштаб
+                  |         // double scale = Math.min(scaleX, scaleY);
+                  |         // scaleX = scale;
+                  |         // scaleY = scale;
+                  | 
+                  |         for (HumanBeing human : humanBeingsToDraw) {
+                  |             if (human.getCoordinates() == null) continue;
+                  | 
+                  |             Coordinates coords = human.getCoordinates();
+                  |             AnimationState animState = objectAnimationStates.getOrDefault(human.getId(), new AnimationState()); // Получаем или создаем состояние
+                  |             if(animState.currentDiameter == 0 && animState.isAppearing) { // Если объект новый и анимация не началась
+                  |                 objectAnimationStates.put(human.getId(), animState); // Добавляем в карту для анимации
+                  |             }
+                  | 
+                  | 
+                  |             int currentAnimatedDiameter = animState.currentDiameter;
+                  |             if (currentAnimatedDiameter <= 0) continue; // Если еще не начал появляться, не рисуем
+                  | 
+                  |             // Преобразование мировых координат (где Y растет вверх) в экранные (где Y растет вниз)
+                  |             int screenX = PADDING + (int) ((coords.getX() - dataMinX) * scaleX);
+                  |             // Инвертируем Y: значение (Y - minY) масштабируется, а затем вычитается из drawableHeight
+                  |             int screenY = PADDING + drawableHeight - (int) ((coords.getY() - dataMinY) * scaleY);
+                  | 
+                  | 
+                  |             Ellipse2D.Double objectShape = new Ellipse2D.Double(
+                  |                     screenX - currentAnimatedDiameter / 2.0,
+                  |                     screenY - currentAnimatedDiameter / 2.0,
+                  |                     currentAnimatedDiameter,
+                  |                     currentAnimatedDiameter);
+                  | 
+                  |             drawnObjectScreenShapes.add(objectShape);
+                  |             drawnObjectsReferences.add(human);
+                  | 
+                  |             g2d.setColor(getColorForUser(human.getOwnerId()));
+                  |             g2d.fill(objectShape);
+                  | 
+                  |             g2d.setColor(Color.DARK_GRAY); // Темнее, чем черный, для лучшего контраста с цветными кругами
+                  |             g2d.draw(objectShape);
+                  | 
+                  |             // Опционально: ID объекта
+                  |             String idStr = String.valueOf(human.getId());
+                  |             FontMetrics fm = g2d.getFontMetrics();
+                  |             int idWidth = fm.stringWidth(idStr);
+                  |             // Рисуем текст по центру круга
+                  |             g2d.setColor(Color.BLACK); // Цвет текста
+                  |             // Небольшое смещение, чтобы текст был внутри круга и по центру
+                  |             g2d.drawString(idStr, screenX - idWidth / 2, screenY + fm.getAscent() / 2 - fm.getDescent() / 2 - 1);
+                  |         }
+                  |         g2d.dispose();
+                  |     }
+                  | }
+                  --- КОНЕЦ СОДЕРЖИМОГО (VisualizationPanel.java) ---
+
                 📂 dialogs/
-                    📄 HumanBeingDialog.java (17223 bytes)
+                    📄 HumanBeingDialog.java (17522 bytes)
                       --- СОДЕРЖИМОЕ ФАЙЛА (HumanBeingDialog.java) ---
                       | package gui.dialogs;
                       | 
-                      | import classes.*;
-                      | import enums.*;
+                      | import classes.Car;
+                      | import classes.Coordinates;
+                      | import classes.HumanBeing;
+                      | import enums.Mood;
+                      | import enums.WeaponType;
                       | import gui.LocalizedEnumComboBoxModel;
                       | import gui.renderers.LocalizedEnumRenderer;
-                      | import managers.*;
+                      | import managers.LocalisationManager;
                       | 
                       | import javax.swing.*;
                       | import java.awt.*;
-                      | import java.beans.*;
-                      | import java.util.*;
+                      | import java.beans.PropertyChangeEvent;
+                      | import java.beans.PropertyChangeListener;
+                      | import java.util.Date;
                       | 
                       | public class HumanBeingDialog extends JDialog implements PropertyChangeListener {
                       | 
@@ -3527,6 +4142,7 @@
                       |             impactSpeedField.setText(String.valueOf(hb.getImpactSpeed()));
                       |         }
                       |         soundtrackNameField.setText(hb.getSoundtrackName());
+                      |         weaponTypeComboBox.setSelectedItem(hb.getWeaponType()); // Модель сама найдет нужный объект
                       |         weaponTypeComboBox.setSelectedItem(hb.getWeaponType()); // Модель сама найдет нужный объект
                       |         moodComboBox.setSelectedItem(hb.getMood());             // Модель сама найдет нужный объект
                       |         if (hb.getCar() != null) {
@@ -3918,19 +4534,20 @@
                       | }
                       --- КОНЕЦ СОДЕРЖИМОГО (LoginDialog.java) ---
 
-                    📄 ViewHumanDialog.java (15139 bytes)
+                    📄 ViewHumanDialog.java (15822 bytes)
                       --- СОДЕРЖИМОЕ ФАЙЛА (ViewHumanDialog.java) ---
                       | package gui.dialogs;
                       | 
-                      | import classes.*;
-                      | import gui.*;
-                      | import managers.*;
-                      | import run.*;
+                      | import classes.HumanBeing;
+                      | import gui.MainWindow;
+                      | import managers.CollectionManager;
+                      | import managers.LocalisationManager;
+                      | import run.Main;
                       | 
                       | import javax.swing.*;
                       | import java.awt.*;
-                      | import java.text.*;
-                      | import java.util.*;
+                      | import java.text.DateFormat;
+                      | import java.util.Locale;
                       | 
                       | public class ViewHumanDialog extends JDialog {
                       | 
@@ -4008,12 +4625,14 @@
                       |         // Кнопки
                       |         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
                       |         closeButton = new JButton(); // Текст из LocalisationManager
-                      |          editButton = new JButton();
-                      |          deleteButton = new JButton();
+                      |         editButton = new JButton();
+                      |         deleteButton = new JButton();
                       | 
                       |         closeButton.addActionListener(e -> dispose());
-                      |          buttonPanel.add(editButton);
-                      |          buttonPanel.add(deleteButton);
+                      |         editButton.addActionListener(e -> onEdit());
+                      |         deleteButton.addActionListener(e -> onDelete());
+                      |         buttonPanel.add(editButton);
+                      |         buttonPanel.add(deleteButton);
                       |         buttonPanel.add(closeButton);
                       | 
                       |         gbc.gridx = 0; gbc.gridy = gridY; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER; gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -4033,9 +4652,10 @@
                       | 
                       |         Locale currentLocale = LocalisationManager.getLocale();
                       |         if (currentLocale == null) currentLocale = new Locale("ru", "RU");
-                      |         dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, currentLocale);
+                      |         dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, currentLocale);
                       | 
                       |         idValLabel.setText(String.valueOf(humanBeingToView.getId()));
+                      |         nameValLabel.setText(humanBeingToView.getName());
                       |         nameValLabel.setText(humanBeingToView.getName());
                       |         if (humanBeingToView.getCoordinates() != null) {
                       |             coordXValLabel.setText(String.valueOf(humanBeingToView.getCoordinates().getX()));
@@ -4092,60 +4712,74 @@
                       |     }
                       | 
                       |     private void onEdit() {
-                      |         // Проверка прав
                       |         int currentUserId = Main.db.findUserIDbyUsername(Main.username);
                       |         if (humanBeingToView.getOwnerId() == currentUserId) {
-                      |             dispose(); // Закрываем текущий ViewHumanDialog
+                      |             // this.setVisible(false); // Можно не скрывать, HumanBeingDialog будет модальным поверх него
                       | 
-                      |             // Открываем HumanBeingDialog для редактирования
-                      |             HumanBeingDialog editDialog = new HumanBeingDialog(ownerFrame, humanBeingToView);
+                      |             HumanBeingDialog editDialog = new HumanBeingDialog(this.ownerFrame, humanBeingToView);
                       |             editDialog.setVisible(true);
                       | 
                       |             if (editDialog.isSaved()) {
                       |                 HumanBeing updatedHuman = editDialog.getHumanBeing();
-                      |                 // Логика обновления в БД уже есть в MainWindow.openEditDialog,
-                      |                 // но т.к. мы вызываем из ViewHumanDialog, нужно ее здесь продублировать или вынести в общий метод.
-                      |                 // Проще всего, если MainWindow сам обновит свою таблицу после того, как узнает, что объект изменился.
-                      |                 // Для этого MainWindow может передать какой-то коллбэк или ViewHumanDialog может кинуть событие.
-                      | 
-                      |                 // Пока просто обновляем через Main и просим MainWindow обновить таблицу
                       |                 boolean success = Main.db.updateID(humanBeingToView.getId(), updatedHuman, Main.username);
                       |                 if (success) {
-                      |                     Main.cm.startCM(); // Обновляем коллекцию
-                      |                     if (ownerFrame instanceof MainWindow) { // Обновляем таблицу в главном окне
-                      |                         ((MainWindow) ownerFrame).getHbTableModel().updateData(CollectionManager.collection);
-                      |                         ((MainWindow) ownerFrame).updateStatusBarInfo(); // Обновляем статус бар
+                      |                     if (ownerFrame instanceof MainWindow) {
+                      |                         MainWindow mw = (MainWindow) ownerFrame;
+                      |                         Main.cm.startCM(false);
+                      |                         mw.getHbTableModel().updateData(CollectionManager.collection);
+                      |                         mw.updateStatusBarInfo();
                       |                     }
                       |                     JOptionPane.showMessageDialog(ownerFrame, LocalisationManager.getString("dialog.message.objectUpdated"), LocalisationManager.getString("dialog.title.info"), JOptionPane.INFORMATION_MESSAGE);
+                      |                     dispose(); // Закрываем ViewHumanDialog, так как редактирование завершено
                       |                 } else {
                       |                     JOptionPane.showMessageDialog(ownerFrame, LocalisationManager.getString("command.error.updateFailed"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
                       |                 }
                       |             }
+                      |             // Если редактирование отменено, ViewHumanDialog остается открытым (если не был скрыт)
                       |         } else {
                       |             JOptionPane.showMessageDialog(this, LocalisationManager.getString("dialog.addEdit.validation.notYourObject"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
                       |         }
                       |     }
                       | 
                       |     private void onDelete() {
-                      |         // Проверка прав
-                      |         int currentUserId = Main.db.findUserIDbyUsername(Main.username);
-                      |         if (humanBeingToView.getOwnerId() == currentUserId) {
-                      |             int response = JOptionPane.showConfirmDialog(this,
-                      |                     LocalisationManager.getString("dialog.message.confirmDelete"),
-                      |                     LocalisationManager.getString("command.remove"), // Или dialog.title.confirmation
-                      |                     JOptionPane.YES_NO_OPTION,
-                      |                     JOptionPane.WARNING_MESSAGE);
+                      |         int currentUserId = Main.db.findUserIDbyUsername(Main.username); // Получаем ID текущего пользователя
+                      |         if (humanBeingToView.getOwnerId() == currentUserId) { // Проверяем, принадлежит ли объект текущему пользователю
                       | 
-                      |             if (response == JOptionPane.YES_OPTION) {
+                      |             // Получаем локализованные тексты для диалога и кнопок
+                      |             String dialogTitle = LocalisationManager.getString("command.remove"); // Или "dialog.title.confirmation"
+                      |             String dialogMessage = LocalisationManager.getString("dialog.message.confirmDelete");
+                      |             String yesButtonText = LocalisationManager.getString("button.yes");
+                      |             String noButtonText = LocalisationManager.getString("button.no");
+                      | 
+                      |             // Fallback тексты на случай, если ключи не найдены
+                      |             if (dialogTitle.startsWith("?") || dialogTitle.startsWith("!")) dialogTitle = "Confirm Delete";
+                      |             if (dialogMessage.startsWith("?") || dialogMessage.startsWith("!")) dialogMessage = "Are you sure you want to delete the selected object?";
+                      |             if (yesButtonText.startsWith("?") || yesButtonText.startsWith("!")) yesButtonText = "Yes";
+                      |             if (noButtonText.startsWith("?") || noButtonText.startsWith("!")) noButtonText = "No";
+                      | 
+                      |             Object[] options = {yesButtonText, noButtonText};
+                      | 
+                      |             int response = JOptionPane.showOptionDialog(this,
+                      |                     dialogMessage,
+                      |                     dialogTitle,
+                      |                     JOptionPane.YES_NO_OPTION,
+                      |                     JOptionPane.WARNING_MESSAGE,
+                      |                     null,
+                      |                     options,
+                      |                     options[0]);
+                      | 
+                      |             if (response == 0) {
                       |                 boolean success = Main.db.removeByID(Main.username, humanBeingToView.getId());
                       |                 if (success) {
-                      |                     Main.cm.startCM(); // Обновляем коллекцию
-                      |                     if (ownerFrame instanceof MainWindow) { // Обновляем таблицу в главном окне
-                      |                         ((MainWindow) ownerFrame).getHbTableModel().updateData(CollectionManager.collection);
-                      |                         ((MainWindow) ownerFrame).updateStatusBarInfo();
+                      |                     if (ownerFrame instanceof MainWindow) {
+                      |                         MainWindow mw = (MainWindow) ownerFrame;
+                      |                         Main.cm.startCM(false);
+                      |                         mw.getHbTableModel().updateData(CollectionManager.collection);
+                      |                         mw.updateStatusBarInfo();
+                      |                         mw.updateVisualization();
                       |                     }
                       |                     JOptionPane.showMessageDialog(ownerFrame, LocalisationManager.getString("dialog.message.objectDeleted"), LocalisationManager.getString("dialog.title.info"), JOptionPane.INFORMATION_MESSAGE);
-                      |                     dispose(); // Закрываем ViewHumanDialog после удаления
+                      |                     dispose();
                       |                 } else {
                       |                     JOptionPane.showMessageDialog(this, LocalisationManager.getString("command.error.removeFailed"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
                       |                 }
@@ -4154,6 +4788,7 @@
                       |             JOptionPane.showMessageDialog(this, LocalisationManager.getString("dialog.message.notYourObjectToDelete"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
                       |         }
                       |     }
+                      | 
                       | 
                       |     // Если диалог должен обновляться при смене языка, пока он открыт
                       |     // @Override
@@ -4193,12 +4828,11 @@
                       | }
                       --- КОНЕЦ СОДЕРЖИМОГО (CenterRender.java) ---
 
-                    📄 DateRenderer.java (978 bytes)
+                    📄 DateRenderer.java (1035 bytes)
                       --- СОДЕРЖИМОЕ ФАЙЛА (DateRenderer.java) ---
                       | package gui.renderers;
                       | 
                       | import managers.LocalisationManager;
-                      | 
                       | import javax.swing.*;
                       | import javax.swing.table.DefaultTableCellRenderer;
                       | import java.text.DateFormat;
@@ -4206,7 +4840,6 @@
                       | import java.util.Locale;
                       | 
                       | public class DateRenderer extends DefaultTableCellRenderer {
-                      |     private DateFormat dateFormat;
                       | 
                       |     public DateRenderer() {
                       |         super();
@@ -4214,12 +4847,12 @@
                       |     }
                       | 
                       |     @Override
-                      |     protected void setValue(Object value) {
+                      |     protected void setValue(Object value) { // Этот метод вызывается для каждой ячейки перед отрисовкой
                       |         Locale currentLocale = LocalisationManager.getLocale();
                       |         if (currentLocale == null) {
                       |             currentLocale = new Locale("ru", "RU"); // Fallback
                       |         }
-                      |         dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, currentLocale);
+                      |         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, currentLocale);
                       | 
                       |         if (value instanceof Date) {
                       |             setText(dateFormat.format((Date) value));
@@ -4260,11 +4893,12 @@
                       | }
                       --- КОНЕЦ СОДЕРЖИМОГО (EnumRenderer.java) ---
 
-                    📄 LocalizedEnumRenderer.java (1193 bytes)
+                    📄 LocalizedEnumRenderer.java (1195 bytes)
                       --- СОДЕРЖИМОЕ ФАЙЛА (LocalizedEnumRenderer.java) ---
                       | package gui.renderers;
                       | 
                       | import managers.LocalisationManager;
+                      | 
                       | import javax.swing.*;
                       | import java.awt.*;
                       | 
@@ -4585,7 +5219,7 @@
                   |         int count = 0;
                   |         for (HumanBeing humanBeing : collection) {
                   |             for (HumanBeing humanBeing2 : collection) {
-                  |                 if (humanBeing.compareTo(humanBeing2) > 0) {
+                  |                 if (humanBeing.compareTo(humanBeing2) < 0) {
                   |                     count++;
                   |                 }
                   |             }
@@ -4714,7 +5348,7 @@
                   | }
                   --- КОНЕЦ СОДЕРЖИМОГО (ConsoleManager.java) ---
 
-                📄 DBManager.java (29833 bytes)
+                📄 DBManager.java (30079 bytes)
                   --- СОДЕРЖИМОЕ ФАЙЛА (DBManager.java) ---
                   | package managers;
                   | 
@@ -4854,15 +5488,20 @@
                   |     public void registerUser(String username, String password) {
                   |         try {
                   |             conn.setAutoCommit(false);
-                  | 
-                  |             boolean flag = false;
-                  |             for (User user : getUsers().values()) {
-                  |                 if (username.equals(user.getLogin())) {
-                  |                     flag = true;
-                  |                     System.out.println("Такой пользователь уже существует");
+                  |             boolean userExists = false;
+                  |             try (PreparedStatement psCheck = conn.prepareStatement("SELECT 1 FROM users WHERE login = ?")) {
+                  |                 psCheck.setString(1, username);
+                  |                 try (ResultSet rsCheck = psCheck.executeQuery()) {
+                  |                     if (rsCheck.next()) {
+                  |                         userExists = true;
+                  |                     }
                   |                 }
                   |             }
-                  |             if (!flag) {
+                  | 
+                  |             if (userExists) {
+                  |                 System.out.println("Такой пользователь уже существует: " + username);
+                  |                 Main.login = false;
+                  |             } else {
                   |                 PreparedStatement ps = conn.prepareStatement("INSERT INTO users (login, password) VALUES (?, ?)");
                   |                 ps.setString(1, username);
                   |                 ps.setString(2, hashSmth(password));
@@ -4871,18 +5510,17 @@
                   |                 if (rows > 0) {
                   |                     conn.commit();
                   |                     System.out.println("Пользователь " + username + " успешно зарегистрирован.");
+                  |                     Main.login = true;
+                  |                     Main.username = username;
+                  |                 } else {
+                  |                     conn.rollback();
+                  |                     Main.login = false;
                   |                 }
-                  |                 Main.login = true;
-                  |                 Main.toBreak = false;
-                  | 
-                  | //            PreparedStatement ps = conn.prepareStatement("INSERT INTO users (login, password) VALUES (?, ?)");
-                  | //            ps.setString(1, username);
-                  | //            ps.setString(2, hashSmth(password));
-                  | //            ps.executeQuery();
                   |             }
-                  | 
                   |         } catch (SQLException e) {
+                  |             try { conn.rollback(); } catch (SQLException ignored) {}
                   |             e.printStackTrace();
+                  |             Main.login = false;
                   |         } finally {
                   |             try {
                   |                 conn.setAutoCommit(true);
@@ -5585,8 +6223,8 @@
                   | package run;
                   | 
                   | import functions.Invoker;
-                  | import gui.dialogs.LoginDialog;
                   | import gui.MainWindow;
+                  | import gui.dialogs.LoginDialog;
                   | import managers.CollectionManager;
                   | import managers.DBManager;
                   | import utils.JSCh;
@@ -6281,7 +6919,7 @@
                   --- КОНЕЦ СОДЕРЖИМОГО (ScriptFileReader.java) ---
 
         📂 resources/
-            📄 messages_es.properties (8641 bytes)
+            📄 messages_es.properties (8828 bytes)
               --- СОДЕРЖИМОЕ ФАЙЛА (messages_es.properties) ---
               | login.title=Autenticación
               | login.label.username=Nombre de usuario:
@@ -6457,6 +7095,7 @@
               | visualization.objectInfo.field.carName=Carro (nombre):
               | visualization.objectInfo.field.carCool=Carro (genialidad):
               | visualization.objectInfo.field.ownerId=ID de propietario:
+              | visualization.noData=No hay datos
               | 
               | # --- Кнопки OK/Cancel/Yes/No ---
               | button.ok=Aceptar
@@ -6478,6 +7117,7 @@
               | command.error.invalidArgumentFormat=Formato de argumento inválido.
               | 
               | # --- Информация о коллекции (для команды info) ---
+              | info.collectionDetailsFormat=Tipo: %s, Creada: %s, Elementos: %d
               | info.collectionType=Tipo de colección:
               | info.creationDate=Fecha de inicialización:
               | info.numberOfElements=Cantidad de elementos:
@@ -6485,9 +7125,12 @@
               | # --- Справка (текст может быть дополнен вами/взят из help) ---
               | help.title=Ayuda de comandos
               | help.text=Esta aplicación permite gestionar una colección de objetos SerHumano...
+              | 
+              | text.asMin=mínimo
+              | message.addIfMin.notAddedNotMin=No agregado por no ser mínimo
               --- КОНЕЦ СОДЕРЖИМОГО (messages_es.properties) ---
 
-            📄 messages_fr.properties (8785 bytes)
+            📄 messages_fr.properties (8988 bytes)
               --- СОДЕРЖИМОЕ ФАЙЛА (messages_fr.properties) ---
               | login.label.username=Nom d'utilisateur :
               | login.label.password=Mot de passe :
@@ -6662,6 +7305,7 @@
               | visualization.objectInfo.field.carName=Voiture (nom) :
               | visualization.objectInfo.field.carCool=Voiture (cool) :
               | visualization.objectInfo.field.ownerId=ID du propriétaire :
+              | visualization.noData=Aucune donnée
               | 
               | # --- Кнопки OK/Cancel/Yes/No ---
               | button.ok=OK
@@ -6683,6 +7327,7 @@
               | command.error.invalidArgumentFormat=Format d'argument invalide.
               | 
               | # --- Информация о коллекции (для команды info) ---
+              | info.collectionDetailsFormat=Type : %s, Créé le : %s, Éléments : %d
               | info.collectionType=Type de collection :
               | info.creationDate=Date d'initialisation :
               | info.numberOfElements=Nombre d'éléments :
@@ -6690,9 +7335,12 @@
               | # --- Справка (текст может быть дополнен вами/взят из help) ---
               | help.title=Aide sur les commandes
               | help.text=Cette application permet de gérer une collection d'objets Humain...
+              | 
+              | text.asMin=minimal
+              | message.addIfMin.notAddedNotMin=Non ajouté car il n'est pas minimal.
               --- КОНЕЦ СОДЕРЖИМОГО (messages_fr.properties) ---
 
-            📄 messages_no.properties (8076 bytes)
+            📄 messages_no.properties (8278 bytes)
               --- СОДЕРЖИМОЕ ФАЙЛА (messages_no.properties) ---
               | login.title=Innlogging
               | login.label.username=Brukernavn:
@@ -6868,6 +7516,7 @@
               | visualization.objectInfo.field.carName=Bil (navn):
               | visualization.objectInfo.field.carCool=Bil (kulhet):
               | visualization.objectInfo.field.ownerId=Eier-ID:
+              | visualization.noData=Ingen data
               | 
               | # --- Кнопки OK/Cancel/Yes/No ---
               | button.ok=OK
@@ -6889,6 +7538,7 @@
               | command.error.invalidArgumentFormat=Ugyldig argumentformat.
               | 
               | # --- Информация о коллекции (для команды info) ---
+              | info.collectionDetailsFormat=Type: %s, Opprettet: %s, Elementer: %d
               | info.collectionType=Samlingstype:
               | info.creationDate=Initialiseringsdato:
               | info.numberOfElements=Antall elementer:
@@ -6896,9 +7546,12 @@
               | # --- Справка (текст может быть дополнен вами/взят из help) ---
               | help.title=Hjelp for kommandoer
               | help.text=Denne applikasjonen lar deg administrere en samling av HumanBeing-objekter...
+              | 
+              | text.asMin=minimal
+              | message.addIfMin.notAddedNotMin=Ikke lagt til, da den/det ikke er minimal(t)
               --- КОНЕЦ СОДЕРЖИМОГО (messages_no.properties) ---
 
-            📄 messages_ru.properties (11254 bytes)
+            📄 messages_ru.properties (11222 bytes)
               --- СОДЕРЖИМОЕ ФАЙЛА (messages_ru.properties) ---
               | login.title=Авторизация
               | login.label.username=Имя пользователя:
@@ -6941,6 +7594,7 @@
               | command.minBySoundtrackName=Минимальный по назв. саундтрека
               | command.countGreaterThanMood=Кол-во с настроением > ...
               | command.help=Справка
+              | 
               | 
               | mainWindow.menu.language=Язык
               | mainWindow.menu.language.russian=Русский
@@ -7060,7 +7714,6 @@
               | 
               | # --- Визуализация ---
               | visualization.objectInfo.title=Информация об объекте
-              | # (поля схожи с table.column.*, но в visualization.objectInfo.field.* могут быть более подробными/с двоеточием)
               | visualization.objectInfo.field.id=ID:
               | visualization.objectInfo.field.name=Имя:
               | visualization.objectInfo.field.coordinateX=Координата X:
@@ -7075,7 +7728,7 @@
               | visualization.objectInfo.field.carName=Машина (название):
               | visualization.objectInfo.field.carCool=Машина (крутость):
               | visualization.objectInfo.field.ownerId=ID владельца:
-              | # ... и так далее для всех полей HumanBeing
+              | visualization.noData=Нет данных
               | 
               | # --- Кнопки OK/Cancel/Yes/No ---
               | button.ok=ОК
@@ -7105,6 +7758,9 @@
               | # --- Справка (текст может быть дополнен вами/взят из help) ---
               | help.title=Справка по командам
               | help.text=Это приложение позволяет управлять коллекцией объектов HumanBeing...
+              | 
+              | text.asMin=минимальный
+              | message.addIfMin.notAddedNotMin=Не добавлен так как не является минимальным
               --- КОНЕЦ СОДЕРЖИМОГО (messages_ru.properties) ---
 
             📂 sql/

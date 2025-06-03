@@ -250,7 +250,7 @@ public class CollectionManager{
         int count = 0;
         for (HumanBeing humanBeing : collection) {
             for (HumanBeing humanBeing2 : collection) {
-                if (humanBeing.compareTo(humanBeing2) > 0) {
+                if (humanBeing.compareTo(humanBeing2) < 0) {
                     count++;
                 }
             }

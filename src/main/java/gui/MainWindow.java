@@ -30,10 +30,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MainWindow extends JFrame implements PropertyChangeListener {
 
@@ -54,6 +51,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     private JMenuItem esSvItem;
     private JMenuItem addItem;
     private JMenuItem clearItem;
+    private JMenuItem addIfMinItem;
 
     private JLabel currentUserLabel;
     private JLabel filterByLabel;
@@ -61,7 +59,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
     private JPanel statusBar;
     private JPanel tablePanel;
-    private JPanel visualizationPanel;
+    private VisualizationPanel visualizationPanel;
     private JPanel filterPanel;
 
     private JSplitPane mainSplitPane;
@@ -119,25 +117,25 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         menuBar.add(fileMenu);
 
         // Меню "Язык"
-        languageMenu = new JMenu(); // Текст установится в updateTexts()
-        ruItem = new JMenuItem(); // Текст установится в updateTexts()
+        languageMenu = new JMenu();
+        ruItem = new JMenuItem();
         ruItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.RU_LOCALE));
         languageMenu.add(ruItem);
-        noItem = new JMenuItem(); // Текст установится в updateTexts()
+        noItem = new JMenuItem();
         noItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.NO_LOCALE));
         languageMenu.add(noItem);
-        frItem = new JMenuItem(); // Текст установится в updateTexts()
+        frItem = new JMenuItem();
         frItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.FR_LOCALE));
         languageMenu.add(frItem);
-        esSvItem = new JMenuItem(); // Текст установится в updateTexts()
+        esSvItem = new JMenuItem();
         esSvItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.EV_SV_LOCALE));
         languageMenu.add(esSvItem);
         menuBar.add(languageMenu);
 
         // Меню "Команды"
-        commandsMenu = new JMenu(); // Текст установится в updateTexts()
-        commandsMenu = new JMenu(); // Текст установится в updateTexts()
-        addItem = new JMenuItem(); // Текст установится в updateTexts() (было addItem, переименовал для ясности)
+        commandsMenu = new JMenu();
+        commandsMenu = new JMenu();
+        addItem = new JMenuItem();
         addItem.addActionListener(e -> {
             handleAddCommand();
             Main.cm.startCM(false);
@@ -145,16 +143,26 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             updateTexts();
         });
         commandsMenu.add(addItem);
-        // Сюда будешь добавлять другие пункты меню для команд (clear, add_if_min и т.д.)
-        menuBar.add(commandsMenu); // Добавляем commandsMenu в menuBar
+        menuBar.add(commandsMenu);
         clearItem = new JMenuItem();
         clearItem.addActionListener(e -> {
             handleClearCommand();
             Main.cm.startCM(false);
             hbTableModel.updateData(CollectionManager.collection);
             updateTexts();
+            updateVisualization();
+            updateStatusBarInfo();
         });
         commandsMenu.add(clearItem);
+        addIfMinItem = new JMenuItem();
+        addIfMinItem.addActionListener(e -> {
+            handleAddIfMinCommand();
+            Main.cm.startCM(false);
+            hbTableModel.updateData(CollectionManager.collection);
+            updateTexts();
+            updateStatusBarInfo();
+        });
+        commandsMenu.add(addIfMinItem);
 
         setJMenuBar(menuBar);
 
@@ -163,10 +171,11 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         tablePanel = new JPanel(new BorderLayout()); // Главная панель для таблицы и фильтров над ней
         tablePanel.setBorder(BorderFactory.createTitledBorder("")); // Заголовок будет обновлен в updateTexts
 
-        visualizationPanel = new JPanel(new BorderLayout());
-        visualizationPanel.setBorder(BorderFactory.createTitledBorder(""));
-        JLabel vizPlaceholder = new JLabel("Место для визуализации (JPanel/Canvas)", SwingConstants.CENTER);
-        visualizationPanel.add(vizPlaceholder, BorderLayout.CENTER);
+        visualizationPanel = new VisualizationPanel();
+        visualizationPanel.setBorder(BorderFactory.createTitledBorder("")); // Заголовок из updateTexts
+
+        // В создании JSplitPane используем visualizationPanelComponent
+        mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tablePanel, visualizationPanel);
 
         // 3. СОЗДАНИЕ ПАНЕЛИ ФИЛЬТРОВ (ОДИН НАБОР: КОЛОНКА, ОПЕРАТОР, ЗНАЧЕНИЕ)
         filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
@@ -184,15 +193,14 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
         filterPanel.add(filterByLabel);
         filterPanel.add(filterColumnComboBox);
-        filterPanel.add(new JLabel(": ")); // Разделитель для красоты
+        filterPanel.add(new JLabel(": "));
         filterPanel.add(filterOperatorComboBox);
         filterPanel.add(filterValueTextField);
 
-        // Добавляем панель фильтра в верхнюю часть tablePanel
         tablePanel.add(filterPanel, BorderLayout.NORTH);
 
         // 4. СОЗДАНИЕ И НАСТРОЙКА ТАБЛИЦЫ
-        objectTable = new JTable(hbTableModel); // hbTableModel уже создан
+        objectTable = new JTable(hbTableModel);
         objectTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
         this.sorter = new TableRowSorter<>(hbTableModel);
@@ -220,13 +228,8 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
                         if (selectedHuman != null) {
                             ViewHumanDialog viewDialog = new ViewHumanDialog(MainWindow.this, selectedHuman);
                             viewDialog.setVisible(true); // Диалог теперь не строго модальный, но setVisible блокирует до закрытия, если он модальный
-
-//                            if (viewDialog.wasDataChanged()) {
-//                                Main.cm.startCM(false); // Обновить коллекцию
-//                                hbTableModel.updateData(CollectionManager.collection);
-//                                updateStatusBarInfo(); // Обновить статус-бар
-//                                // TODO: Обновить визуализацию
-//                            }
+                            updateVisualization();
+                            updateStatusBarInfo();
                         }
                     }
                 }
@@ -299,6 +302,9 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             updateOperatorComboBox();
             applySingleColumnFilter();
         });
+
+
+        updateVisualization();
     }
 
     private void confirmAndExit() {
@@ -415,6 +421,9 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         if (clearItem != null) {
             clearItem.setText(LocalisationManager.getString("command.clear"));
         }
+        if (addIfMinItem != null) {
+            addIfMinItem.setText(LocalisationManager.getString("command.addIfMin"));
+        }
         if (collectionInfoLabel != null) {
             String type = "N/A";
             String creationTime = "N/A";
@@ -428,8 +437,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
                 creationTime = Main.cm.getTimeOfCreation();
             }
 
-            // Ключ для формата строки в .properties файлах
-            // Например: info.collectionDetailsFormat=Тип: %s, Создана: %s, Элементов: %d
             String formatKey = "info.collectionDetailsFormat";
             String infoText = String.format(LocalisationManager.getString(formatKey), type, creationTime, size);
             collectionInfoLabel.setText(infoText);
@@ -556,51 +563,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
     }
 
-    private void openEditDialog(HumanBeing humanToEdit) {
-        // Проверка владения объектом
-        // Предполагаем, что Main.db.findUserIDbyUsername(Main.username) возвращает ID текущего пользователя
-        // и Main.username уже установлен.
-        int currentUserId = Main.db.findUserIDbyUsername(Main.username); // Это может быть затратно, лучше получить ID один раз после логина
-        // и хранить в Main.currentUserId или передавать в MainWindow
-
-        if (humanToEdit.getOwnerId() == currentUserId) {
-            HumanBeingDialog dialog = new HumanBeingDialog(this, humanToEdit); // 'this' - родительское окно
-            dialog.setVisible(true);
-
-            if (dialog.isSaved()) {
-                HumanBeing updatedHuman = dialog.getHumanBeing();
-                if (updatedHuman != null) {
-                    // Логика обновления объекта в БД
-                    boolean success = Main.db.updateID(humanToEdit.getId(), updatedHuman, Main.username);
-                    if (success) {
-                        // Обновляем локальную коллекцию и таблицу
-                        Main.cm.startCM(); // Перезагружаем всю коллекцию (или можно реализовать обновление конкретного элемента)
-                        hbTableModel.updateData(CollectionManager.collection);
-                        // TODO: Обновить визуализацию, если она есть
-                        updateStatusBarInfo(); // Обновляем информацию в статус-баре (если есть)
-
-                        JOptionPane.showMessageDialog(this,
-                                LocalisationManager.getString("dialog.message.objectUpdated"),
-                                LocalisationManager.getString("dialog.title.info"), // Используем общий ключ для информации
-                                JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(this,
-                                LocalisationManager.getString("command.error.updateFailed"),
-                                LocalisationManager.getString("dialog.title.error"),
-                                JOptionPane.ERROR_MESSAGE);
-                    }
-                }
-            }
-        } else {
-            // Пользователь не владеет объектом
-            JOptionPane.showMessageDialog(this,
-                    LocalisationManager.getString("dialog.addEdit.validation.notYourObject"),
-                    LocalisationManager.getString("dialog.title.error"),
-                    JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    // Метод для обновления информации в статус-баре (если вынесено отдельно)
     public void updateStatusBarInfo() {
         if (currentUserLabel != null) {
             String usernameText = (Main.username != null && !Main.username.isEmpty()) ? Main.username : "N/A";
@@ -612,16 +574,21 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             // Это вызовет updateTexts, который обновит и collectionInfoLabel
             // Либо можно напрямую обновлять collectionInfoLabel
         }
-        // Если у тебя есть отдельный JLabel для информации о коллекции, обнови его здесь
-        // Например, если у тебя есть collectionInfoLabel:
-        // if (collectionInfoLabel != null && Main.cm != null && CollectionManager.collection != null) {
-        //     String type = CollectionManager.collection.getClass().getSimpleName();
-        //     String creationTime = Main.cm.getTimeOfCreation() != null ? Main.cm.getTimeOfCreation() : "N/A";
-        //     int size = CollectionManager.collection.size();
-        //     String formatKey = "statusBar.collectionInfoFormat";
-        //     String infoText = String.format(LocalisationManager.getString(formatKey), type, creationTime, size);
-        //     collectionInfoLabel.setText(infoText);
-        // }
+        String type = "N/A";
+        String creationTime = "N/A";
+        int size = 0;
+
+        if (CollectionManager.collection != null) { // Проверяем, что коллекция не null
+            type = CollectionManager.collection.getClass().getSimpleName();
+            size = CollectionManager.collection.size();
+        }
+        if (Main.cm != null && Main.cm.getTimeOfCreation() != null) { // Проверяем cm и время создания
+            creationTime = Main.cm.getTimeOfCreation();
+        }
+
+        String formatKey = "info.collectionDetailsFormat";
+        String infoText = String.format(LocalisationManager.getString(formatKey), type, creationTime, size);
+        collectionInfoLabel.setText(infoText);
     }
 
     private void handleAddCommand() {
@@ -636,15 +603,11 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
                 try {
                     Command addCmd = Main.inv.commands.get("add");
                     if (addCmd != null) {
-                        // Вызываем execute. Command.execute вызовет bodyOfDBCommand.
-                        // Если bodyOfDBCommand вернет true, Command.execute обновит CollectionManager.collection
-                        addCmd.execute(""); // Аргумент пуст для команды add из GUI
+                        addCmd.execute("");
 
-                        // После выполнения команды, CollectionManager.collection должен быть обновлен внутри Command.execute
-                        // Нам нужно только обновить модель таблицы и статус-бар
                         hbTableModel.updateData(CollectionManager.collection);
-                        updateStatusBarInfo(); // Предполагаем, что этот метод обновляет инфо о коллекции
-                        // TODO: Обновить визуализацию, когда она будет
+                        updateStatusBarInfo();
+                        updateVisualization();
 
                         JOptionPane.showMessageDialog(this,
                                 LocalisationManager.getString("dialog.message.objectAdded"),
@@ -699,7 +662,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
                     if (success != null && success) {
                         hbTableModel.updateData(CollectionManager.collection);
                         updateStatusBarInfo();
-                        // TODO: update visualization
+                        updateVisualization();
 
                         JOptionPane.showMessageDialog(this,
                                 LocalisationManager.getString("dialog.message.collectionCleared"),
@@ -722,5 +685,55 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
     }
 
+    private void handleAddIfMinCommand() {
+        HumanBeingDialog dialog = new HumanBeingDialog(this, null);
+        dialog.setVisible(true);
 
+        if (dialog.isSaved()) {
+            HumanBeing newHuman = dialog.getHumanBeing();
+            if (newHuman != null) {
+                HumanBeing minElement = Main.cm.findMin();
+
+                boolean canAdd = false;
+                if (minElement == null) {
+                    canAdd = true;
+                } else {
+                    if (newHuman.compareTo(minElement) < 0) {
+                        canAdd = true;
+                    }
+                }
+
+                if (canAdd) {
+                    boolean dbSuccess = Main.db.add(newHuman, Main.username);
+                    if (dbSuccess) {
+                        Main.cm.startCM(false);
+                        hbTableModel.updateData(CollectionManager.collection);
+                        updateStatusBarInfo();
+                        updateVisualization();
+
+                        JOptionPane.showMessageDialog(this,
+                                LocalisationManager.getString("dialog.message.objectAdded") + " (" + LocalisationManager.getString("text.asMin") + ")", // text.asMin=как минимальный
+                                LocalisationManager.getString("command.addIfMin"),
+                                JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(this,
+                                LocalisationManager.getString("command.error.addFailed"),
+                                LocalisationManager.getString("dialog.title.error"),
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            LocalisationManager.getString("message.addIfMin.notAddedNotMin"), // Новый ключ
+                            LocalisationManager.getString("dialog.title.info"),
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+        }
+    }
+
+    public void updateVisualization() {
+        if (visualizationPanel != null && CollectionManager.collection != null) {
+            visualizationPanel.setHumanBeings(new ArrayList<>(CollectionManager.collection));
+        }
+    }
 }

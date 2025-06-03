@@ -198,6 +198,7 @@ public class HumanBeingDialog extends JDialog implements PropertyChangeListener 
         }
         soundtrackNameField.setText(hb.getSoundtrackName());
         weaponTypeComboBox.setSelectedItem(hb.getWeaponType()); // Модель сама найдет нужный объект
+        weaponTypeComboBox.setSelectedItem(hb.getWeaponType()); // Модель сама найдет нужный объект
         moodComboBox.setSelectedItem(hb.getMood());             // Модель сама найдет нужный объект
         if (hb.getCar() != null) {
             carNameField.setText(hb.getCar().getName());
