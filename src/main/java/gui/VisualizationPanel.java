@@ -239,36 +239,34 @@ import java.util.List;
 public class VisualizationPanel extends JPanel {
 
     private List<HumanBeing> humanBeingsToDraw;
-    private Map<Integer, Color> userColorMap; // Для цвета пользователя
+    private Map<Integer, Color> userColorMap;
     private Random randomColorGenerator;
-    private Color myUserColor = Color.BLUE; // Цвет объектов текущего пользователя
+    private Color myUserColor = Color.BLUE;
     private int currentUserId = -1;
 
-    // Для масштабирования и правильного отображения координат
-    private double dataMinX, dataMaxX, dataMinY, dataMaxY; // Границы данных
+    private double dataMinX;
+    private double dataMaxX;
+    private double dataMinY;
+    private double dataMaxY;
     private boolean boundsHaveBeenCalculated = false;
 
-    // Параметры объектов и анимации
-    private static final int TARGET_OBJECT_DIAMETER = 20; // Целевой диаметр объекта
-    private static final int PADDING = 30; // Отступы от краев панели
-    private static final int ANIMATION_TOTAL_STEPS = 20; // Количество шагов для анимации "вырастания"
-    private static final int ANIMATION_FRAME_DELAY = 25; // мс между кадрами анимации (~40 FPS)
+    private static final int TARGET_OBJECT_DIAMETER = 20;
+    private static final int PADDING = 30;
+    private static final int ANIMATION_TOTAL_STEPS = 20;
+    private static final int ANIMATION_FRAME_DELAY = 25;
 
-    // Хранение экранных представлений объектов для кликов
     private List<Shape> drawnObjectScreenShapes;
     private List<HumanBeing> drawnObjectsReferences;
 
-    // Для анимации "вырастания"
     private Timer animationTimer;
-    private Map<Integer, AnimationState> objectAnimationStates; // ID объекта -> его состояние анимации
+    private Map<Integer, AnimationState> objectAnimationStates;
 
-    // Внутренний класс для состояния анимации
     private static class AnimationState {
         int currentDiameter;
-        boolean isAppearing; // true, если объект сейчас в процессе "появления"
+        boolean isAppearing;
 
         AnimationState() {
-            this.currentDiameter = 0; // Начинаем с нулевого размера
+            this.currentDiameter = 0;
             this.isAppearing = true;
         }
     }
@@ -281,21 +279,16 @@ public class VisualizationPanel extends JPanel {
         this.drawnObjectsReferences = new ArrayList<>();
         this.objectAnimationStates = new HashMap<>();
 
-        setBackground(Color.LIGHT_GRAY); // Немного другой фон для наглядности
+        setBackground(Color.LIGHT_GRAY);
 
-        // Получаем ID текущего пользователя (если он уже известен)
         if (Main.username != null && !Main.username.isEmpty() && Main.db != null) {
             this.currentUserId = Main.db.findUserIDbyUsername(Main.username);
         }
 
-        // Таймер для анимации
         animationTimer = new Timer(ANIMATION_FRAME_DELAY, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 boolean needsRepaint = false;
-                // Важно: итерироваться по ключам objectAnimationStates, чтобы избежать ConcurrentModificationException,
-                // если мы будем удалять из него элементы внутри цикла. Но лучше удалять после.
-                // Или использовать копию ключей.
                 List<Integer> idsToAnimate = new ArrayList<>(objectAnimationStates.keySet());
 
                 for (Integer humanId : idsToAnimate) {
@@ -306,7 +299,6 @@ public class VisualizationPanel extends JPanel {
                             state.currentDiameter = TARGET_OBJECT_DIAMETER;
                             state.isAppearing = false; // Анимация завершена
                         }
-                        // objectAnimationStates.put(humanId, state); // Map обновится по ссылке, но для ясности можно
                         needsRepaint = true;
                     }
                 }
@@ -314,31 +306,23 @@ public class VisualizationPanel extends JPanel {
                 if (needsRepaint) {
                     repaint();
                 }
-                // Если все анимации завершены, таймер можно остановить, но для простоты пока оставим его работать.
             }
         });
         animationTimer.start();
 
-        // Обработчик кликов мыши
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) { // Левая кнопка мыши
+                if (e.getButton() == MouseEvent.BUTTON1) {
                     Point clickPoint = e.getPoint();
-                    // Итерируемся в обратном порядке, чтобы сначала проверять объекты "сверху"
                     for (int i = drawnObjectScreenShapes.size() - 1; i >= 0; i--) {
                         Shape shape = drawnObjectScreenShapes.get(i);
                         if (shape != null && shape.contains(clickPoint)) {
                             HumanBeing clickedHuman = drawnObjectsReferences.get(i);
-                            // Открываем диалог просмотра для этого объекта
                             Frame parentFrame = (Frame) SwingUtilities.getWindowAncestor(VisualizationPanel.this);
                             ViewHumanDialog viewDialog = new ViewHumanDialog(parentFrame, clickedHuman);
                             viewDialog.setVisible(true);
-
-                            // Если ViewHumanDialog изменил данные (например, удалил или отредактировал),
-                            // то MainWindow должен будет обновить всю информацию.
-                            // ViewHumanDialog теперь сам вызывает обновление MainWindow.
-                            break; // Объект найден и обработан
+                            break;
                         }
                     }
                 }
@@ -353,19 +337,15 @@ public class VisualizationPanel extends JPanel {
             this.humanBeingsToDraw = new ArrayList<>();
         }
 
-        // Создаем новую карту состояний анимации на основе текущего списка объектов
         Map<Integer, AnimationState> nextAnimationStates = new HashMap<>();
         for (HumanBeing human : this.humanBeingsToDraw) {
             AnimationState existingState = this.objectAnimationStates.get(human.getId());
             if (existingState != null) {
-                // Если объект уже был, переносим его состояние анимации
-                // Если он уже появился, его currentDiameter должен быть TARGET_OBJECT_DIAMETER
                 if (!existingState.isAppearing) {
                     existingState.currentDiameter = TARGET_OBJECT_DIAMETER;
                 }
                 nextAnimationStates.put(human.getId(), existingState);
             } else {
-                // Это новый объект, создаем для него новое состояние анимации (начнется с 0)
                 nextAnimationStates.put(human.getId(), new AnimationState());
             }
         }
@@ -373,8 +353,6 @@ public class VisualizationPanel extends JPanel {
 
         calculateDataBounds();
         if (!animationTimer.isRunning() && !this.humanBeingsToDraw.isEmpty()) {
-            // Запускаем таймер, если он был остановлен и есть что анимировать
-            // animationTimer.start(); // Обычно он и так работает
         }
         repaint();
     }
@@ -397,24 +375,23 @@ public class VisualizationPanel extends JPanel {
             }
         }
 
-        // Если все объекты в одной точке или нет объектов с координатами
         if (dataMinX == Double.MAX_VALUE || dataMinX == dataMaxX) {
-            dataMinX = (dataMinX == Double.MAX_VALUE) ? -5 : dataMinX - 5; // Добавляем диапазон
+            dataMinX = (dataMinX == Double.MAX_VALUE) ? -5 : dataMinX - 5;
             dataMaxX = dataMinX + 10;
         }
         if (dataMinY == Double.MAX_VALUE || dataMinY == dataMaxY) {
-            dataMinY = (dataMinY == Double.MAX_VALUE) ? -5 : dataMinY - 5; // Добавляем диапазон
+            dataMinY = (dataMinY == Double.MAX_VALUE) ? -5 : dataMinY - 5;
             dataMaxY = dataMinY + 10;
         }
         boundsHaveBeenCalculated = true;
     }
 
     private Color getColorForUser(int ownerId) {
-        if (ownerId == currentUserId && currentUserId != -1) { // Проверяем, что currentUserId инициализирован
+        if (ownerId == currentUserId && currentUserId != -1) {
             return myUserColor;
         }
         return userColorMap.computeIfAbsent(ownerId, k -> new Color(
-                randomColorGenerator.nextInt(180) + 50, // от 50 до 229 для более различимых цветов
+                randomColorGenerator.nextInt(180) + 50,
                 randomColorGenerator.nextInt(180) + 50,
                 randomColorGenerator.nextInt(180) + 50));
     }
@@ -426,12 +403,11 @@ public class VisualizationPanel extends JPanel {
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        // Очищаем списки перед каждой перерисовкой (важно!)
         drawnObjectScreenShapes.clear();
         drawnObjectsReferences.clear();
 
         if (humanBeingsToDraw.isEmpty() || !boundsHaveBeenCalculated) {
-            String message = LocalisationManager.getString("visualization.noData"); // "Нет данных для визуализации"
+            String message = LocalisationManager.getString("visualization.noData");
             FontMetrics fm = g2d.getFontMetrics();
             int stringWidth = fm.stringWidth(message);
             g2d.drawString(message, (getWidth() - stringWidth) / 2, getHeight() / 2);
@@ -444,39 +420,32 @@ public class VisualizationPanel extends JPanel {
         int drawableWidth = panelWidth - 2 * PADDING;
         int drawableHeight = panelHeight - 2 * PADDING;
 
-        if (drawableWidth <= 0 || drawableHeight <= 0) { // Панель слишком мала
+        if (drawableWidth <= 0 || drawableHeight <= 0) {
             g2d.dispose();
             return;
         }
 
         double dataRangeX = dataMaxX - dataMinX;
         double dataRangeY = dataMaxY - dataMinY;
-        // Избегаем деления на ноль, если все объекты в одной точке (уже обработано в calculateDataBounds)
 
         double scaleX = (dataRangeX == 0) ? 1 : drawableWidth / dataRangeX;
         double scaleY = (dataRangeY == 0) ? 1 : drawableHeight / dataRangeY;
 
-        // Чтобы сохранить пропорции, можно выбрать минимальный масштаб
-        // double scale = Math.min(scaleX, scaleY);
-        // scaleX = scale;
-        // scaleY = scale;
 
         for (HumanBeing human : humanBeingsToDraw) {
             if (human.getCoordinates() == null) continue;
 
             Coordinates coords = human.getCoordinates();
-            AnimationState animState = objectAnimationStates.getOrDefault(human.getId(), new AnimationState()); // Получаем или создаем состояние
-            if(animState.currentDiameter == 0 && animState.isAppearing) { // Если объект новый и анимация не началась
-                objectAnimationStates.put(human.getId(), animState); // Добавляем в карту для анимации
+            AnimationState animState = objectAnimationStates.getOrDefault(human.getId(), new AnimationState());
+            if(animState.currentDiameter == 0 && animState.isAppearing) {
+                objectAnimationStates.put(human.getId(), animState);
             }
 
 
             int currentAnimatedDiameter = animState.currentDiameter;
-            if (currentAnimatedDiameter <= 0) continue; // Если еще не начал появляться, не рисуем
+            if (currentAnimatedDiameter <= 0) continue;
 
-            // Преобразование мировых координат (где Y растет вверх) в экранные (где Y растет вниз)
             int screenX = PADDING + (int) ((coords.getX() - dataMinX) * scaleX);
-            // Инвертируем Y: значение (Y - minY) масштабируется, а затем вычитается из drawableHeight
             int screenY = PADDING + drawableHeight - (int) ((coords.getY() - dataMinY) * scaleY);
 
 
@@ -492,16 +461,13 @@ public class VisualizationPanel extends JPanel {
             g2d.setColor(getColorForUser(human.getOwnerId()));
             g2d.fill(objectShape);
 
-            g2d.setColor(Color.DARK_GRAY); // Темнее, чем черный, для лучшего контраста с цветными кругами
+            g2d.setColor(Color.DARK_GRAY);
             g2d.draw(objectShape);
 
-            // Опционально: ID объекта
             String idStr = String.valueOf(human.getId());
             FontMetrics fm = g2d.getFontMetrics();
             int idWidth = fm.stringWidth(idStr);
-            // Рисуем текст по центру круга
-            g2d.setColor(Color.BLACK); // Цвет текста
-            // Небольшое смещение, чтобы текст был внутри круга и по центру
+            g2d.setColor(Color.BLACK);
             g2d.drawString(idStr, screenX - idWidth / 2, screenY + fm.getAscent() / 2 - fm.getDescent() / 2 - 1);
         }
         g2d.dispose();

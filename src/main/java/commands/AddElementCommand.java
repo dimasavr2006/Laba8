@@ -1,7 +1,6 @@
 package commands;
 
 import classes.HumanBeing;
-import utils.BuildersOfElement;
 
 import java.nio.file.AccessDeniedException;
 import java.rmi.AccessException;
@@ -20,8 +19,8 @@ public class AddElementCommand extends Command {
 
     int expected = 0;
 
-    static HumanBeing toAdd = null;
-    static BuildersOfElement b = new BuildersOfElement();
+//    static HumanBeing toAdd = null;
+//    static BuildersOfElement b = new BuildersOfElement();
 
     private static HumanBeing objectFromGUI = null;
 
@@ -43,11 +42,6 @@ public class AddElementCommand extends Command {
             System.out.println("Объект из GUI добавлен в локальную коллекцию (операция с БД могла быть неуспешной).");
             objectFromGUI = null;
         }
-//        else if (AddElementCommand.toAdd != null) { // Старый механизм для скриптов/консоли, если он еще используется
-//            cm.add(AddElementCommand.toAdd);
-//            System.out.println("Объект (через статический toAdd) добавлен в локальную коллекцию.");
-//            AddElementCommand.toAdd = null;
-//        }
         else {
             System.err.println("AddElementCommand (bodyOfCommand): Нет объекта для добавления.");
         }

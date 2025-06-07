@@ -28,7 +28,7 @@ public class LocalisationManager {
     public static String getString(String key) {
         if (rb == null) {
             System.err.println("ResourceBundle (rb) не инициализирован. Ключ: " + key);
-            return "!" + key + "!"; // Возвращаем ключ, чтобы было видно проблему
+            return "!" + key + "!";
         }
         try {
             return rb.getString(key);

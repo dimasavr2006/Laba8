@@ -85,14 +85,14 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     public MainWindow() {
         LocalisationManager.addPropertyChangeListener(this);
         hbTableModel = new HBTable();
-        initComponents(); //initComponents теперь будет использовать hbTableModel для получения имен колонок
-        updateTexts();    // Важно вызвать ПОСЛЕ initComponents, чтобы все UI элементы были созданы
+        initComponents();
+        updateTexts();
         setPreferredSize(PREFERRED_WINDOW_SIZE);
         pack();
         setLocationRelativeTo(null);
-        SwingUtilities.invokeLater(() -> { // Установка разделителя
+        SwingUtilities.invokeLater(() -> {
             if (mainSplitPane.getWidth() > 0 && (mainSplitPane.getDividerLocation() < 20 || mainSplitPane.getDividerLocation() > mainSplitPane.getWidth() - 20)) {
-                mainSplitPane.setDividerLocation(0.7); // Больше места для таблицы/фильтров
+                mainSplitPane.setDividerLocation(0.7);
             }
         });
     }
@@ -106,17 +106,15 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             }
         });
 
-        // 1. СОЗДАНИЕ МЕНЮ
         menuBar = new JMenuBar();
 
-        // Меню "Файл"
-        fileMenu = new JMenu(); // Текст установится в updateTexts()
-        exitItem = new JMenuItem(); // Текст установится в updateTexts()
+
+        fileMenu = new JMenu();
+        exitItem = new JMenuItem();
         exitItem.addActionListener(e -> confirmAndExit());
         fileMenu.add(exitItem);
         menuBar.add(fileMenu);
 
-        // Меню "Язык"
         languageMenu = new JMenu();
         ruItem = new JMenuItem();
         ruItem.addActionListener(e -> LocalisationManager.setLocale(LocalisationManager.RU_LOCALE));
@@ -132,7 +130,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         languageMenu.add(esSvItem);
         menuBar.add(languageMenu);
 
-        // Меню "Команды"
         commandsMenu = new JMenu();
         commandsMenu = new JMenu();
         addItem = new JMenuItem();
@@ -167,29 +164,24 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         setJMenuBar(menuBar);
 
 
-        // 2. ИНИЦИАЛИЗАЦИЯ ОСНОВНЫХ ПАНЕЛЕЙ
-        tablePanel = new JPanel(new BorderLayout()); // Главная панель для таблицы и фильтров над ней
-        tablePanel.setBorder(BorderFactory.createTitledBorder("")); // Заголовок будет обновлен в updateTexts
+        tablePanel = new JPanel(new BorderLayout());
+        tablePanel.setBorder(BorderFactory.createTitledBorder(""));
 
         visualizationPanel = new VisualizationPanel();
-        visualizationPanel.setBorder(BorderFactory.createTitledBorder("")); // Заголовок из updateTexts
+        visualizationPanel.setBorder(BorderFactory.createTitledBorder(""));
 
-        // В создании JSplitPane используем visualizationPanelComponent
         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tablePanel, visualizationPanel);
 
-        // 3. СОЗДАНИЕ ПАНЕЛИ ФИЛЬТРОВ (ОДИН НАБОР: КОЛОНКА, ОПЕРАТОР, ЗНАЧЕНИЕ)
         filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 5));
-        filterByLabel = new JLabel(); // Текст "Фильтровать по:" установится в updateTexts
+        filterByLabel = new JLabel();
 
-        // hbTableModel уже инициализирован в конструкторе MainWindow
         columnFilterKeys = hbTableModel.getColumnHeaderKeys();
-        // columnFilterDisplayNames будет заполняться в updateTexts
-        filterColumnComboBox = new JComboBox<>(); // Модель (локализованные имена колонок) заполнится в updateTexts
+        filterColumnComboBox = new JComboBox<>();
 
-        initializeOperatorMap(); // Метод для заполнения карты операторов
-        filterOperatorComboBox = new JComboBox<>(); // Модель (локализованные операторы) заполнится в updateOperatorComboBox
+        initializeOperatorMap();
+        filterOperatorComboBox = new JComboBox<>();
 
-        filterValueTextField = new JTextField(20); // Поле для ввода значения фильтра
+        filterValueTextField = new JTextField(20);
 
         filterPanel.add(filterByLabel);
         filterPanel.add(filterColumnComboBox);
@@ -199,14 +191,12 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
         tablePanel.add(filterPanel, BorderLayout.NORTH);
 
-        // 4. СОЗДАНИЕ И НАСТРОЙКА ТАБЛИЦЫ
         objectTable = new JTable(hbTableModel);
         objectTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
         this.sorter = new TableRowSorter<>(hbTableModel);
         objectTable.setRowSorter(this.sorter);
 
-        // Применение рендереров
         CenterRender centerRenderer = new CenterRender();
         objectTable.setDefaultRenderer(Object.class, centerRenderer);
         objectTable.setDefaultRenderer(String.class, centerRenderer);
@@ -220,14 +210,14 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         objectTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) { // Двойной клик
+                if (e.getClickCount() == 2) {
                     int viewRow = objectTable.rowAtPoint(e.getPoint());
                     if (viewRow >= 0) {
                         int modelRow = objectTable.convertRowIndexToModel(viewRow);
                         HumanBeing selectedHuman = hbTableModel.getHumanBeingAt(modelRow);
                         if (selectedHuman != null) {
                             ViewHumanDialog viewDialog = new ViewHumanDialog(MainWindow.this, selectedHuman);
-                            viewDialog.setVisible(true); // Диалог теперь не строго модальный, но setVisible блокирует до закрытия, если он модальный
+                            viewDialog.setVisible(true);
                             updateVisualization();
                             updateStatusBarInfo();
                         }
@@ -236,7 +226,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             }
         });
 
-        // Центрирование заголовков
         JTableHeader header = objectTable.getTableHeader();
         if (header.getDefaultRenderer() instanceof DefaultTableCellRenderer) {
             ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
@@ -249,7 +238,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             }
         }
 
-        // Настройка кастомных компараторов для сортировщика
         final int MOOD_COLUMN_INDEX = 10;
         final int WEAPON_TYPE_COLUMN_INDEX = 9;
         if (MOOD_COLUMN_INDEX >= 0 && MOOD_COLUMN_INDEX < this.sorter.getModel().getColumnCount()) {
@@ -259,22 +247,22 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             this.sorter.setComparator(WEAPON_TYPE_COLUMN_INDEX, Comparator.comparingInt(wt -> (wt == null) ? Integer.MIN_VALUE : ((WeaponType) wt).getDegreeOfCool()));
         }
 
-        // Настройка ширины колонок
         TableColumnModel columnModel = objectTable.getColumnModel();
-        if (columnModel.getColumnCount() > 0) { columnModel.getColumn(0).setPreferredWidth(40);  /* ID */ }
-        // ... (остальные настройки ширины) ...
-        if (columnModel.getColumnCount() > 13) { columnModel.getColumn(13).setPreferredWidth(70); /* ownerId */ }
+        if (columnModel.getColumnCount() > 0) {
+            columnModel.getColumn(0).setPreferredWidth(40);
+        }
+        if (columnModel.getColumnCount() > 13) {
+            columnModel.getColumn(13).setPreferredWidth(70);
+        }
 
         JScrollPane tableScrollPane = new JScrollPane(objectTable);
         tablePanel.add(tableScrollPane, BorderLayout.CENTER); // Таблица под панелью фильтра
 
-        // 5. СОЗДАНИЕ РАЗДЕЛИТЕЛЯ (SPLITPANE)
         mainSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tablePanel, visualizationPanel);
         mainSplitPane.setResizeWeight(0.7);
         mainSplitPane.setOneTouchExpandable(true);
         mainSplitPane.setContinuousLayout(true);
 
-        // 6. СОЗДАНИЕ СТАТУС-БАРА
         statusBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
         currentUserLabel = new JLabel();
         statusBar.add(currentUserLabel);
@@ -284,13 +272,11 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
          statusBar.add(collectionInfoLabel);
 
 
-        // 7. КОМПОНОВКА ОСНОВНОГО ОКНА (JFrame)
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(mainSplitPane, BorderLayout.CENTER);
         contentPane.add(statusBar, BorderLayout.SOUTH);
 
-        // 8. ПРИВЯЗКА СЛУШАТЕЛЕЙ К ЭЛЕМЕНТАМ ФИЛЬТРА
         DocumentListener singleFilterListener = new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { applySingleColumnFilter(); }
             public void removeUpdate(DocumentEvent e) { applySingleColumnFilter(); }
@@ -385,9 +371,9 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         }
 
         if (filterByLabel != null) {
-            filterByLabel.setText(LocalisationManager.getString("table.filter.labelBy")); // Новый ключ "Фильтровать по:"
+            filterByLabel.setText(LocalisationManager.getString("table.filter.labelBy"));
         }
-        if (filterColumnComboBox != null) { // Обновляем названия колонок
+        if (filterColumnComboBox != null) {
             int previouslySelectedIndex = filterColumnComboBox.getSelectedIndex();
             DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) filterColumnComboBox.getModel();
             model.removeAllElements();
@@ -400,11 +386,10 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
                 filterColumnComboBox.setSelectedIndex(previouslySelectedIndex);
             } else if (model.getSize() > 0) filterColumnComboBox.setSelectedIndex(0);
         }
-        if (filterOperatorComboBox != null) { // Обновляем операторы
-            updateOperatorComboBox(); // Этот метод сам обновит тексты операторов
+        if (filterOperatorComboBox != null) {
+            updateOperatorComboBox();
         }
 
-        // Обновление заголовка панели фильтров (если он есть у JScrollPane)
         if (filterPanel != null && filterPanel.getParent() instanceof JViewport && filterPanel.getParent().getParent() instanceof JScrollPane) {
             JScrollPane filterScrollPane = (JScrollPane) filterPanel.getParent().getParent();
             if (filterScrollPane.getBorder() instanceof TitledBorder) {
@@ -429,11 +414,11 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             String creationTime = "N/A";
             int size = 0;
 
-            if (CollectionManager.collection != null) { // Проверяем, что коллекция не null
+            if (CollectionManager.collection != null) {
                 type = CollectionManager.collection.getClass().getSimpleName();
                 size = CollectionManager.collection.size();
             }
-            if (Main.cm != null && Main.cm.getTimeOfCreation() != null) { // Проверяем cm и время создания
+            if (Main.cm != null && Main.cm.getTimeOfCreation() != null) {
                 creationTime = Main.cm.getTimeOfCreation();
             }
 
@@ -492,7 +477,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         Class<?> columnClass = hbTableModel.getColumnClass(selectedColumnIndex);
         String[] operatorKeys = operatorMap.get(columnClass);
 
-        if (operatorKeys == null) { // Если для типа нет операторов, используем стандартные для String
+        if (operatorKeys == null) {
             operatorKeys = operatorMap.get(String.class);
         }
 
@@ -518,14 +503,9 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         String selectedOperatorKey = null; // Ключ выбранного оператора
 
         if (filterOperatorComboBox.getSelectedItem() != null) {
-            // Нам нужно найти оригинальный ключ оператора, а не его локализованное представление
-            // Для этого при заполнении filterOperatorComboBox нужно хранить и ключи, и отображаемые значения,
-            // либо искать ключ по отображаемому значению (что менее надежно из-за возможной не уникальности переводов).
-
-            // Простой вариант: найти ключ по индексу в массиве ключей для данного типа колонки
             Class<?> columnClass = hbTableModel.getColumnClass(selectedColumnIndex);
             String[] currentOperatorKeys = operatorMap.get(columnClass);
-            if (currentOperatorKeys == null) currentOperatorKeys = operatorMap.get(String.class); // Fallback
+            if (currentOperatorKeys == null) currentOperatorKeys = operatorMap.get(String.class);
 
             if (currentOperatorKeys != null && filterOperatorComboBox.getSelectedIndex() < currentOperatorKeys.length && filterOperatorComboBox.getSelectedIndex() >=0) {
                 selectedOperatorKey = currentOperatorKeys[filterOperatorComboBox.getSelectedIndex()];
@@ -538,7 +518,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             return;
         }
 
-        // Для Boolean операторов значение в filterValueTextField может не требоваться
         boolean valueNeeded = true;
         if (hbTableModel.getColumnClass(selectedColumnIndex) == Boolean.class &&
                 (selectedOperatorKey.equals("operator.isTrue") || selectedOperatorKey.equals("operator.isFalse"))) {
@@ -547,9 +526,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
 
         if (valueNeeded && filterText.trim().isEmpty()) {
-            // Если оператор требует значения, а оно пустое, то не фильтруем (или фильтруем как-то по-особому)
-            // Для операторов типа "is null", "is not null" это было бы валидно.
-            // Пока считаем, что если значение нужно и оно пустое - фильтр не применяем
             sorter.setRowFilter(null);
             return;
         }
@@ -568,21 +544,18 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             String usernameText = (Main.username != null && !Main.username.isEmpty()) ? Main.username : "N/A";
             currentUserLabel.setText(LocalisationManager.getString("mainWindow.label.currentUser") + " " + usernameText);
         }
-        // Добавь сюда обновление метки с количеством элементов, если она есть
-        // if (collectionInfoLabel != null) { ... }
-        if (hbTableModel != null) { // Для обновления количества элементов в статусной строке, если она есть
-            // Это вызовет updateTexts, который обновит и collectionInfoLabel
-            // Либо можно напрямую обновлять collectionInfoLabel
+        if (hbTableModel != null) {
+
         }
         String type = "N/A";
         String creationTime = "N/A";
         int size = 0;
 
-        if (CollectionManager.collection != null) { // Проверяем, что коллекция не null
+        if (CollectionManager.collection != null) {
             type = CollectionManager.collection.getClass().getSimpleName();
             size = CollectionManager.collection.size();
         }
-        if (Main.cm != null && Main.cm.getTimeOfCreation() != null) { // Проверяем cm и время создания
+        if (Main.cm != null && Main.cm.getTimeOfCreation() != null) {
             creationTime = Main.cm.getTimeOfCreation();
         }
 
@@ -592,13 +565,12 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
     }
 
     private void handleAddCommand() {
-        HumanBeingDialog dialog = new HumanBeingDialog(this, null); // null для нового объекта
+        HumanBeingDialog dialog = new HumanBeingDialog(this, null);
         dialog.setVisible(true);
 
         if (dialog.isSaved()) {
             HumanBeing newHuman = dialog.getHumanBeing();
             if (newHuman != null) {
-                // Используем сеттер в команде
                 AddElementCommand.setObjectFromGUI(newHuman);
                 try {
                     Command addCmd = Main.inv.commands.get("add");
@@ -620,7 +592,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
                                 LocalisationManager.getString("dialog.title.error"),
                                 JOptionPane.ERROR_MESSAGE);
                     }
-                } catch (Exception ex) { // Ловим более общие исключения от команды
+                } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this,
                             LocalisationManager.getString("command.error.addFailed") + "\n" + ex.getMessage(),
                             LocalisationManager.getString("dialog.title.error"),
@@ -637,7 +609,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
         String yesButtonText = LocalisationManager.getString("button.yes");
         String noButtonText = LocalisationManager.getString("button.no");
 
-        // Fallback
         if (dialogTitle.startsWith("?")) dialogTitle = "Clear Collection";
         if (dialogMessage.startsWith("?")) dialogMessage = "Are you sure you want to clear all your items from the collection?";
         if (yesButtonText.startsWith("?")) yesButtonText = "Yes";
@@ -653,7 +624,6 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
 
         if (response == 0) { // Yes
             try {
-                // Вызываем существующую команду ClearCommand через Invoker
                 Command clearCmd = Main.inv.commands.get("clear");
                 if (clearCmd != null) {
                     Command.setUsernameAgain();
@@ -712,7 +682,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
                         updateVisualization();
 
                         JOptionPane.showMessageDialog(this,
-                                LocalisationManager.getString("dialog.message.objectAdded") + " (" + LocalisationManager.getString("text.asMin") + ")", // text.asMin=как минимальный
+                                LocalisationManager.getString("dialog.message.objectAdded") + " (" + LocalisationManager.getString("text.asMin") + ")",
                                 LocalisationManager.getString("command.addIfMin"),
                                 JOptionPane.INFORMATION_MESSAGE);
                     } else {
@@ -723,7 +693,7 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
                     }
                 } else {
                     JOptionPane.showMessageDialog(this,
-                            LocalisationManager.getString("message.addIfMin.notAddedNotMin"), // Новый ключ
+                            LocalisationManager.getString("message.addIfMin.notAddedNotMin"),
                             LocalisationManager.getString("dialog.title.info"),
                             JOptionPane.INFORMATION_MESSAGE);
                 }

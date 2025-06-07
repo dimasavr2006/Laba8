@@ -80,7 +80,6 @@ public class LoginDialog extends JDialog implements PropertyChangeListener {
                 "mainWindow.menu.language.french",
                 "mainWindow.menu.language.spanish_sv"
         };
-        // Отображаемые значения для JComboBox
         String[] displayLanguages = new String[languages.length];
         for (int i = 0; i < languages.length; i++) {
             displayLanguages[i] = LocalisationManager.getString(languages[i]);

@@ -56,7 +56,7 @@ public class Main {
             return;
         }
 
-        LoginDialog loginDialog = new LoginDialog(null, db); // Передаем db
+        LoginDialog loginDialog = new LoginDialog(null, db);
         loginDialog.setVisible(true);
 
         if (loginDialog.isSucceeded() && Main.login) {

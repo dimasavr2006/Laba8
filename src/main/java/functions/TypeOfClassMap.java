@@ -18,9 +18,8 @@ public class TypeOfClassMap {
         classMap.put(Short.class, Short::parseShort);
         classMap.put(Byte.class, Byte::parseByte);
         classMap.put(WeaponType.class, WeaponType::valueOf);
-        classMap.put(String.class, String::valueOf); // classMap.put(String.class, Function.identity()); ?????
+        classMap.put(String.class, String::valueOf);
         classMap.put(Mood.class, Mood::valueOf);
-//        classMap.put(Boolean.class, Boolean::parseBoolean);
         classMap.put(Boolean.class, s -> {
             if (s.equalsIgnoreCase("true") || s.equalsIgnoreCase("false")) {
                 return Boolean.parseBoolean(s);

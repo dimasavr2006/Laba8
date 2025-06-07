@@ -106,8 +106,8 @@ public class HBTable extends AbstractTableModel {
                 case 6: return human.isHasToothpick();
                 case 7: return human.getImpactSpeed();
                 case 8: return human.getSoundtrackName();
-                case 9: return human.getWeaponType();   // <-- ИЗМЕНЕНО: возвращаем сам enum WeaponType
-                case 10: return human.getMood();       // <-- ИЗМЕНЕНО: возвращаем сам enum Mood
+                case 9: return human.getWeaponType();
+                case 10: return human.getMood();
                 case 11: return human.getCar() != null ? human.getCar().getName() : LocalisationManager.getString("text.noCar");
                 case 12: return human.getCar() != null ? human.getCar().isCool() : null;
                 case 13: return human.getOwnerId();

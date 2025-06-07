@@ -494,7 +494,7 @@ public boolean add(HumanBeing hb, String username) {
             conn.setAutoCommit(false);
 
             try (PreparedStatement psClearCollection = conn.prepareStatement(
-                    "DELETE FROM collection WHERE owner_id = ?")) {
+                    "DELETE FROM hb WHERE id IN (SELECT element_id FROM collection WHERE owner_id = ?)")) {
                 psClearCollection.setInt(1, ownerId);
                 int affectedRows = psClearCollection.executeUpdate();
 

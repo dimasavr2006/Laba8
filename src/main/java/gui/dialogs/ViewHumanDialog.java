@@ -13,16 +13,35 @@ import java.util.Locale;
 
 public class ViewHumanDialog extends JDialog {
 
-    // Метки для отображения данных
-    private JLabel idValLabel, nameValLabel, coordXValLabel, coordYValLabel, creationDateValLabel,
-            realHeroValLabel, hasToothpickValLabel, impactSpeedValLabel, soundtrackNameValLabel,
-            weaponTypeValLabel, moodValLabel, carNameValLabel, carCoolValLabel, ownerIdValLabel;
+    private JLabel idValLabel;
+    private JLabel nameValLabel;
+    private JLabel coordXValLabel;
+    private JLabel coordYValLabel;
+    private JLabel creationDateValLabel;
+    private JLabel realHeroValLabel;
+    private JLabel hasToothpickValLabel;
+    private JLabel impactSpeedValLabel;
+    private JLabel soundtrackNameValLabel;
+    private JLabel weaponTypeValLabel;
+    private JLabel moodValLabel;
+    private JLabel carNameValLabel;
+    private JLabel carCoolValLabel;
+    private JLabel ownerIdValLabel;
 
-    // Метки для названий полей (будут локализованы)
-    private JLabel idLabel, nameLabel, coordXLabelText, coordYLabelText, creationDateLabelText,
-            realHeroLabelText, hasToothpickLabelText, impactSpeedLabelText, soundtrackNameLabelText,
-            weaponTypeLabelText, moodLabelText, carNameLabelText, carCoolLabelText, ownerIdLabelText;
-
+    private JLabel idLabel;
+    private JLabel nameLabel;
+    private JLabel coordXLabelText;
+    private JLabel coordYLabelText;
+    private JLabel creationDateLabelText;
+    private JLabel realHeroLabelText;
+    private JLabel hasToothpickLabelText;
+    private JLabel impactSpeedLabelText;
+    private JLabel soundtrackNameLabelText;
+    private JLabel weaponTypeLabelText;
+    private JLabel moodLabelText;
+    private JLabel carNameLabelText;
+    private JLabel carCoolLabelText;
+    private JLabel ownerIdLabelText;
 
     private JButton closeButton, editButton, deleteButton;
 
@@ -33,9 +52,8 @@ public class ViewHumanDialog extends JDialog {
 
     public ViewHumanDialog(Frame parent, HumanBeing humanBeing) {
         super(parent, LocalisationManager.getString("visualization.objectInfo.title"), false); // Немодальный
-        this.ownerFrame = parent; // Сохраняем MainWindow
+        this.ownerFrame = parent;
         this.humanBeingToView = humanBeing;
-        // ... (LocalisationManager.addPropertyChangeListener(this); - если нужно обновление открытого диалога)
         initComponents();
         populateFields();
         updateTexts();
@@ -53,21 +71,37 @@ public class ViewHumanDialog extends JDialog {
 
         int gridY = 0;
 
-        // Инициализация всех меток-названий
-        idLabel = new JLabel(); coordXLabelText = new JLabel(); nameLabel = new JLabel();
-        coordYLabelText = new JLabel(); creationDateLabelText = new JLabel(); realHeroLabelText = new JLabel();
-        hasToothpickLabelText = new JLabel(); impactSpeedLabelText = new JLabel(); soundtrackNameLabelText = new JLabel();
-        weaponTypeLabelText = new JLabel(); moodLabelText = new JLabel(); carNameLabelText = new JLabel();
-        carCoolLabelText = new JLabel(); ownerIdLabelText = new JLabel();
 
-        // Инициализация всех меток-значений
-        idValLabel = new JLabel(); nameValLabel = new JLabel(); coordXValLabel = new JLabel();
-        coordYValLabel = new JLabel(); creationDateValLabel = new JLabel(); realHeroValLabel = new JLabel();
-        hasToothpickValLabel = new JLabel(); impactSpeedValLabel = new JLabel(); soundtrackNameValLabel = new JLabel();
-        weaponTypeValLabel = new JLabel(); moodValLabel = new JLabel(); carNameValLabel = new JLabel();
-        carCoolValLabel = new JLabel(); ownerIdValLabel = new JLabel();
+        idLabel = new JLabel();
+        coordXLabelText = new JLabel();
+        nameLabel = new JLabel();
+        coordYLabelText = new JLabel();
+        creationDateLabelText = new JLabel();
+        realHeroLabelText = new JLabel();
+        hasToothpickLabelText = new JLabel();
+        impactSpeedLabelText = new JLabel();
+        soundtrackNameLabelText = new JLabel();
+        weaponTypeLabelText = new JLabel();
+        moodLabelText = new JLabel();
+        carNameLabelText = new JLabel();
+        carCoolLabelText = new JLabel();
+        ownerIdLabelText = new JLabel();
 
-        // Добавляем пары метка-значение
+        idValLabel = new JLabel();
+        nameValLabel = new JLabel();
+        coordXValLabel = new JLabel();
+        coordYValLabel = new JLabel();
+        creationDateValLabel = new JLabel();
+        realHeroValLabel = new JLabel();
+        hasToothpickValLabel = new JLabel();
+        impactSpeedValLabel = new JLabel();
+        soundtrackNameValLabel = new JLabel();
+        weaponTypeValLabel = new JLabel();
+        moodValLabel = new JLabel();
+        carNameValLabel = new JLabel();
+        carCoolValLabel = new JLabel();
+        ownerIdValLabel = new JLabel();
+
         addField(idLabel, idValLabel, gridY++, gbc);
         addField(nameLabel, nameValLabel, gridY++, gbc);
         addField(coordXLabelText, coordXValLabel, gridY++, gbc);
@@ -84,9 +118,8 @@ public class ViewHumanDialog extends JDialog {
         addField(ownerIdLabelText, ownerIdValLabel, gridY++, gbc);
 
 
-        // Кнопки
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        closeButton = new JButton(); // Текст из LocalisationManager
+        closeButton = new JButton();
         editButton = new JButton();
         deleteButton = new JButton();
 
@@ -169,14 +202,12 @@ public class ViewHumanDialog extends JDialog {
          if(editButton != null) editButton.setText(LocalisationManager.getString("table.button.edit"));
          if(deleteButton != null) deleteButton.setText(LocalisationManager.getString("table.button.delete"));
 
-        // Если данные уже загружены, обновить их отображение с новой локалью
         populateFields();
     }
 
     private void onEdit() {
         int currentUserId = Main.db.findUserIDbyUsername(Main.username);
         if (humanBeingToView.getOwnerId() == currentUserId) {
-            // this.setVisible(false); // Можно не скрывать, HumanBeingDialog будет модальным поверх него
 
             HumanBeingDialog editDialog = new HumanBeingDialog(this.ownerFrame, humanBeingToView);
             editDialog.setVisible(true);
@@ -190,25 +221,25 @@ public class ViewHumanDialog extends JDialog {
                         Main.cm.startCM(false);
                         mw.getHbTableModel().updateData(CollectionManager.collection);
                         mw.updateStatusBarInfo();
+                        mw.updateVisualization();
+                        
                     }
                     JOptionPane.showMessageDialog(ownerFrame, LocalisationManager.getString("dialog.message.objectUpdated"), LocalisationManager.getString("dialog.title.info"), JOptionPane.INFORMATION_MESSAGE);
-                    dispose(); // Закрываем ViewHumanDialog, так как редактирование завершено
+                    dispose();
                 } else {
                     JOptionPane.showMessageDialog(ownerFrame, LocalisationManager.getString("command.error.updateFailed"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
                 }
             }
-            // Если редактирование отменено, ViewHumanDialog остается открытым (если не был скрыт)
         } else {
             JOptionPane.showMessageDialog(this, LocalisationManager.getString("dialog.addEdit.validation.notYourObject"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void onDelete() {
-        int currentUserId = Main.db.findUserIDbyUsername(Main.username); // Получаем ID текущего пользователя
-        if (humanBeingToView.getOwnerId() == currentUserId) { // Проверяем, принадлежит ли объект текущему пользователю
+        int currentUserId = Main.db.findUserIDbyUsername(Main.username);
+        if (humanBeingToView.getOwnerId() == currentUserId) {
 
-            // Получаем локализованные тексты для диалога и кнопок
-            String dialogTitle = LocalisationManager.getString("command.remove"); // Или "dialog.title.confirmation"
+            String dialogTitle = LocalisationManager.getString("command.remove");
             String dialogMessage = LocalisationManager.getString("dialog.message.confirmDelete");
             String yesButtonText = LocalisationManager.getString("button.yes");
             String noButtonText = LocalisationManager.getString("button.no");
@@ -250,19 +281,4 @@ public class ViewHumanDialog extends JDialog {
             JOptionPane.showMessageDialog(this, LocalisationManager.getString("dialog.message.notYourObjectToDelete"), LocalisationManager.getString("dialog.title.error"), JOptionPane.ERROR_MESSAGE);
         }
     }
-
-
-    // Если диалог должен обновляться при смене языка, пока он открыт
-    // @Override
-    // public void propertyChange(PropertyChangeEvent evt) {
-    //     if (LocalisationManager.LOCALE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
-    //         SwingUtilities.invokeLater(this::updateTexts);
-    //     }
-    // }
-    //
-    // @Override
-    // public void dispose() {
-    //     LocalisationManager.removePropertyChangeListener(this);
-    //     super.dispose();
-    // }
 }

@@ -1,8 +1,5 @@
 package commands;
 
-import java.nio.file.AccessDeniedException;
-import java.rmi.AccessException;
-
 /**
  * @author Dimasavr
  */
@@ -27,7 +24,7 @@ public class ClearCommand extends Command {
     }
 
     @Override
-    public Boolean bodyOfDBCommand(String argument) throws AccessException, AccessDeniedException {
+    public Boolean bodyOfDBCommand(String argument) {
         return db.clear(argument);
     }
 
